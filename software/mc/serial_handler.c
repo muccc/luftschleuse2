@@ -9,6 +9,16 @@ static uint8_t serial_message[SERIAL_BUFFERLEN];
 static uint8_t serial_command;
 static uint16_t serial_messagelen;
 
+uint16_t serial_getMessageLen(void)
+{
+    return serial_messagelen;
+}
+
+uint8_t * serial_getMessage(void)
+{
+    return serial_message;
+}
+
 inline void serial_putcenc(uint8_t c)
 {
     if( c == SERIAL_ESCAPE )
