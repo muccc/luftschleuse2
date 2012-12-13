@@ -18,6 +18,7 @@
 *.app
 
 .dep
+*.lst
 
 ################### Python
 *.py[cod]
