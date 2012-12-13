@@ -17,11 +17,11 @@ class SerialInterface:
             self.ser = serial.Serial(path2device, baudrate)
             self.path2device = path2device
             self.baudrate = baudrate
-            self.timeout = timeout+1
+            self.timeout = timeout
             self.ser.flushInput()
             self.ser.flushOutput()
             if timeout:
-                self.ser.setTimeout(timeout+1)
+                self.ser.setTimeout(timeout)
             self.portopen = True
             self.last = time.time()
 
@@ -45,7 +45,7 @@ class SerialInterface:
         print "done"
 
     def writeMessage(self,command,message):
-        enc = "\\"+ command + message.replace('\\','\\\\') + "\\0";
+        enc = "\\"+ command + message.replace('\\','\\\\') + "\\9";
         print 'writing %s' % list(enc)
         try:
             self.ser.write(enc)
@@ -72,10 +72,15 @@ class SerialInterface:
         command = ''
         while True:
             starttime = time.time()
-            c = self.ser.read(1)
+            try:
+                c = self.ser.read(1)
+            except:
+                print "port broken 2"
+                self.reinit()
+                return (False, '')
             endtime = time.time()
             if len(c) == 0:             #A timout occured
-                if endtime-starttime < self.timeout - 1:
+                if endtime-starttime < self.timeout:
                     print "port broken"
                     self.reinit()
                     raise Exception()
