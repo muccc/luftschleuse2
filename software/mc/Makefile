@@ -127,6 +127,13 @@ EXTRAINCDIRS = ../avr-crypto-lib
 #     gnu99 = c99 plus GCC extensions
 CSTANDARD = -std=gnu99
 
+# List any extra directories to look for libraries here.
+#     Each directory must be seperated by a space.
+#     Use forward slashes for directory separators.
+#     For a directory that has spaces, enclose it in quotes.
+EXTRALIBDIRS = ../avr-crypto-lib 
+
+LIBS = -lavr-crypto
 
 # Place -D or -U options here for C sources
 CDEFS = -DF_CPU=$(F_CPU)UL
@@ -232,12 +239,6 @@ SCANF_LIB =
 MATH_LIB = -lm
 
 
-# List any extra directories to look for libraries here.
-#     Each directory must be seperated by a space.
-#     Use forward slashes for directory separators.
-#     For a directory that has spaces, enclose it in quotes.
-EXTRALIBDIRS = 
-
 
 
 #---------------- External Memory Options ----------------
@@ -264,7 +265,7 @@ LDFLAGS += $(patsubst %,-L%,$(EXTRALIBDIRS))
 LDFLAGS += $(PRINTF_LIB) $(SCANF_LIB) $(MATH_LIB)
 #LDFLAGS += -T linker_script.x
 LDFLAGS += -ffunction-sections -Wl,--gc-sections
-
+LDFLAGS += $(LIBS)
 
 #---------------- Programming Options (avrdude) ----------------
 
