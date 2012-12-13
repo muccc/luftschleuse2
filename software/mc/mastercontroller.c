@@ -44,7 +44,7 @@ int main(void)
                 uint8_t *msg = serial_getMessage();
                 aes128_dec(msg, &ctx); /* decrypting the data block */
                 serial_sendFrame(1, msg, 16);
-                if( msg[0] == '0' ){    
+                if( msg[0] == 0 ){    
                     PORTA ^= 0x01;
                 }
             }
