@@ -3,7 +3,7 @@ import serialinterface
 import sys
 import time
 from Crypto.Cipher import AES
-from struct import pack, unpack
+import packet
 
 
 config = ConfigParser.RawConfigParser()
@@ -17,13 +17,17 @@ masterkey =''.join([chr(int(x)) for x in masterkey.split()])
 ser = serialinterface.SerialInterface(serialdevice, baudrate, timeout=.1)
 cipher = AES.new(masterkey, AES.MODE_ECB)
 
-msgformat = ">IB5s2sI"
-cmd = pack(msgformat, 0, 0, '', '',0)
+seq = 0
 
 while True:
-    msg = cipher.encrypt(cmd)
+    seq+=1
+    p = packet.Packet(seq=seq, cmd=ord('L'), data='')
+    msg = cipher.encrypt(p.toMessage())
     ser.writeMessage('0', msg)
-    for i in range(5):
-        print ser.readMessage()
+    #for i in range(5):
+    #    print ser.readMessage()
+    time.sleep(.002)
     print time.time()
+    ser.writeMessage('A', msg)
+    time.sleep(.002)
 

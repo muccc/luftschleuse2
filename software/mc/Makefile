@@ -39,10 +39,6 @@
 # To rebuild project do "make clean" then "make all".
 #----------------------------------------------------------------------------
 
-# ACAB Lamp
-#MCU = atmega324p
-
-# Moodlamp
 MCU = atmega644p
 
 
@@ -86,7 +82,14 @@ OBJDIR = .
 # List C source files here. (C dependencies are automatically generated.)
 SRC = $(TARGET).c \
 serial_handler.c \
-uart.c
+serial_process.c \
+../common/aes.c \
+../common/timer0.c \
+command_process.c \
+../common/bus_handler.c \
+bus_process.c \
+../common/uart.c \
+../common/adc.c
 
 # List C++ source files here. (C dependencies are automatically generated.)
 CPPSRC = 
@@ -119,7 +122,7 @@ DEBUG = stabs
 #     Each directory must be seperated by a space.
 #     Use forward slashes for directory separators.
 #     For a directory that has spaces, enclose it in quotes.
-EXTRAINCDIRS = ../avr-crypto-lib 
+EXTRAINCDIRS = ../avr-crypto-lib ../common
 
 
 # Compiler flag to set the C Standard level.
@@ -166,13 +169,13 @@ CFLAGS += -Wstrict-prototypes
 #CFLAGS += -mshort-calls
 #CFLAGS += -fno-unit-at-a-time
 #CFLAGS += -Wundef
-#CFLAGS += -Wunreachable-code
+CFLAGS += -Wunreachable-code
 #CFLAGS += -Wsign-compare
 CFLAGS += -Wa,-adhlns=$(<:%.c=$(OBJDIR)/%.lst)
 CFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
 CFLAGS += $(CSTANDARD)
 CFLAGS += -ffunction-sections
-
+CFLAGS += -fno-strict-aliasing
 
 #---------------- Compiler Options C++ ----------------
 #  -g*:          generate debugging information

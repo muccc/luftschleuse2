@@ -84,7 +84,14 @@ OBJDIR = .
 
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = $(TARGET).c
+SRC = $(TARGET).c \
+../common/aes.c \
+../common/timer0.c \
+command_process.c \
+../common/bus_handler.c \
+bus_process.c \
+../common/uart.c \
+../common/adc.c
 
 # List C++ source files here. (C dependencies are automatically generated.)
 CPPSRC = 
@@ -117,7 +124,7 @@ DEBUG = stabs
 #     Each directory must be seperated by a space.
 #     Use forward slashes for directory separators.
 #     For a directory that has spaces, enclose it in quotes.
-EXTRAINCDIRS = ../avr-crypto-lib 
+EXTRAINCDIRS = ../avr-crypto-lib ../common
 
 
 # Compiler flag to set the C Standard level.
@@ -127,6 +134,13 @@ EXTRAINCDIRS = ../avr-crypto-lib
 #     gnu99 = c99 plus GCC extensions
 CSTANDARD = -std=gnu99
 
+# List any extra directories to look for libraries here.
+#     Each directory must be seperated by a space.
+#     Use forward slashes for directory separators.
+#     For a directory that has spaces, enclose it in quotes.
+EXTRALIBDIRS = ../avr-crypto-lib 
+
+LIBS = -lavr-crypto
 
 # Place -D or -U options here for C sources
 CDEFS = -DF_CPU=$(F_CPU)UL
@@ -157,13 +171,13 @@ CFLAGS += -Wstrict-prototypes
 #CFLAGS += -mshort-calls
 #CFLAGS += -fno-unit-at-a-time
 #CFLAGS += -Wundef
-#CFLAGS += -Wunreachable-code
+CFLAGS += -Wunreachable-code
 #CFLAGS += -Wsign-compare
 CFLAGS += -Wa,-adhlns=$(<:%.c=$(OBJDIR)/%.lst)
 CFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
 CFLAGS += $(CSTANDARD)
 CFLAGS += -ffunction-sections
-
+CFLAGS += -fno-strict-aliasing
 
 #---------------- Compiler Options C++ ----------------
 #  -g*:          generate debugging information
@@ -232,12 +246,6 @@ SCANF_LIB =
 MATH_LIB = -lm
 
 
-# List any extra directories to look for libraries here.
-#     Each directory must be seperated by a space.
-#     Use forward slashes for directory separators.
-#     For a directory that has spaces, enclose it in quotes.
-EXTRALIBDIRS = 
-
 
 
 #---------------- External Memory Options ----------------
@@ -264,7 +272,7 @@ LDFLAGS += $(patsubst %,-L%,$(EXTRALIBDIRS))
 LDFLAGS += $(PRINTF_LIB) $(SCANF_LIB) $(MATH_LIB)
 #LDFLAGS += -T linker_script.x
 LDFLAGS += -ffunction-sections -Wl,--gc-sections
-
+LDFLAGS += $(LIBS)
 
 #---------------- Programming Options (avrdude) ----------------
 

@@ -9,6 +9,11 @@ static uint8_t serial_message[SERIAL_BUFFERLEN];
 static uint8_t serial_command;
 static uint16_t serial_messagelen;
 
+void serial_handler_init(void)
+{
+    uart1_init(UART_BAUD_SELECT(UART_BAUDRATE, F_CPU));
+}
+
 uint16_t serial_getMessageLen(void)
 {
     return serial_messagelen;
@@ -19,7 +24,7 @@ uint8_t * serial_getMessage(void)
     return serial_message;
 }
 
-inline void serial_putcenc(uint8_t c)
+ void serial_putcenc(uint8_t c)
 {
     if( c == SERIAL_ESCAPE )
         uart1_putc(SERIAL_ESCAPE);
@@ -45,13 +50,13 @@ void serial_putenc(uint8_t *d, uint16_t n)
     }
 }
 
-inline void serial_putStart(uint8_t command)
+ void serial_putStart(uint8_t command)
 {
     uart1_putc(SERIAL_ESCAPE);
     uart1_putc(command);
 }
 
-inline void serial_putStop(void)
+ void serial_putStop(void)
 {
     uart1_putc(SERIAL_ESCAPE);
     uart1_putc(SERIAL_END);
