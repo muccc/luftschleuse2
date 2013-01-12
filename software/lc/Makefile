@@ -92,6 +92,7 @@ command_process.c \
 bus_process.c \
 ../common/uart.c \
 ../common/adc.c \
+../common/packet.c \
 leds.c \
 door.c \
 buttons.c
