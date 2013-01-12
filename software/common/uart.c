@@ -305,6 +305,10 @@ Purpose:  called when the UART is ready to transmit the next byte
     }
 }
 
+uint8_t uart_busy(void)
+{
+    return UART0_CONTROL & _BV(UART0_UDRIE);
+}
 
 /*************************************************************************
 Function: uart_init()

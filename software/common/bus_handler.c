@@ -11,7 +11,6 @@ static uint8_t bus_message[SERIAL_BUFFERLEN];
 static uint8_t bus_command;
 static uint16_t bus_messagelen;
 static uint8_t bus_sendlock;
-//static uint8_t bus_busy;
 
 void bus_handler_init(void)
 {
@@ -34,7 +33,8 @@ void bus_setRX(void)
 {
     bus_sendlock--;
     if( bus_sendlock == 0 ){
-        _delay_ms(1);
+        while( uart_busy() );
+        _delay_us(100);
         PIN_CLEAR(BUS_TX);
         PIN_CLEAR(BUS_nRX);
     }

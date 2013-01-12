@@ -195,6 +195,7 @@ extern void uart1_puts_p(const char *s );
 
 /**@}*/
 
+extern  uint8_t uart_busy(void);
 
 #endif // UART_H 
 
