@@ -9,4 +9,8 @@ typedef struct{
     uint8_t  magic[6];
 }__attribute__((packed)) packet_t;
 
+#define PACKET_MAGIC    "SESAME"
+
+uint8_t packet_check(packet_t *p);
+
 #endif

@@ -2,6 +2,7 @@
 #include "uart.h"
 #include "serial_handler.h"
 #include "serial_process.h"
+#include "command_process.h"
 #include "bus_handler.h"
 #include "bus_process.h"
 #include "aes.h"

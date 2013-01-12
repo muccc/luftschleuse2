@@ -89,6 +89,7 @@ command_process.c \
 ../common/bus_handler.c \
 bus_process.c \
 ../common/uart.c \
+../common/packet.c \
 ../common/adc.c
 
 # List C++ source files here. (C dependencies are automatically generated.)

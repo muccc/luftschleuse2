@@ -1,5 +1,6 @@
 #include "bus_process.h"
 #include "bus_handler.h"
+#include "serial_handler.h"
 #include "config.h"
 
 static uint8_t bus_nextQueryTarget;
