@@ -19,5 +19,6 @@
 #define BUS_QUERY_START         'A'
 #define BUS_QUERY_AMOUNT        3
 
+#define NODE_ADDRESS    'A'
 #endif
 

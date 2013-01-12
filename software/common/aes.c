@@ -20,8 +20,6 @@ void aes_encrypt(uint8_t *block)
 
 void aes_decrypt(uint8_t *block)
 {
-    PORTC |= (1<<PC0);
     aes128_dec(block, &aes_ctx);
-    PORTC &= ~(1<<PC0);
 }
 

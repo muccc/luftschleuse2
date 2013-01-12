@@ -9,6 +9,7 @@
 #include <avr/wdt.h>
 #include <avr/interrupt.h>
 #include <avr/eeprom.h>
+#include <util/delay.h>
 #include <string.h>
 #include <stdint.h>
 
@@ -30,9 +31,7 @@ int main(void)
     WDTCSR |= (1<<WDCE) | (1<<WDE);
     /* Turn off WDT */
     WDTCSR = 0x00;
-    DDRA |= 0x07;
-    PORTA &= ~7;
-    DDRC |= 0x07;
+    DDRC |= 0xC0;
 
     eeprom_read_block(&state, &state_ee, sizeof(state));
     aes_handler_init();
@@ -41,7 +40,8 @@ int main(void)
     cmd_init();
     timer0_init();
     sei();
-    uint16_t foo = 0;   
+    
+    uint16_t foo = 0;
     while( 1 ){
         if( timebase ){
             timebase--;

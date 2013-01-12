@@ -91,7 +91,10 @@ command_process.c \
 ../common/bus_handler.c \
 bus_process.c \
 ../common/uart.c \
-../common/adc.c
+../common/adc.c \
+leds.c \
+door.c \
+buttons.c
 
 # List C++ source files here. (C dependencies are automatically generated.)
 CPPSRC = 
