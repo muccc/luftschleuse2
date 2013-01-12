@@ -14,9 +14,6 @@ void bus_init(void)
 void bus_query(uint8_t address)
 {
     bus_sendFrame(address, NULL, 0);
-                //DDRC |= 0xC0;
-                //PORTC ^= 0xC0;
-
 }
 
 void bus_tick(void)
@@ -34,8 +31,8 @@ void bus_process(void)
 {
     uint8_t channel = bus_readFrame();
     uint8_t len = bus_getMessageLen();
-    if( len ){
-        //serial_sendFrame(channel, bus_getMessage(), len);
+    if( len && channel ){
+        serial_sendFrame(channel, bus_getMessage(), len);
     }
 }
 

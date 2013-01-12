@@ -40,6 +40,7 @@ int main(void)
     DDRA |= 0x07;
     PORTA &= ~7;
     DDRC |= 0x07;
+    DDRC |= 0xC0;
 
     eeprom_read_block(&state, &state_ee, sizeof(state));
     serial_handler_init();
@@ -58,7 +59,6 @@ int main(void)
             bus_tick();
             serial_tick();
             if( foo++ == 1000 ){
-                //DDRC |= 0xC0;
                 //PORTC ^= 0xC0;
                 foo = 0;
             }
