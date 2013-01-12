@@ -1,4 +1,5 @@
 #include "command_process.h"
+#include "bus_process.h"
 #include "packet.h"
 #include "door.h"
 #include "leds.h"
@@ -39,8 +40,14 @@ void cmd_new(uint8_t cmd, uint8_t *data)
     if( cmd == CMD_SET_LED ){
         uint8_t led = data[0];
         uint8_t state = data[1];
-    }else if(cmd == CMD_SEND_STATE){
+        leds_set(led, state);
+        bus_sendAck();
+    }else if( cmd == CMD_SEND_STATE ){
         cmd_sendState();
+    }else if( cmd == CMD_CLEAR_BUTTONS ){
+        uint8_t buttons = data[0];
+        buttons_clearButtons(buttons);
+        bus_sendAck();
     }
 }
 

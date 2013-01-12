@@ -11,4 +11,7 @@ void cmd_new(uint8_t cmd, uint8_t *data);
 #define CMD_SET_LED     'L'
 #define CMD_WRITE_LCD   'W'
 #define CMD_SEND_STATE  'S'
+#define CMD_CLEAR_BUTTONS 'C'
+#define CMD_ACK         'A'
+
 #endif

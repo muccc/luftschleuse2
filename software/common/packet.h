@@ -1,5 +1,6 @@
 #ifndef PACKET_H_
 #define PACKET_H_
+#include <stdint.h>
 
 typedef struct{
     uint32_t seq;
