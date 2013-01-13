@@ -1,7 +1,7 @@
 #include "door.h"
 #include <avr/io.h>
 
-uint8_t door_init(void)
+void door_init(void)
 {
     DDRC |= 0xC0;
     PORTC &= ~0xC0;
@@ -12,11 +12,14 @@ uint8_t door_getState(void)
     return 0;
 }
 
-uint8_t door_setState(uint8_t state)
+void door_cmd(door_cmd_t cmd)
 {
-    if( state ){
-        PORTC |= 0x80;
-    }else{
-        PORTC &= ~0x80;
+    switch(cmd){
+        case DOOR_CMD_UNLOCK:
+            PORTC |= 0x80;
+        break;
+        case DOOR_CMD_LOCK:
+            PORTC &= ~0x80;
+        break;
     }
 }
