@@ -48,6 +48,9 @@ void cmd_new(uint8_t cmd, uint8_t *data)
         uint8_t buttons = data[0];
         buttons_clearButtons(buttons);
         bus_sendAck();
+    }else if( cmd == CMD_SET_DOOR_STATE ){
+        uint8_t doorstate = data[0];
+        door_setState(doorstate);
     }
 }
 

@@ -4,6 +4,7 @@
 #include "command_process.h"
 #include "aes.h"
 #include "timer0.h"
+#include "door.h"
 
 #include <avr/io.h>
 #include <avr/wdt.h>
@@ -34,6 +35,7 @@ int main(void)
     DDRC |= 0xC0;
 
     eeprom_read_block(&state, &state_ee, sizeof(state));
+    door_init();
     aes_handler_init();
     bus_handler_init();
     bus_init();
