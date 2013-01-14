@@ -48,12 +48,14 @@ int main(void)
         if( timebase ){
             timebase--;
             bus_tick();
+            door_tick();
             if( foo++ == 1000 ){
                 foo = 0;
             }
 
         }
         bus_process();
+        door_process();
         //aes128_enc(data, &ctx); /* encrypting the data block */
     }
 
