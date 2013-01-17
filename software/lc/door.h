@@ -2,11 +2,13 @@
 #define DOOR_H_
 #include <stdint.h>
 
-#define DOOR_DOOR_CLOSED       (1<<0)
-#define DOOR_LOCK_LOCKED       (1<<1)
-#define DOOR_LOCK_LOCKING      (1<<2)
-#define DOOR_LOCK_UNLOCKING    (1<<3)
-#define DOOR_HANDLE_PRESSED    (1<<4)
+#define DOOR_DOOR_CLOSED            (1<<0)
+#define DOOR_LOCK_LOCKED            (1<<1)
+#define DOOR_LOCK_UNLOCKED          (1<<2)
+#define DOOR_LOCK_LOCKING           (1<<3)
+#define DOOR_LOCK_UNLOCKING         (1<<4)
+#define DOOR_HANDLE_PRESSED         (1<<5)
+#define DOOR_LOCK_PERM_UNLOCKED     (1<<6)
 
 #define DOOR_REED_CONTACT_PORT  C
 #define DOOR_REED_CONTACT_PIN   1
@@ -29,7 +31,8 @@
 typedef enum {
     DOOR_CMD_LOCK=0,
     DOOR_CMD_UNLOCK=1,
-    DOOR_CMD_UNLOCK_PERM=2
+    DOOR_CMD_UNLOCK_PERM=2,
+    DOOR_CMD_NONE
 } door_cmd_t;
 
 void door_init(void);
