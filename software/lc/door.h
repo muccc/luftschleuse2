@@ -10,8 +10,8 @@
 #define DOOR_HANDLE_PRESSED         (1<<5)
 #define DOOR_LOCK_PERM_UNLOCKED     (1<<6)
 
-#define DOOR_REED_CONTACT_PORT  C
-#define DOOR_REED_CONTACT_PIN   1
+#define DOOR_REED_CONTACT_PORT      C
+#define DOOR_REED_CONTACT_PIN       1
 
 #define DOOR_LOCK_CONTACT_PORT      B
 #define DOOR_LOCK_CONTACT_PIN       3
