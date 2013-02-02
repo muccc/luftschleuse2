@@ -129,10 +129,12 @@ void door_tick(void)
                     // Timeout in which the action must be
                     // completed by the motor.
                     timeout = 3000;
+                    // The door_nextcmd and door_doorstate
+                    // variables will be updated in the
+                    // DOOR_UNLOCKING state.
+                }else{
+                    door_nextcmd = DOOR_CMD_NONE;
                 }
-                // The door_nextcmd and door_doorstate
-                // variables will be updated in the
-                // DOOR_UNLOCKING state.
             }else if( door_nextcmd != DOOR_CMD_NONE &&
                     timeout == 0 ){
                 // Timeout if a command can not be started

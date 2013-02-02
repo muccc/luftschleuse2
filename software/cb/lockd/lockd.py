@@ -40,9 +40,10 @@ while True:
     if m[0] in doors:
         doors[m[0]].update(m[1])
     seq+=1
-    if seq == 20:
+    if seq == 80:
         doors['A'].unlock(permanent=True)
-    if seq == 40:
+        pass
+    if seq == 160:
         doors['A'].lock()
         seq = 0
 

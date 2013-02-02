@@ -3,9 +3,10 @@
 #include <stdint.h>
 
 #define INTERNAL    1
+#define EXTERNAL    2
 
-#define ADC_REF_VOLTAGE     2560
-#define ADC_REF_SOURCE      INTERNAL
+#define ADC_REF_VOLTAGE     4096
+#define ADC_REF_SOURCE      EXTERNAL
 
 #define ADC_RESOLUTION      10
 #define ADC_MAX             ((1<<ADC_RESOLUTION)-1)
