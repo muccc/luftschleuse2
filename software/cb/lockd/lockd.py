@@ -21,18 +21,31 @@ seq = 0
 
 while True:
     seq+=1
-    p = packet.Packet(seq=seq, cmd=ord('D'), data='')
+
+    raw_input()
+    p = packet.Packet(seq=seq, cmd=ord('D'), data='\x00')
     msg = cipher.encrypt(p.toMessage())
     ser.writeMessage('A', msg)
     for i in range(5):
         print list(cipher.decrypt(ser.readMessage()[1]))
-    time.sleep(1.002)
-    print time.time()
-    ##ser.writeMessage('A', msg)
-    p = packet.Packet(seq=seq, cmd=ord('D'), data='A')
+
+    raw_input()
+    p = packet.Packet(seq=seq, cmd=ord('D'), data='\x01')
     msg = cipher.encrypt(p.toMessage())
     ser.writeMessage('A', msg)
 
-    time.sleep(1.002)
+    for i in range(5):
+        print list(cipher.decrypt(ser.readMessage()[1]))
+    #time.sleep(5.002)
+    #print time.time()
+    
+    raw_input()
+    p = packet.Packet(seq=seq, cmd=ord('D'), data='\x02')
+    msg = cipher.encrypt(p.toMessage())
+    ser.writeMessage('A', msg)
+    for i in range(5):
+        print list(cipher.decrypt(ser.readMessage()[1]))
+
+    #time.sleep(5.002)
 
 

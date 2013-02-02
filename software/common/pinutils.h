@@ -1,6 +1,7 @@
 #ifndef __PINUTILS_H_
 #define __PINUTILS_H_
 
+#include <avr/io.h>
 #define _PORT_CHAR(character) PORT ## character
 #define PORT_CHAR(character) _PORT_CHAR(character)
 

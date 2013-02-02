@@ -88,6 +88,7 @@ SRC = $(TARGET).c \
 ../common/aes.c \
 ../common/timer0.c \
 command_process.c \
+power_process.c \
 ../common/bus_handler.c \
 bus_process.c \
 ../common/uart.c \

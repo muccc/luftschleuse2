@@ -5,6 +5,8 @@
 #include "aes.h"
 #include "timer0.h"
 #include "door.h"
+#include "adc.h"
+#include "power_process.h"
 
 #include <avr/io.h>
 #include <avr/wdt.h>
@@ -35,6 +37,9 @@ int main(void)
     DDRC |= 0xC0;
 
     eeprom_read_block(&state, &state_ee, sizeof(state));
+
+    adc_init();
+    power_init();
     door_init();
     aes_handler_init();
     bus_handler_init();
@@ -43,20 +48,16 @@ int main(void)
     timer0_init();
     sei();
     
-    uint16_t foo = 0;
     while( 1 ){
         if( timebase ){
             timebase--;
             bus_tick();
             door_tick();
-            if( foo++ == 1000 ){
-                foo = 0;
-            }
-
+            power_tick();
         }
         bus_process();
         door_process();
-        //aes128_enc(data, &ctx); /* encrypting the data block */
+        power_process();
     }
 
 }
