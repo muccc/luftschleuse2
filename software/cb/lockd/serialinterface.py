@@ -109,7 +109,7 @@ class SerialInterface:
             elif stop:
                 #print 'received message: len=%d data=%s'%(len(data),data)
                 #print 'received message. command=',command, "data=" ,list(data)
-                print time.time()- self.last
+                #print time.time() - self.last
                 self.last = time.time()
                 return (command, data)
             elif escaped == False and inframe:

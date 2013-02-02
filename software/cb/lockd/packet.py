@@ -21,7 +21,7 @@ class Packet:
     
     @classmethod
     def fromMessage(cls, message):
-        seq, cmd, data, magic = unpack(self.msgformat, message)
+        seq, cmd, data, magic = unpack(cls.msgformat, message)
         
         if magic == 'SESAME':
             return cls(seq, cmd, data)

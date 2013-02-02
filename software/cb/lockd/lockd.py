@@ -4,48 +4,45 @@ import sys
 import time
 from Crypto.Cipher import AES
 import packet
-
+from door import Door
 
 config = ConfigParser.RawConfigParser()
 config.read(sys.argv[1])
 
-serialdevice = config.get('MasterController', 'serialdevice')
-baudrate = config.get('MasterController', 'baudrate')
-masterkey = config.get('MasterController', 'key')
+serialdevice = config.get('Master Controller', 'serialdevice')
+baudrate = config.get('Master Controller', 'baudrate')
+masterkey = config.get('Master Controller', 'key')
 masterkey =''.join([chr(int(x)) for x in masterkey.split()])
 
 ser = serialinterface.SerialInterface(serialdevice, baudrate, timeout=.1)
 cipher = AES.new(masterkey, AES.MODE_ECB)
 
+doors = {}
+
+for section in config.sections():
+    if config.has_option(section, 'type'):
+        t = config.get(section, 'type')
+        if t == 'door':
+            name = section
+            txseq = int(config.get(section, 'txsequence'))
+            rxseq = int(config.get(section, 'rxsequence'))
+            address = config.get(section, 'address')
+            key = config.get(section, 'key')
+            print 'Adding door "%s"'%section
+            door = Door(name, address, txseq, rxseq, key, ser)
+            doors[address] = door
+        else:
+            print 'Unknown entry type "%s"', t
 seq = 0
 
 while True:
+    m = ser.readMessage()
+    if m[0] in doors:
+        doors[m[0]].update(m[1])
     seq+=1
-
-    raw_input()
-    p = packet.Packet(seq=seq, cmd=ord('D'), data='\x00')
-    msg = cipher.encrypt(p.toMessage())
-    ser.writeMessage('A', msg)
-    for i in range(5):
-        print list(cipher.decrypt(ser.readMessage()[1]))
-
-    raw_input()
-    p = packet.Packet(seq=seq, cmd=ord('D'), data='\x01')
-    msg = cipher.encrypt(p.toMessage())
-    ser.writeMessage('A', msg)
-
-    for i in range(5):
-        print list(cipher.decrypt(ser.readMessage()[1]))
-    #time.sleep(5.002)
-    #print time.time()
-    
-    raw_input()
-    p = packet.Packet(seq=seq, cmd=ord('D'), data='\x02')
-    msg = cipher.encrypt(p.toMessage())
-    ser.writeMessage('A', msg)
-    for i in range(5):
-        print list(cipher.decrypt(ser.readMessage()[1]))
-
-    #time.sleep(5.002)
-
+    if seq == 20:
+        doors['A'].unlock(permanent=True)
+    if seq == 40:
+        doors['A'].lock()
+        seq = 0
 
