@@ -10,7 +10,6 @@ class Door:
     HANDLE_PRESSED     = (1<<5)
     LOCK_PERM_UNLOCKED = (1<<6)
 
-
     def __init__(self, name, address, txseq, rxseq, key, interface):
         self.name = name
         self.address = address
@@ -24,18 +23,7 @@ class Door:
         self.closed = False
         self.locked = False
         self.unlocked = False
-
-    def is_open(self):
-        return self.open
-
-    def is_closed(self):
-        return self.closed
-
-    def is_locked(self):
-        return self.locked
-
-    def is_unlocked(self):
-        return self.unlocked
+        self.supply_voltage = 0
 
     def unlock(self, permanent):
         if permanent:
@@ -55,8 +43,7 @@ class Door:
         message = self.cipher.decrypt(message)
         p = Packet.fromMessage(message)
         if p.cmd==83:
-            print [ord(x) for x in p.data]
-            print 'Voltage=%.1f V'%(ord(p.data[3])*0.1)
+            self.supply_voltage = ord(p.data[3])*0.1
             doorstate = ord(p.data[1])
             state = ''
             self.closed = doorstate & Door.DOOR_CLOSED \
@@ -73,9 +60,13 @@ class Door:
                             == Door.HANDLE_PRESSED
             self.perm_unlocked = doorstate & Door.LOCK_PERM_UNLOCKED \
                             == Door.LOCK_PERM_UNLOCKED
-
             print 'Door state:', self.get_state()
-
+        elif p.cmd==ord('A'):
+            accepted = ord(p.data[0]) == 1
+            if accepted:
+                print 'Command was accepted'
+            else:
+                print 'Command was NOT accepted'
     def get_state(self):
         state = ''
         if self.closed:
@@ -92,4 +83,6 @@ class Door:
             state += ' HANDLE_PRESSED'
         if self.perm_unlocked:
             state += ' PERM_UNLOCKED'
-        return state.strip()
+        state = state.strip()
+        state = state + ' Voltage=%.1f V'%self.supply_voltage
+        return state
