@@ -5,6 +5,8 @@ import time
 from Crypto.Cipher import AES
 import packet
 from door import Door
+from command import UDPCommand
+import Queue
 
 config = ConfigParser.RawConfigParser()
 config.read(sys.argv[1])
@@ -16,6 +18,9 @@ masterkey =''.join([chr(int(x)) for x in masterkey.split()])
 
 ser = serialinterface.SerialInterface(serialdevice, baudrate, timeout=.1)
 cipher = AES.new(masterkey, AES.MODE_ECB)
+command_queue = Queue.Queue()
+
+udpcommand = UDPCommand('127.0.0.1', 2323, command_queue)
 
 doors = {}
 
@@ -39,11 +44,12 @@ while True:
     m = ser.readMessage()
     if m[0] in doors:
         doors[m[0]].update(m[1])
-    seq+=1
-    if seq == 80:
-        doors['A'].unlock(permanent=True)
-        pass
-    if seq == 160:
-        doors['A'].lock()
-        seq = 0
+    if not command_queue.empty():
+        command = command_queue.get()
+        if command == 'permunlock':
+            for door in doors:
+                doors[door].unlock(permanent=True)
+        elif command == 'lock':
+            for door in doors:
+                doors[door].lock()
 
