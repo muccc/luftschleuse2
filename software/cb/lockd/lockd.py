@@ -52,4 +52,5 @@ while True:
         elif command == 'lock':
             for door in doors:
                 doors[door].lock()
-
+    for d in self.doors:
+        d.tick()

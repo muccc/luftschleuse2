@@ -1,5 +1,6 @@
 from packet import Packet
 from Crypto.Cipher import AES
+import time
 
 class Door:
     DOOR_CLOSED        = (1<<0)
@@ -24,20 +25,17 @@ class Door:
         self.locked = False
         self.unlocked = False
         self.supply_voltage = 0
+        self.command_time = 0
+        self.command_accepted = None
+        self.command = None
 
     def unlock(self, permanent):
         if permanent:
-            p = Packet(seq=self.txseq, cmd=ord('D'), data='\x02')
+            self._send_command(cmd=ord('D'), data='\x02')
         else:
-            p = Packet(seq=self.txseq, cmd=ord('D'), data='\x01')
-
-        msg = self.cipher.encrypt(p.toMessage())
-        self.interface.writeMessage(self.address, msg)
-
+            self._send_command(cmd=ord('D'), data='\x01')
     def lock(self):
-        p = Packet(seq=self.txseq, cmd=ord('D'), data='\x00')
-        msg = self.cipher.encrypt(p.toMessage())
-        self.interface.writeMessage(self.address, msg)
+        self._send_command(cmd=ord('D'), data='\x00')
 
     def update(self, message):
         message = self.cipher.decrypt(message)
@@ -63,10 +61,13 @@ class Door:
             print 'Door state:', self.get_state()
         elif p.cmd==ord('A'):
             accepted = ord(p.data[0]) == 1
-            if accepted:
-                print 'Command was accepted'
-            else:
-                print 'Command was NOT accepted'
+            if not self.command_accepted:
+                if accepted:
+                    print 'Command at %d was accepted', self.command_time
+                    self.command_accepted = True
+                else:
+                    print 'Command at %d was NOT accepted', self.command_time
+
     def get_state(self):
         state = ''
         if self.closed:
@@ -86,3 +87,19 @@ class Door:
         state = state.strip()
         state = state + ' Voltage=%.1f V'%self.supply_voltage
         return state
+
+    def tick(self):
+        if time.time() - self.command_time > 5:
+            if self.accepted == False:
+                print 'Error: Command at %d was not accepted!'
+            elif self.accepted == None:
+                print 'Error: Command was not received'
+
+    def _send_command(self, command, data):
+        p = Packet(seq=self.txseq, cmd=command, data=data)
+        msg = self.cipher.encrypt(p.toMessage())
+        self.interface.writeMessage(self.address, msg)
+        self.command_accepted = None
+        self.command_time = time.time()
+
+
