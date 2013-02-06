@@ -20,5 +20,10 @@
 #define BUS_QUERY_AMOUNT        3
 
 #define NODE_ADDRESS    'A'
+
+#define DOOR_1      0
+#define DOOR_2      1
+
+#define DOOR_MODEL  DOOR_1
 #endif
 

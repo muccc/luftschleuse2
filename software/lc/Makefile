@@ -95,7 +95,8 @@ bus_process.c \
 ../common/adc.c \
 ../common/packet.c \
 leds.c \
-door.c \
+door-1.c \
+door-2.c \
 buttons.c
 
 # List C++ source files here. (C dependencies are automatically generated.)

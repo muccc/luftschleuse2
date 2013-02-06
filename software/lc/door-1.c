@@ -1,4 +1,6 @@
-#include "door.h"
+#include "config.h"
+#if DOOR_MODEL == DOOR_1
+#include "door-1.h"
 #include "pinutils.h"
 #include <stdbool.h>
 #include <stdint.h>
@@ -216,4 +218,4 @@ bool door_cmd(door_cmd_t cmd)
     }
     return false;
 }
-
+#endif
