@@ -29,9 +29,20 @@
 #define DOOR_DOOR_OPEN_CONTACT_PORT         A
 #define DOOR_DOOR_OPEN_CONTACT_PIN          0
 
-#define DOOR_LOCK_PORT                      C
-#define DOOR_LOCK_PIN                       6
+#define DOOR_HBRIDGE_ENABLE_PORT            B
+#define DOOR_HBRIDGE_ENABLE_PIN             0
 
+#define DOOR_HBRIDGE_IN1_PORT               B
+#define DOOR_HBRIDGE_IN1_PIN                1
+
+#define DOOR_HBRIDGE_IN2_PORT               B
+#define DOOR_HBRIDGE_IN2_PIN                4
+
+#define DOOR_LOCK_CONTACT_PORT              B
+#define DOOR_LOCK_CONTACT_PIN               3
+
+#define R1_PORT C
+#define R1_PIN  7
 typedef enum {
     DOOR_CMD_LOCK=0,
     DOOR_CMD_UNLOCK=1,

@@ -16,6 +16,24 @@ enum {
 
 uint8_t door_nextcmd;
 
+static void door_startCloseLock(void)
+{
+    PIN_SET(DOOR_HBRIDGE_IN1);
+    PIN_CLEAR(DOOR_HBRIDGE_ENABLE);
+}
+
+static void door_startOpenLock(void)
+{
+    PIN_SET(DOOR_HBRIDGE_IN2);
+    PIN_CLEAR(DOOR_HBRIDGE_ENABLE);
+}
+
+static void door_stopLock(void)
+{
+    PIN_CLEAR(DOOR_HBRIDGE_IN1);
+    PIN_CLEAR(DOOR_HBRIDGE_IN2);
+    PIN_SET(DOOR_HBRIDGE_ENABLE);
+}
 void door_init(void)
 {
     door_doorstate = 0;
@@ -37,26 +55,38 @@ void door_init(void)
     DDR_CONFIG_IN(DOOR_DOOR_OPEN_CONTACT);
     PIN_SET(DOOR_DOOR_OPEN_CONTACT);
 
-    PIN_CLEAR(DOOR_LOCK);
-    DDR_CONFIG_OUT(DOOR_LOCK);
+    PIN_CLEAR(DOOR_HBRIDGE_ENABLE);
+    PIN_CLEAR(DOOR_HBRIDGE_IN1);
+    PIN_CLEAR(DOOR_HBRIDGE_IN2);
+   
+    DDR_CONFIG_OUT(DOOR_HBRIDGE_ENABLE);
+    DDR_CONFIG_OUT(DOOR_HBRIDGE_IN1);
+    DDR_CONFIG_OUT(DOOR_HBRIDGE_IN2);
+ 
+    DDR_CONFIG_IN(DOOR_LOCK_CONTACT);
+    PIN_SET(DOOR_LOCK_CONTACT);
     
+    PIN_CLEAR(R1);
+    DDR_CONFIG_OUT(R1);
+
     door_state = DOOR_IDLE;
     door_nextcmd = DOOR_CMD_NONE;
+
+    volatile uint32_t l;
+    while(1){
+        door_startCloseLock();
+        //PIN_SET(R1);
+        for(l=0; l<50000; l++);
+        door_stopLock();
+        for(l=0; l<500000; l++);
+        PIN_CLEAR(R1);
+        door_startOpenLock();
+        for(l=0; l<50000; l++);
+        door_stopLock();
+        for(l=0; l<500000; l++);
+    }
 }
 
-static void door_startCloseLock(void)
-{
-    PIN_CLEAR(DOOR_LOCK);
-}
-
-static void door_startOpenLock(void)
-{
-    PIN_SET(DOOR_LOCK);
-}
-
-static void door_stopLock(void)
-{
-}
 
 static void door_update_inputs(void)
 {

@@ -322,11 +322,11 @@ AVRDUDE_FLAGS += $(AVRDUDE_VERBOSE)
 AVRDUDE_FLAGS += $(AVRDUDE_ERASE_COUNTER)
 
 #Full swing crystal oscillator
-AVRDUDE_LFUSE_FLAGS = -B 10 -U lfuse:w:0xe7:m
+AVRDUDE_LFUSE_FLAGS = -F -B 10 -U lfuse:w:0xe7:m
 #preserve eeprom, max boot section
-AVRDUDE_HFUSE_FLAGS = -B 10 -U hfuse:w:0xd0:m
+AVRDUDE_HFUSE_FLAGS = -F -B 10 -U hfuse:w:0xd0:m
 #2.7v brown out
-AVRDUDE_EFUSE_FLAGS = -B 10 -U efuse:w:0xfd:m
+AVRDUDE_EFUSE_FLAGS = -F -B 10 -U efuse:w:0xfd:m
 
 #---------------- Debugging Options ----------------
 

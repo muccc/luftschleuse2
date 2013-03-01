@@ -24,6 +24,6 @@
 #define DOOR_1      0
 #define DOOR_2      1
 
-#define DOOR_MODEL  DOOR_1
+#define DOOR_MODEL  DOOR_2
 #endif
 
