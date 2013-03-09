@@ -21,8 +21,9 @@ class Packet:
     
     @classmethod
     def fromMessage(cls, message):
-        seq, cmd, data, magic = unpack(cls.msgformat, message)
-        
+        seq, cmd, data, magic = unpack(cls.msgformat, message[0:16])
+        if len(message) > 16:
+            print 'Warning: Discarded %d bytes of data'%(len(message)-16)
         if magic == 'SESAME':
             return cls(seq, cmd, data)
         else:

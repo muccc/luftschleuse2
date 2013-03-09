@@ -41,16 +41,21 @@ for section in config.sections():
 seq = 0
 
 while True:
-    m = ser.readMessage()
-    if m[0] in doors:
-        doors[m[0]].update(m[1])
+    address, message = ser.readMessage()
+    if address in doors:
+        doors[address].update(message)
+
     if not command_queue.empty():
         command = command_queue.get()
         if command == 'permunlock':
-            for door in doors:
-                doors[door].unlock(permanent=True)
+            for door in doors.values():
+                door.unlock(permanent=True)
+        elif command == 'unlock':
+            for door in doors.values():
+                door.unlock(permanent=False)
         elif command == 'lock':
-            for door in doors:
-                doors[door].lock()
-    for d in self.doors:
-        d.tick()
+            for door in doors.values():
+                door.lock()
+
+    for d in doors:
+        doors[d].tick()

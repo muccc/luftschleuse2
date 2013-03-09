@@ -74,6 +74,7 @@ class SerialInterface:
             starttime = time.time()
             try:
                 c = self.ser.read(1)
+                #print list(c)
             except:
                 print "port broken 2"
                 self.reinit()

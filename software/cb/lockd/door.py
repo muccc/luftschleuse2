@@ -31,14 +31,15 @@ class Door:
 
     def unlock(self, permanent):
         if permanent:
-            self._send_command(cmd=ord('D'), data='\x02')
+            self._send_command(command=ord('D'), data='\x02')
         else:
-            self._send_command(cmd=ord('D'), data='\x01')
+            self._send_command(command=ord('D'), data='\x01')
     def lock(self):
-        self._send_command(cmd=ord('D'), data='\x00')
+        self._send_command(command=ord('D'), data='\x00')
 
     def update(self, message):
         message = self.cipher.decrypt(message)
+        print list(message)
         p = Packet.fromMessage(message)
         if p.cmd==83:
             self.supply_voltage = ord(p.data[3])*0.1
@@ -89,10 +90,11 @@ class Door:
         return state
 
     def tick(self):
+        return
         if time.time() - self.command_time > 5:
-            if self.accepted == False:
+            if self.command_accepted == False:
                 print 'Error: Command at %d was not accepted!'
-            elif self.accepted == None:
+            elif self.command_accepted == None:
                 print 'Error: Command was not received'
 
     def _send_command(self, command, data):

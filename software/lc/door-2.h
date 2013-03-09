@@ -17,11 +17,11 @@
 #define DOOR_LOCK_BRIDGE_PORT               A
 #define DOOR_LOCK_BRIDGE_PIN                4
 
-#define DOOR_LOCK_LOCKED_CONTACT_PORT       A
-#define DOOR_LOCK_LOCKED_CONTACT_PIN        3
+#define DOOR_LOCK_UNLOCKED_CONTACT_PORT       A
+#define DOOR_LOCK_UNLOCKED_CONTACT_PIN        3
 
-#define DOOR_LOCK_UNLOCKED_CONTACT_PORT     A
-#define DOOR_LOCK_UNLOCKED_CONTACT_PIN      2
+#define DOOR_LOCK_LOCKED_CONTACT_PORT       A
+#define DOOR_LOCK_LOCKED_CONTACT_PIN        2
 
 #define DOOR_HANDLE_CONTACT_PORT            A
 #define DOOR_HANDLE_CONTACT_PIN             1
@@ -43,6 +43,7 @@
 
 #define R1_PORT C
 #define R1_PIN  7
+
 typedef enum {
     DOOR_CMD_LOCK=0,
     DOOR_CMD_UNLOCK=1,
