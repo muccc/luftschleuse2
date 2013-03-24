@@ -5,6 +5,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "leds.h"
+
 static uint8_t door_doorstate;
 
 enum {
@@ -35,7 +37,7 @@ static void door_stopLock(void)
     //PIN_CLEAR(R1);
     PIN_CLEAR(DOOR_HBRIDGE_IN1);
     PIN_CLEAR(DOOR_HBRIDGE_IN2);
-    PIN_CLEAR(DOOR_HBRIDGE_ENABLE);
+    //PIN_CLEAR(DOOR_HBRIDGE_ENABLE);
 }
 
 void door_init(void)
@@ -59,7 +61,8 @@ void door_init(void)
     DDR_CONFIG_IN(DOOR_DOOR_OPEN_CONTACT);
     PIN_SET(DOOR_DOOR_OPEN_CONTACT);
 
-    PIN_CLEAR(DOOR_HBRIDGE_ENABLE);
+    //PIN_CLEAR(DOOR_HBRIDGE_ENABLE);
+    PIN_SET(DOOR_HBRIDGE_ENABLE);
     PIN_CLEAR(DOOR_HBRIDGE_IN1);
     PIN_CLEAR(DOOR_HBRIDGE_IN2);
    
@@ -108,8 +111,12 @@ static void door_update_inputs(void)
         door_doorstate |= DOOR_LOCK_UNLOCKED;
     if( !PIN_HIGH(DOOR_LOCK_LOCKED_CONTACT) )
         door_doorstate |= DOOR_LOCK_LOCKED;
-    if( !PIN_HIGH(DOOR_LOCK_CONTACT) )
+    if( !PIN_HIGH(DOOR_LOCK_CONTACT) ){
         door_doorstate |= DOOR_LOCK_PERM_UNLOCKED;
+        leds_set(LED_OPEN, LED_ON);
+    }else{
+        leds_set(LED_OPEN, LED_SHORT_FLASH);
+    }
 }
 
 static uint8_t door_locked(void)
@@ -146,7 +153,8 @@ void door_tick(void)
     {
         case DOOR_IDLE:
             if( door_nextcmd == DOOR_CMD_LOCK ){
-                if( !door_locked() && door_closed() ){
+                //if( !door_locked() && door_closed() ){
+                if( door_closed() ){
                     door_startCloseLock();
                     door_state = DOOR_LOCKING;
                     // Timeout in which the action must be
@@ -168,7 +176,8 @@ void door_tick(void)
                 // DOOR_UNLOCKING state.
 #endif
             }else if( door_nextcmd == DOOR_CMD_UNLOCK_PERM ){
-                if( door_locked() && door_closed() ){
+                //if( door_locked() && door_closed() ){
+                if( door_closed() ){
 //                    PIN_SET(R1);
                     door_startOpenLock();
                     door_state = DOOR_UNLOCKING;
