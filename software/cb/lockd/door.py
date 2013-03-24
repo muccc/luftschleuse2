@@ -1,6 +1,6 @@
 from packet import Packet
-from Crypto.Cipher import AES
 import time
+from aes import AES
 
 class Door:
     DOOR_CLOSED        = (1<<0)
@@ -16,8 +16,10 @@ class Door:
         self.address = address
         self.txseq = txseq
         self.rxseq = rxseq
-        self.key = ''.join([chr(int(x)) for x in key.split()])
-        self.cipher = AES.new(self.key, AES.MODE_ECB)
+        
+        self.key = [int(x) for x in key.split()]
+        self.aes = AES()
+        
         self.interface = interface
         
         self.open = False
@@ -38,7 +40,10 @@ class Door:
         self._send_command(command=ord('D'), data='\x00')
 
     def update(self, message):
-        message = self.cipher.decrypt(message)
+        message = self.aes.decrypt([ord(x) for x in message], self.key,
+                    AES.keySize["SIZE_128"])
+        message = ''.join([chr(x) for x in message])
+
         print list(message)
         p = Packet.fromMessage(message)
         if p.cmd==83:
@@ -99,7 +104,10 @@ class Door:
 
     def _send_command(self, command, data):
         p = Packet(seq=self.txseq, cmd=command, data=data)
-        msg = self.cipher.encrypt(p.toMessage())
+        msg = self.aes.encrypt([ord(x) for x in p.toMessage()], self.key,
+                    AES.keySize["SIZE_128"])
+        msg = ''.join([chr(x) for x in msg])
+
         self.interface.writeMessage(self.address, msg)
         self.command_accepted = None
         self.command_time = time.time()

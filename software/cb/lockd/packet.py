@@ -1,4 +1,3 @@
-import crc16
 from struct import pack, unpack
 
 class Packet:

@@ -2,7 +2,6 @@ import ConfigParser
 import serialinterface
 import sys
 import time
-from Crypto.Cipher import AES
 import packet
 from door import Door
 from command import UDPCommand
@@ -17,7 +16,6 @@ masterkey = config.get('Master Controller', 'key')
 masterkey =''.join([chr(int(x)) for x in masterkey.split()])
 
 ser = serialinterface.SerialInterface(serialdevice, baudrate, timeout=.1)
-cipher = AES.new(masterkey, AES.MODE_ECB)
 command_queue = Queue.Queue()
 
 udpcommand = UDPCommand('127.0.0.1', 2323, command_queue)
