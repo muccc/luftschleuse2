@@ -41,16 +41,20 @@ seq = 0
 while True:
     address, message = ser.readMessage()
     if address in doors:
+    	print list(message)
         doors[address].update(message)
 
     if not command_queue.empty():
         command = command_queue.get()
         if command == 'unlock':
             for door in doors.values():
-                door.unlock(timeout=5000)
+                door.unlock(relock_timeout=50)
         elif command == 'lock':
             for door in doors.values():
                 door.lock()
 
     for d in doors:
         doors[d].tick()
+
+sys.exit(0)
+

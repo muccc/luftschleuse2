@@ -30,12 +30,13 @@ class Door:
         self.command_time = 0
         self.command_accepted = None
         self.command = None
-        self.periodic = 1000
+        self.periodic = 10
         self.relock_timeout = 0
-        self.desired_state = LOCK_LOCKED
+        self.desired_state = Door.LOCK_LOCKED
+        self.buttons_toggle_state = None
 
     def unlock(self, relock_timeout=0):
-        self.desired_state = LOCK_UNLOCKED
+        self.desired_state = Door.LOCK_UNLOCKED
         self.relock_timeout = relock_timeout
 
         #if timeout:
@@ -44,10 +45,12 @@ class Door:
         #    self._send_command(command=ord('D'), data='\x01')
 
     def lock(self):
-        self.desired_state = LOCK_LOCKED
+        self.desired_state = Door.LOCK_LOCKED
         self._send_command(command=ord('D'), data='\x00')
 
     def update(self, message):
+    	if len(message) != 16:
+    	    return
         message = self.aes.decrypt([ord(x) for x in message], self.key,
                     AES.keySize["SIZE_128"])
         message = ''.join([chr(x) for x in message])
@@ -56,6 +59,22 @@ class Door:
         p = Packet.fromMessage(message)
         if p.cmd==83:
             self.supply_voltage = ord(p.data[3])*0.1
+            
+            pressed_buttons = 0
+            if self.buttons_toggle_state == None:
+                self.buttons_toggle_state = ord(p.data[0])
+            else:
+                pressed_buttons = self.buttons_toggle_state ^ ord(p.data[0])
+                self.buttons_toggle_state = ord(p.data[0])
+                
+            if pressed_buttons:
+                print 'Got pressed buttons:', pressed_buttons
+                if pressed_buttons & 0x01:
+                    if self.desired_state == Door.LOCK_LOCKED:
+                    	self.desired_state = Door.LOCK_UNLOCKED
+                    elif self.desired_state == Door.LOCK_UNLOCKED:
+                    	self.desired_state = Door.LOCK_LOCKED
+            
             doorstate = ord(p.data[1])
             state = ''
             self.closed = doorstate & Door.DOOR_CLOSED \
@@ -104,15 +123,14 @@ class Door:
 
     def tick(self):
         self.periodic-=1
-
         if self.periodic == 0:
-            self.periodic = 1000
-            self._send_command('D', [chr(self.desired_state)](
+            self.periodic = 10
+            self._send_command(ord('D'), chr(self.desired_state))
         
         if self.relock_timeout:
             self.relock_timeout-=1
             if self.relock_timeout == 0:
-                self.desired_state = LOCK_LOCKED
+                self.desired_state = Door.LOCK_LOCKED
         '''
         if time.time() - self.command_time > 5:
             if self.command_accepted == False:
