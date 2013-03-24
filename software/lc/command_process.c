@@ -8,6 +8,7 @@
 #include <avr/io.h>
 #include <stdint.h>
 #include <string.h>
+#include <stdbool.h>
 
 void cmd_init(void)
 {
@@ -15,6 +16,38 @@ void cmd_init(void)
 
 void cmd_tick(void)
 {
+    static uint16_t ticks = 0;
+    static bool busy = false; 
+#if 0
+    if( ticks++ == 1000 ){
+        ticks = 0;
+        if( buttons_getButtonState(BUTTON_RED) ){
+            if( !busy ){
+                busy = true;
+                if( door_getState() & DOOR_LOCK_PERM_UNLOCKED ){
+                    door_cmd(DOOR_CMD_LOCK);
+                }else{
+                    door_cmd(DOOR_CMD_UNLOCK_PERM);
+                }
+            }
+        }else{
+            busy = false;
+        }
+    }
+#else    
+//    if( ticks++ == 1000 ){
+//    ticks = 0;
+    if( buttons_getPendingButtons() == BUTTON_RED ){
+        if( door_getState() & DOOR_LOCK_PERM_UNLOCKED ){
+        //if( door_getState() & DOOR_LOCK_UNLOCKED ){
+            door_cmd(DOOR_CMD_LOCK);
+        }else{
+            door_cmd(DOOR_CMD_UNLOCK_PERM);
+        }
+        buttons_clearPendingButtons(BUTTON_RED);
+    }
+//    }
+#endif
 }
 
 void cmd_process(void)
@@ -47,7 +80,7 @@ void cmd_new(uint8_t cmd, uint8_t *data)
         cmd_sendState();
     }else if( cmd == CMD_CLEAR_BUTTONS ){
         uint8_t buttons = data[0];
-        buttons_clearButtons(buttons);
+        buttons_clearPendingButtons(buttons);
         bus_sendAck(true);
     }else if( cmd == CMD_DOOR_CMD ){
         uint8_t cmd = data[0];
