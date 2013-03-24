@@ -5,53 +5,38 @@
 #include "door.h"
 #include "leds.h"
 #include "buttons.h"
+#include "power_process.h"
 #include <avr/io.h>
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+static uint16_t cmd_desiredDoorStateTimeout;
+static uint8_t cmd_desiredDoorState;
 
 void cmd_init(void)
 {
+    cmd_desiredDoorStateTimeout = 0;
+    cmd_desiredDoorState = DOOR_LOCK_LOCKED;
 }
 
 void cmd_tick(void)
 {
-    static uint16_t ticks = 0;
-    static bool busy = false; 
-#if 0
-    if( ticks++ == 1000 ){
-        ticks = 0;
-        if( buttons_getButtonState(BUTTON_RED) ){
-            if( !busy ){
-                busy = true;
-                if( door_getState() & DOOR_LOCK_PERM_UNLOCKED ){
-                    door_cmd(DOOR_CMD_LOCK);
-                }else{
-                    door_cmd(DOOR_CMD_UNLOCK_PERM);
-                }
-            }
-        }else{
-            busy = false;
-        }
+    if( cmd_desiredDoorStateTimeout-- == 0 ){
+        cmd_desiredDoorStateTimeout = 0;
+        cmd_desiredDoorState = DOOR_LOCK_LOCKED;
     }
-#else    
-//    if( ticks++ == 1000 ){
-//    ticks = 0;
-    if( buttons_getPendingButtons() == BUTTON_RED ){
-        if( door_getState() & DOOR_LOCK_PERM_UNLOCKED ){
-        //if( door_getState() & DOOR_LOCK_UNLOCKED ){
-            door_cmd(DOOR_CMD_LOCK);
-        }else{
-            door_cmd(DOOR_CMD_UNLOCK_PERM);
-        }
-        buttons_clearPendingButtons(BUTTON_RED);
-    }
-//    }
-#endif
+
+    door_setDesiredState(cmd_desiredDoorState);
 }
 
 void cmd_process(void)
 {
+}
+
+void cmd_setDesiredDoorState(uint8_t desiredState)
+{
+    cmd_desiredDoorState = desiredState;
+    cmd_desiredDoorStateTimeout = 5000;
 }
 
 static void cmd_sendState(void)
@@ -60,9 +45,9 @@ static void cmd_sendState(void)
    memset(&p, 0, sizeof(p));
 
    p.cmd = CMD_SEND_STATE;
-   p.data[0] = buttons_getPendingButtons();
+   p.data[0] = buttons_getButtonsToggleState();
    p.data[1] = door_getState();
-   p.data[2] = leds_getState();
+   p.data[2] = 0;
    p.data[3] = power_getInputVoltage()/100;
    p.data[4] = 0;
 
@@ -76,16 +61,18 @@ void cmd_new(uint8_t cmd, uint8_t *data)
         uint8_t state = data[1];
         leds_set(led, state);
         bus_sendAck(true);
-    }else if( cmd == CMD_SEND_STATE ){
-        cmd_sendState();
+    //}else if( cmd == CMD_SEND_STATE ){
+        //cmd_sendState();
     }else if( cmd == CMD_CLEAR_BUTTONS ){
         uint8_t buttons = data[0];
         buttons_clearPendingButtons(buttons);
         bus_sendAck(true);
-    }else if( cmd == CMD_DOOR_CMD ){
-        uint8_t cmd = data[0];
-        bool success = door_cmd(cmd);
-        bus_sendAck(success);
+    }else if( cmd == CMD_DOOR_STATE ){
+        uint8_t door_state = data[0];
+        cmd_setDesiredDoorState(door_state);
+        //bool success = door_cmd(cmd);
+        cmd_sendState();
+        //bus_sendAck(success);
     }
 }
 

@@ -13,6 +13,6 @@ void cmd_new(uint8_t cmd, uint8_t *data);
 #define CMD_SEND_STATE      'S'
 #define CMD_CLEAR_BUTTONS   'C'
 #define CMD_ACK             'A'
-#define CMD_DOOR_CMD  'D'
+#define CMD_DOOR_STATE  'D'
 
 #endif

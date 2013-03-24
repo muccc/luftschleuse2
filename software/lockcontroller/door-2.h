@@ -9,7 +9,7 @@
 #define DOOR_LOCK_LOCKING           (1<<3)
 #define DOOR_LOCK_UNLOCKING         (1<<4)
 #define DOOR_HANDLE_PRESSED         (1<<5)
-#define DOOR_LOCK_PERM_UNLOCKED     (1<<6)
+#define DOOR_LOCK_MANUAL_UNLOCKED   (1<<6)
 
 #define DOOR_REED_CONTACT_PORT              A
 #define DOOR_REED_CONTACT_PIN               5
@@ -55,7 +55,7 @@ void door_init(void);
 void door_tick(void);
 void door_process(void);
 uint8_t door_getState(void);
-bool door_cmd(door_cmd_t cmd);
+void door_setDesiredState(uint8_t desiredState);
 
 #endif
 

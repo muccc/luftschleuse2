@@ -7,6 +7,8 @@
 #include "door.h"
 #include "adc.h"
 #include "power_process.h"
+#include "leds.h"
+#include "buttons.h"
 
 #include <avr/io.h>
 #include <avr/wdt.h>

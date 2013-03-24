@@ -10,7 +10,7 @@ class Door:
     LOCK_UNLOCKING     = (1<<4)
     HANDLE_PRESSED     = (1<<5)
     LOCK_PERM_UNLOCKED = (1<<6)
-
+    
     def __init__(self, name, address, txseq, rxseq, key, interface):
         self.name = name
         self.address = address
@@ -30,13 +30,21 @@ class Door:
         self.command_time = 0
         self.command_accepted = None
         self.command = None
+        self.periodic = 1000
+        self.relock_timeout = 0
+        self.desired_state = LOCK_LOCKED
 
-    def unlock(self, permanent):
-        if permanent:
-            self._send_command(command=ord('D'), data='\x02')
-        else:
-            self._send_command(command=ord('D'), data='\x01')
+    def unlock(self, relock_timeout=0):
+        self.desired_state = LOCK_UNLOCKED
+        self.relock_timeout = relock_timeout
+
+        #if timeout:
+        #    self._send_command(command=ord('D'), data='\x02')
+        #else:
+        #    self._send_command(command=ord('D'), data='\x01')
+
     def lock(self):
+        self.desired_state = LOCK_LOCKED
         self._send_command(command=ord('D'), data='\x00')
 
     def update(self, message):
@@ -95,13 +103,23 @@ class Door:
         return state
 
     def tick(self):
-        return
+        self.periodic-=1
+
+        if self.periodic == 0:
+            self.periodic = 1000
+            self._send_command('D', [chr(self.desired_state)](
+        
+        if self.relock_timeout:
+            self.relock_timeout-=1
+            if self.relock_timeout == 0:
+                self.desired_state = LOCK_LOCKED
+        '''
         if time.time() - self.command_time > 5:
             if self.command_accepted == False:
                 print 'Error: Command at %d was not accepted!'
             elif self.command_accepted == None:
                 print 'Error: Command was not received'
-
+        '''
     def _send_command(self, command, data):
         p = Packet(seq=self.txseq, cmd=command, data=data)
         msg = self.aes.encrypt([ord(x) for x in p.toMessage()], self.key,
@@ -109,7 +127,9 @@ class Door:
         msg = ''.join([chr(x) for x in msg])
 
         self.interface.writeMessage(self.address, msg)
+        '''
         self.command_accepted = None
         self.command_time = time.time()
+        '''
 
 

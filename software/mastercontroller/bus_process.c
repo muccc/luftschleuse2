@@ -19,6 +19,8 @@ void bus_query(uint8_t address)
 
 void bus_tick(void)
 {
+    // This is now done by lockd
+#if 0
     if( bus_nextQueryTimer++ == (BUS_QUERY_INTERVAL/BUS_QUERY_AMOUNT) ){
         bus_query(bus_nextQueryTarget++);
         if( bus_nextQueryTarget == BUS_QUERY_START + BUS_QUERY_AMOUNT ){
@@ -26,6 +28,7 @@ void bus_tick(void)
         }
         bus_nextQueryTimer = 0;
     }
+#endif
 }
 
 void bus_process(void)
@@ -41,3 +44,4 @@ void bus_holdoff(uint8_t holdoff)
 {
     bus_nextQueryTimer += holdoff;
 }
+

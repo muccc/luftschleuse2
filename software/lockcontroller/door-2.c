@@ -8,15 +8,13 @@
 #include "leds.h"
 
 static uint8_t door_doorstate;
+static uint8_t door_desiredState;
 
 enum {
     DOOR_IDLE,
     DOOR_LOCKING,
     DOOR_UNLOCKING,
-    DOOR_RELOCK
 } door_state;
-
-uint8_t door_nextcmd;
 
 static void door_startCloseLock(void)
 {
@@ -77,7 +75,7 @@ void door_init(void)
     //DDR_CONFIG_OUT(R1);
 
     door_state = DOOR_IDLE;
-    door_nextcmd = DOOR_CMD_NONE;
+    door_desiredState = DOOR_LOCK_LOCKED;
 #if 0
     volatile uint32_t l;
     while(1){
@@ -98,24 +96,24 @@ void door_init(void)
 
 static void door_update_inputs(void)
 {
-    door_doorstate &= ~(DOOR_DOOR_CLOSED | DOOR_LOCK_LOCKED | DOOR_HANDLE_PRESSED | DOOR_LOCK_UNLOCKED|DOOR_LOCK_PERM_UNLOCKED);
-    //TODO: also query reed contact here
+    door_doorstate &= ~(DOOR_DOOR_CLOSED | DOOR_LOCK_LOCKED | DOOR_HANDLE_PRESSED | DOOR_LOCK_UNLOCKED | DOOR_LOCK_MANUAL_UNLOCKED);
+    //TODO: also query the reed contact here
     if( !PIN_HIGH(DOOR_DOOR_OPEN_CONTACT) )
         door_doorstate |= DOOR_DOOR_CLOSED;
     
     if( !PIN_HIGH(DOOR_HANDLE_CONTACT) )
         door_doorstate |= DOOR_HANDLE_PRESSED;
     
-    // TODO: These might be insufficient criteria!
-    if( !PIN_HIGH(DOOR_LOCK_UNLOCKED_CONTACT) )
-        door_doorstate |= DOOR_LOCK_UNLOCKED;
     if( !PIN_HIGH(DOOR_LOCK_LOCKED_CONTACT) )
         door_doorstate |= DOOR_LOCK_LOCKED;
-    if( !PIN_HIGH(DOOR_LOCK_CONTACT) ){
-        door_doorstate |= DOOR_LOCK_PERM_UNLOCKED;
-        leds_set(LED_OPEN, LED_ON);
-    }else{
-        leds_set(LED_OPEN, LED_SHORT_FLASH);
+
+    // TODO: These might be insufficient criteria!
+    if( !PIN_HIGH(DOOR_LOCK_UNLOCKED_CONTACT) ){
+        if( !PIN_HIGH(DOOR_LOCK_CONTACT) ){
+            door_doorstate |= DOOR_LOCK_UNLOCKED;
+        }else{
+            door_doorstate |= DOOR_LOCK_MANUAL_UNLOCKED;
+        }
     }
 }
 
@@ -129,30 +127,28 @@ static uint8_t door_unlocked(void)
     return door_doorstate & DOOR_LOCK_UNLOCKED;
 }
 
-static uint8_t door_permUnlocked(void)
-{
-    return door_doorstate & DOOR_LOCK_PERM_UNLOCKED;
-}
-
 static uint8_t door_closed(void)
 {
     return door_doorstate & DOOR_DOOR_CLOSED;
 }
 
+#if 0
 static uint8_t door_handlePressed(void)
 {
     return door_doorstate & DOOR_HANDLE_PRESSED;
 }
+#endif
 
 void door_tick(void)
 {
     static uint16_t timeout = 0;
 
     door_update_inputs();
+
     switch(door_state)
     {
         case DOOR_IDLE:
-            if( door_nextcmd == DOOR_CMD_LOCK ){
+            if( door_desiredState == DOOR_LOCK_LOCKED && !door_locked() ){
                 //if( !door_locked() && door_closed() ){
                 if( door_closed() ){
                     door_startCloseLock();
@@ -161,90 +157,38 @@ void door_tick(void)
                     // completed by the motor.
                     timeout = 6000;
                 }
-                door_nextcmd = DOOR_CMD_NONE;
-#if 0
-            }else if( door_nextcmd == DOOR_CMD_UNLOCK ){
-//                if( door_locked() && !door_permUnlocked() || 1){
-                    door_startOpenLock();
-                    door_state = DOOR_UNLOCKING;
-                    // Timeout in which the action must be
-                    // completed by the motor.
-                    timeout = 6000;
-//                }
-                // The door_nextcmd and door_doorstate
-                // variables will be updated in the
-                // DOOR_UNLOCKING state.
-#endif
-            }else if( door_nextcmd == DOOR_CMD_UNLOCK_PERM ){
+            }else if( door_desiredState == DOOR_LOCK_UNLOCKED &&
+                        !door_unlocked() ){
                 //if( door_locked() && door_closed() ){
                 if( door_closed() ){
-//                    PIN_SET(R1);
                     door_startOpenLock();
                     door_state = DOOR_UNLOCKING;
                     // Timeout in which the action must be
                     // completed by the motor.
                     timeout = 6000;
-                    // The door_nextcmd and door_doorstate
-                    // variables will be updated in the
-                    // DOOR_UNLOCKING state.
-                }else{
-                    door_nextcmd = DOOR_CMD_NONE;
                 }
-            }else if( door_nextcmd != DOOR_CMD_NONE &&
-                    timeout == 0 ){
-                // Timeout if a command can not be started
-                // after 5 seconds.
-                timeout = 5000;
-            }else if( door_nextcmd != DOOR_CMD_NONE &&
-                    --timeout == 0 ){
-                // Discard the command
-                // TODO: is there a race condition when new
-                // command get put into the system?
-                door_nextcmd = DOOR_CMD_NONE;
             }
-
         break;
         case DOOR_LOCKING:
-            if( door_locked() && !door_permUnlocked()){
+            if( door_locked() ){
                 door_stopLock();
                 door_state = DOOR_IDLE;
-                door_nextcmd = DOOR_CMD_NONE;
                 timeout = 0;
             }else if( --timeout == 0 ) {
                 door_stopLock();
                 // TODO: handle the error or retry.
-                door_nextcmd = DOOR_CMD_NONE;
                 door_state = DOOR_IDLE;
             }
         break;
         case DOOR_UNLOCKING:
-            if( door_unlocked() && door_permUnlocked() ){
+            if( door_unlocked() ){
                 door_stopLock();
-                if( door_nextcmd == DOOR_CMD_UNLOCK_PERM ){
-                    // Keep the door unlocked
-                    // and accept new commands.
-                    door_state = DOOR_IDLE;
-                    door_nextcmd = DOOR_CMD_NONE;
-                    timeout = 0;
-                }else{
-                    // Lock the door again after a
-                    // few seconds.
-                    door_state = DOOR_RELOCK;
-                    timeout = 5000;
-                }
+                door_state = DOOR_IDLE;
+                timeout = 0;
             }else if( --timeout == 0 ) {
                 door_stopLock();
                 // TODO: handle the error or retry.
-                door_nextcmd = DOOR_CMD_NONE;
-            }
-        break;
-        case DOOR_RELOCK:
-            if( timeout-- == 0 ){
-                door_startCloseLock();
-                door_state = DOOR_LOCKING;
-                // Timeout in which the action must be
-                // completed by the motor.
-                timeout = 3000;
+                door_state = DOOR_IDLE;
             }
         break;
     }
@@ -260,14 +204,9 @@ uint8_t door_getState(void)
     return door_doorstate;
 }
 
-bool door_cmd(door_cmd_t cmd)
+void door_setDesiredState(uint8_t desiredState)
 {
-    if( door_nextcmd == DOOR_CMD_NONE ){
-        // TODO: give feedback, that the command will not be
-        // executed
-        door_nextcmd = cmd;
-        return true;
-    }
-    return false;
+    door_desiredState = desiredState;
 }
+
 #endif

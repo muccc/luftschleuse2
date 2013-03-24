@@ -45,12 +45,9 @@ while True:
 
     if not command_queue.empty():
         command = command_queue.get()
-        if command == 'permunlock':
+        if command == 'unlock':
             for door in doors.values():
-                door.unlock(permanent=True)
-        elif command == 'unlock':
-            for door in doors.values():
-                door.unlock(permanent=False)
+                door.unlock(timeout=5000)
         elif command == 'lock':
             for door in doors.values():
                 door.lock()
