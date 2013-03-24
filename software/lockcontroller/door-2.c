@@ -132,12 +132,10 @@ static uint8_t door_closed(void)
     return door_doorstate & DOOR_DOOR_CLOSED;
 }
 
-#if 0
 static uint8_t door_handlePressed(void)
 {
     return door_doorstate & DOOR_HANDLE_PRESSED;
 }
-#endif
 
 void door_tick(void)
 {
@@ -150,7 +148,7 @@ void door_tick(void)
         case DOOR_IDLE:
             if( door_desiredState == DOOR_LOCK_LOCKED && !door_locked() ){
                 //if( !door_locked() && door_closed() ){
-                if( door_closed() ){
+                if( door_closed() && !door_handlePressed()){
                     door_startCloseLock();
                     door_state = DOOR_LOCKING;
                     // Timeout in which the action must be
@@ -160,7 +158,7 @@ void door_tick(void)
             }else if( door_desiredState == DOOR_LOCK_UNLOCKED &&
                         !door_unlocked() ){
                 //if( door_locked() && door_closed() ){
-                if( door_closed() ){
+                if( door_closed() && !door_handlePressed()){
                     door_startOpenLock();
                     door_state = DOOR_UNLOCKING;
                     // Timeout in which the action must be
