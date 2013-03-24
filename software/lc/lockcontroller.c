@@ -37,7 +37,9 @@ int main(void)
     DDRC |= 0xC0;
 
     eeprom_read_block(&state, &state_ee, sizeof(state));
-
+    
+    leds_init();
+    buttons_init();
     adc_init();
     power_init();
     door_init();
@@ -54,6 +56,9 @@ int main(void)
             bus_tick();
             door_tick();
             power_tick();
+            cmd_tick();
+            buttons_tick();
+            leds_tick();
         }
         bus_process();
         door_process();
