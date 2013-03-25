@@ -51,7 +51,7 @@ static void cmd_sendState(void)
    memset(&p, 0, sizeof(p));
 
    p.cmd = CMD_SEND_STATE;
-   p.data[0] = buttons_getButtonsToggleState();
+   p.data[0] = buttons_getButtonsLatchedState();
    p.data[1] = door_getState();
    p.data[2] = 0;
    p.data[3] = power_getInputVoltage()/100;

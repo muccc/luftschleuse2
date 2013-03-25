@@ -3,9 +3,11 @@
 
 static uint8_t buttons_red_debounce;
 static bool buttons_red_state;
+static uint16_t buttons_red_counter;
 
 static uint8_t buttons_pending;
 static uint8_t buttons_toggle_state;
+static uint8_t buttons_latched_state;
 
 void buttons_init(void)
 {
@@ -15,6 +17,8 @@ void buttons_init(void)
     buttons_red_state = false;
     buttons_red_debounce = 0;
     buttons_toggle_state = 0;
+    buttons_red_counter = 0;
+    buttons_latched_state = 0;
 }
 
 uint8_t buttons_getPendingButtons(void)
@@ -30,6 +34,11 @@ void buttons_clearPendingButtons(uint8_t buttons)
 uint8_t buttons_getButtonsToggleState(void)
 {
     return buttons_toggle_state;
+}
+
+uint8_t buttons_getButtonsLatchedState(void)
+{
+    return buttons_latched_state;
 }
 
 bool buttons_getButtonState(buttons_button_t button)
@@ -52,6 +61,8 @@ void buttons_tick(void)
                 buttons_red_debounce = 0;
                 buttons_pending |= BUTTON_RED;
                 buttons_toggle_state ^= BUTTON_RED;
+                buttons_latched_state |= BUTTON_RED;
+                buttons_red_counter = 5000;
             }
         }else{
             buttons_red_debounce = 0;
@@ -65,5 +76,9 @@ void buttons_tick(void)
         }else{
             buttons_red_debounce = 0;
         }
+    }
+
+    if( buttons_red_counter && --buttons_red_counter == 0 ){
+        buttons_latched_state &= ~(BUTTON_RED);
     }
 }

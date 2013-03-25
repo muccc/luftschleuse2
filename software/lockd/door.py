@@ -60,21 +60,28 @@ class Door:
         if p.cmd==83:
             self.supply_voltage = ord(p.data[3])*0.1
             
+            '''
             pressed_buttons = 0
             if self.buttons_toggle_state == None:
                 self.buttons_toggle_state = ord(p.data[0])
             else:
                 pressed_buttons = self.buttons_toggle_state ^ ord(p.data[0])
                 self.buttons_toggle_state = ord(p.data[0])
-                
             if pressed_buttons:
                 print 'Got pressed buttons:', pressed_buttons
                 if pressed_buttons & 0x01:
-                    if self.desired_state == Door.LOCK_LOCKED:
-                    	self.desired_state = Door.LOCK_UNLOCKED
-                    elif self.desired_state == Door.LOCK_UNLOCKED:
-                    	self.desired_state = Door.LOCK_LOCKED
-            
+
+            '''
+            pressed_buttons = ord(p.data[0])
+            if pressed_buttons & 0x01 and not self.pressed_buttons & 0x01:
+                self.pressed_buttons |= 0x01
+                if self.desired_state == Door.LOCK_LOCKED:
+                    self.desired_state = Door.LOCK_UNLOCKED
+                elif self.desired_state == Door.LOCK_UNLOCKED:
+                    self.desired_state = Door.LOCK_LOCKED 
+            elif not pressed_buttons & 0x01:
+                self.pressed_buttons &= ~0x01
+           
             doorstate = ord(p.data[1])
             state = ''
             self.closed = doorstate & Door.DOOR_CLOSED \
