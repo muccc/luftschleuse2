@@ -34,7 +34,7 @@ class Door:
         self.relock_timeout = 0
         self.desired_state = Door.LOCK_LOCKED
         self.buttons_toggle_state = None
-
+        self.pressed_buttons = 0
     def unlock(self, relock_timeout=0):
         self.desired_state = Door.LOCK_UNLOCKED
         self.relock_timeout = relock_timeout
@@ -131,7 +131,7 @@ class Door:
     def tick(self):
         self.periodic-=1
         if self.periodic == 0:
-            self.periodic = 10
+            self.periodic = 2
             self._send_command(ord('D'), chr(self.desired_state))
         
         if self.relock_timeout:
