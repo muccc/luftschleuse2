@@ -11,6 +11,7 @@ class UDPCommand(threading.Thread):
         self.sock = socket.socket(socket.AF_INET, # Internet
                         socket.SOCK_DGRAM) # UDP
         self.sock.bind((host, port))
+        self.setDaemon(True)
         self.start()
  
     def run(self):

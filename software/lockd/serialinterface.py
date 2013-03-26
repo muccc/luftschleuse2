@@ -75,7 +75,9 @@ class SerialInterface:
             try:
                 c = self.ser.read(1)
                 #print list(c)
-            except:
+            except KeyboardInterrupt:
+                raise KeyboardInterrupt
+            except Exception, e:
                 print "port broken 2"
                 self.reinit()
                 return (False, '')
