@@ -62,7 +62,7 @@ void buttons_tick(void)
                 buttons_pending |= BUTTON_RED;
                 buttons_toggle_state ^= BUTTON_RED;
                 buttons_latched_state |= BUTTON_RED;
-                buttons_red_counter = 5000;
+                buttons_red_counter = 2000;
             }
         }else{
             buttons_red_debounce = 0;
