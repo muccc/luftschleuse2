@@ -74,7 +74,7 @@ try:
     while True:
         address, message = ser.readMessage()
         if address in doors:
-            logger.debug('Received data from address %d :'%address, str(list(message)))
+            logger.debug('Received data from address %s :%s'%(address, str(list(message))))
             doors[address].update(message)
 
         if not command_queue.empty():
