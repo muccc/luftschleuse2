@@ -137,9 +137,9 @@ class Door:
 
     def get_desired_state(self):
         state = ''
-        if self.desired_state & Door.LOCK_LOCKED
+        if self.desired_state & Door.LOCK_LOCKED:
             state += ' LOCKED'
-        if self.desired_state & Door.LOCK_LOCKED
+        if self.desired_state & Door.LOCK_LOCKED:
             state += ' UNLOCKED'
         
         state = state.strip()
