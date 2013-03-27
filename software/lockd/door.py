@@ -104,6 +104,7 @@ class Door:
             self.perm_unlocked = doorstate & Door.LOCK_PERM_UNLOCKED \
                             == Door.LOCK_PERM_UNLOCKED
             self.logger.info('Door state: %s'%self.get_state())
+            self.logger.info('Desired door state: %s'%self.get_desired_state())
 
         elif p.cmd==ord('A'):
             accepted = ord(p.data[0]) == 1
@@ -132,6 +133,16 @@ class Door:
             state += ' PERM_UNLOCKED'
         state = state.strip()
         state = state + ' Voltage=%.1f V'%self.supply_voltage
+        return state
+
+    def get_desired_state(self):
+        state = ''
+        if self.desired_state & Door.LOCK_LOCKED
+            state += ' LOCKED'
+        if self.desired_state & Door.LOCK_LOCKED
+            state += ' UNLOCKED'
+        
+        state = state.strip()
         return state
 
     def tick(self):
