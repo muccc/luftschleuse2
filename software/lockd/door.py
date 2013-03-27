@@ -1,6 +1,7 @@
 from packet import Packet
 import time
 from aes import AES
+import logging
 
 class Door:
     DOOR_CLOSED        = (1<<0)
@@ -34,6 +35,7 @@ class Door:
         self.relock_timeout = 0
         self.desired_state = Door.LOCK_LOCKED
         self.buttons_toggle_state = None
+        self.logger = logging.getLogger('logger')
 
     def unlock(self, relock_timeout=0):
         self.desired_state = Door.LOCK_UNLOCKED
@@ -50,12 +52,14 @@ class Door:
 
     def update(self, message):
     	if len(message) != 16:
+            self.logger.warning("The received message is not 16 bytes long")
     	    return
         message = self.aes.decrypt([ord(x) for x in message], self.key,
                     AES.keySize["SIZE_128"])
         message = ''.join([chr(x) for x in message])
 
-        print list(message)
+        self.logger.debug("Decoded message: %s"%str(list(message)))
+        
         p = Packet.fromMessage(message)
         if p.cmd==83:
             self.supply_voltage = ord(p.data[3])*0.1
@@ -68,7 +72,7 @@ class Door:
                 self.buttons_toggle_state = ord(p.data[0])
                 
             if pressed_buttons:
-                print 'Got pressed buttons:', pressed_buttons
+                self.logger.info('Got pressed buttons: %d' % pressed_buttons)
                 if pressed_buttons & 0x01:
                     if self.desired_state == Door.LOCK_LOCKED:
                     	self.desired_state = Door.LOCK_UNLOCKED
@@ -91,15 +95,16 @@ class Door:
                             == Door.HANDLE_PRESSED
             self.perm_unlocked = doorstate & Door.LOCK_PERM_UNLOCKED \
                             == Door.LOCK_PERM_UNLOCKED
-            print 'Door state:', self.get_state()
+            self.logger.info('Door state: %s'%self.get_state())
+
         elif p.cmd==ord('A'):
             accepted = ord(p.data[0]) == 1
             if not self.command_accepted:
                 if accepted:
-                    print 'Command at %d was accepted', self.command_time
+                    self.logger.info('Command at %d was accepted'%self.command_time)
                     self.command_accepted = True
                 else:
-                    print 'Command at %d was NOT accepted', self.command_time
+                    self.logger.warning('Command at %d was NOT accepted'% self.command_time)
 
     def get_state(self):
         state = ''
