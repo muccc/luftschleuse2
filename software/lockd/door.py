@@ -139,7 +139,7 @@ class Door:
         state = ''
         if self.desired_state & Door.LOCK_LOCKED:
             state += ' LOCKED'
-        if self.desired_state & Door.LOCK_LOCKED:
+        if self.desired_state & Door.UNLOCK_LOCKED:
             state += ' UNLOCKED'
         
         state = state.strip()
