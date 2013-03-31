@@ -83,10 +83,10 @@ class SerialInterface:
                 return (False, '')
             endtime = time.time()
             if len(c) == 0:             #A timout occured
-                if endtime-starttime < (self.timeout * 0.5):
-                    self.reinit()
-                    raise Exception('No data after %f seconds. Port seems broken.'%(endtime-starttime))
-                else:
+            #    if endtime-starttime < (self.timeout * 0.5):
+            #        self.reinit()
+            #        raise Exception('No data after %f seconds. Port seems broken.'%(endtime-starttime))
+            #    else:
                     #print 'TIMEOUT'
                     return (False, '')
             if escaped:
