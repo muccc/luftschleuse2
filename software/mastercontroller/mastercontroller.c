@@ -1,12 +1,13 @@
 #include "config.h"
 #include "uart.h"
-#include "serial_handler.h"
 #include "serial_process.h"
 #include "command_process.h"
 #include "bus_handler.h"
 #include "bus_process.h"
 #include "aes.h"
 #include "timer0.h"
+#include "buttons.h"
+#include "leds.h"
 
 #include <avr/io.h>
 #include <avr/wdt.h>
@@ -24,10 +25,6 @@ typedef struct{
 state_t state_ee EEMEM = {.seq=3, .locked=1};
 state_t state;
 
-volatile uint8_t tick = 0;
-
-
-
 int main(void)
 {
     wdt_disable();
@@ -38,31 +35,31 @@ int main(void)
     WDTCSR |= (1<<WDCE) | (1<<WDE);
     /* Turn off WDT */
     WDTCSR = 0x00;
-    DDRA |= 0x07;
-    PORTA &= ~7;
-    DDRC |= 0x07;
-    DDRC |= 0xC0;
+    //DDRA |= 0x07;
+    //PORTA &= ~7;
+    //DDRC |= 0x07;
+    //DDRC |= 0xC0;
 
     eeprom_read_block(&state, &state_ee, sizeof(state));
-    serial_handler_init();
     aes_handler_init();
     bus_handler_init();
     serial_init();
     bus_init();
     cmd_init();
+    buttons_init();
+    leds_init();
     timer0_init();
     sei();
     
-    uint16_t foo = 0;
+    leds_set(0,LED_SHORT_FLASH);
+
     while( 1 ){
-        if( timebase ){
-            timebase--;
+        if( timer0_timebase ){
+            timer0_timebase--;
             bus_tick();
             serial_tick();
-            if( foo++ == 1000 ){
-                //PORTC ^= 0xC0;
-                foo = 0;
-            }
+            buttons_tick();
+            leds_tick();
         }
         bus_process();
         serial_process();

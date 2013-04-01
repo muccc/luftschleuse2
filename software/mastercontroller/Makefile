@@ -83,6 +83,8 @@ OBJDIR = .
 SRC = $(TARGET).c \
 serial_handler.c \
 serial_process.c \
+buttons.c \
+leds.c \
 ../common/aes.c \
 ../common/timer0.c \
 command_process.c \
@@ -90,6 +92,7 @@ command_process.c \
 bus_process.c \
 ../common/uart.c \
 ../common/packet.c \
+power_process.c \
 ../common/adc.c
 
 # List C++ source files here. (C dependencies are automatically generated.)

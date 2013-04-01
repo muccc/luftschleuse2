@@ -10,6 +10,7 @@
 
 void serial_init(void)
 {
+    serial_handler_init();
 }
 
 void serial_tick(void)
@@ -26,16 +27,23 @@ void serial_process(void)
         if( serial_channel == '0' ){
             aes_decrypt(msg);
             packet = (packet_t *) msg;
-            //serial_sendFrame(1, msg, 16);
+
             if( packet_check(packet) ){
                 cmd_new(packet->cmd, packet->data);
-                //if( packet.seq == state.seq ){    
-                //    PORTA ^= 0x01;
-                //}
             }
         }else if(serial_channel != 0) {
             bus_sendFrame(serial_channel, msg, 16);
         }
     }
     
+}
+
+void serial_sendPacket(packet_t *p)
+{
+    memcpy(p->magic, PACKET_MAGIC, sizeof(p->magic));
+    //TODO: increment sequence number
+    p->seq = 0;
+    uint8_t *msg = (uint8_t *)p;
+    aes_encrypt(msg);
+    serial_sendFrame('0', msg, sizeof(*p));
 }
