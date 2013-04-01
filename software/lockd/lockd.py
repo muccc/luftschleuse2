@@ -4,25 +4,13 @@ import sys
 import time
 import packet
 from door import Door
+from mastercontroller import MasterController
 from command import UDPCommand
 import Queue
 import logging
 import logging.handlers
 import traceback
-
-'''
-def add_custom_print_exception():
-    old_print_exception = traceback.print_exception
-    def custom_print_exception(etype, value, tb, limit=None, file=None):
-        print 'foobar'
-        tb_output = StringIO.StringIO()
-        traceback.print_tb(tb, limit, tb_output)
-        logger = logging.getLogger('logger')
-        logger.error(tb_output.getvalue())
-        tb_output.close()
-        old_print_exception(etype, value, tb, limit=None, file=None)
-    traceback.print_exception = custom_print_exception
-'''
+from announce import Announcer
 
 config = ConfigParser.RawConfigParser()
 config.read(sys.argv[1])
@@ -45,8 +33,8 @@ try:
 #if 1:
     serialdevice = config.get('Master Controller', 'serialdevice')
     baudrate = config.get('Master Controller', 'baudrate')
-    masterkey = config.get('Master Controller', 'key')
-    masterkey =''.join([chr(int(x)) for x in masterkey.split()])
+
+    announcer = Announcer(False)
 
     ser = serialinterface.SerialInterface(serialdevice, baudrate, timeout=.1)
     command_queue = Queue.Queue()
@@ -54,6 +42,8 @@ try:
     udpcommand = UDPCommand('127.0.0.1', 2323, command_queue)
 
     doors = {}
+
+    master = None
 
     for section in config.sections():
         if config.has_option(section, 'type'):
@@ -69,13 +59,25 @@ try:
                 doors[address] = door
             else:
                 logger.warning('Unknown entry type "%s"', t)
-    seq = 0
+        elif section == 'Master Controller':
+            txseq = int(config.get(section, 'txsequence'))
+            rxseq = int(config.get(section, 'rxsequence'))
+            key = config.get(section, 'key')
+            master = MasterController('0', txseq, rxseq, key, ser, command_queue) 
+    
+    if master == None:
+        logger.error('Please specify a master controller')
+        sys.exit(1)
 
+    command_queue.put('announce_closed')
+    
     while True:
         address, message = ser.readMessage()
+        logger.debug('Received data from address %s :%s'%(address, str(list(message))))
         if address in doors:
-            logger.debug('Received data from address %s :%s'%(address, str(list(message))))
             doors[address].update(message)
+        elif address == '0':
+            master.update(message)
 
         if not command_queue.empty():
             command = command_queue.get()
@@ -85,8 +87,33 @@ try:
             elif command == 'lock':
                 for door in doors.values():
                     door.lock()
+                command_queue.put('announce_closed')
+            elif command == 'announce_open':
+                announcer.announce_open()
+                master.announce_open()
+            elif command == 'announce_closed':
+                announcer.announce_closed()
+                master.announce_closed()
+            elif command == 'toggle_announce':
+                if announcer.open:
+                    command_queue.put('announce_closed')
+                else:
+                    command_queue.put('announce_open')
         for d in doors:
             doors[d].tick()
+        master.tick()
+        announcer.tick()
+        
+        all_locked = True
+        for d in doors:
+            if not doors[d].locked:
+                all_locked = False
+        if all_locked:
+            logger.debug("All doors locked")
+        else:
+            logger.debug("NOT all doors locked")
+        master.set_global_state(all_locked)
+
 #try:
 #    pass
 except Exception, e:

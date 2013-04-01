@@ -2,6 +2,7 @@ import serial
 import string
 import sys
 import time
+import logging
 
 class SerialInterface:
     def  __init__ ( self, path2device, baudrate, timeout=0):
@@ -26,10 +27,12 @@ class SerialInterface:
             self.last = time.time()
 
         except serial.SerialException:
-            print "Exception while opening", path2device
-            pass
+            self.logger.warning("Exception while opening %s"%path2device)
         time.sleep(1)
-      print "Opened", path2device
+
+      self.logger = logging.getLogger('logger')
+      self.logger.info("Opened %s"%path2device)
+
     def close(self):
         try:
             self.portopen = False
@@ -38,15 +41,15 @@ class SerialInterface:
             pass
     def reinit(self):
         self.close()
-        print "reopening"
+        self.logger.warning("reopening")
         while not self.portopen:
             self.__init__(self.path2device, self.baudrate, self.timeout)
             time.sleep(1)
-        print "done"
+        self.logger.debug("done")
 
     def writeMessage(self,command,message):
         enc = "\\"+ command + message.replace('\\','\\\\') + "\\9";
-        print 'writing %s' % list(enc)
+        self.logger.debug('writing %s' % list(enc))
         try:
             self.ser.write(enc)
         except :
@@ -55,7 +58,7 @@ class SerialInterface:
 
 
     def write(self,message):
-        print 'writing', list(message)
+        self.logger.debug('writing %s'%list(message))
         if self.dummy:
             return
         try:
@@ -78,7 +81,7 @@ class SerialInterface:
             except KeyboardInterrupt:
                 raise KeyboardInterrupt
             except Exception, e:
-                print "port broken 2"
+                self.logger.warning("port broken 2")
                 self.reinit()
                 return (False, '')
             endtime = time.time()
@@ -113,6 +116,7 @@ class SerialInterface:
                 #print 'received message. command=',command, "data=" ,list(data)
                 #print time.time() - self.last
                 self.last = time.time()
+                #print (command, data)
                 return (command, data)
             elif escaped == False and inframe:
                 data += str(d)
