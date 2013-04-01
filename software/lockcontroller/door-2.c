@@ -9,21 +9,24 @@
 
 static uint8_t door_doorstate;
 static uint8_t door_desiredState;
+static uint8_t door_barState;
 
 enum {
     DOOR_IDLE,
+    DOOR_LOCK,
     DOOR_LOCKING,
+    DOOR_UNLOCK,
     DOOR_UNLOCKING,
 } door_state;
 
-static void door_startCloseLock(void)
-{
-    //PIN_SET(R1);
-    PIN_SET(DOOR_HBRIDGE_IN1);
-    PIN_SET(DOOR_HBRIDGE_ENABLE);
-}
+enum {
+    BAR_UNKNOWN,
+    BAR_LOCKED,
+    BAR_UNLOCKED,
+} bar_state;
 
-static void door_startOpenLock(void)
+
+static void door_startLock(void)
 {
     //PIN_SET(R1);
     PIN_SET(DOOR_HBRIDGE_IN1);
@@ -32,10 +35,8 @@ static void door_startOpenLock(void)
 
 static void door_stopLock(void)
 {
-    //PIN_CLEAR(R1);
     PIN_CLEAR(DOOR_HBRIDGE_IN1);
     PIN_CLEAR(DOOR_HBRIDGE_IN2);
-    //PIN_CLEAR(DOOR_HBRIDGE_ENABLE);
 }
 
 void door_init(void)
@@ -59,7 +60,6 @@ void door_init(void)
     DDR_CONFIG_IN(DOOR_DOOR_OPEN_CONTACT);
     PIN_SET(DOOR_DOOR_OPEN_CONTACT);
 
-    //PIN_CLEAR(DOOR_HBRIDGE_ENABLE);
     PIN_SET(DOOR_HBRIDGE_ENABLE);
     PIN_CLEAR(DOOR_HBRIDGE_IN1);
     PIN_CLEAR(DOOR_HBRIDGE_IN2);
@@ -74,23 +74,9 @@ void door_init(void)
     //PIN_CLEAR(R1);
     //DDR_CONFIG_OUT(R1);
 
-    door_state = DOOR_IDLE;
     door_desiredState = DOOR_LOCK_LOCKED;
-#if 0
-    volatile uint32_t l;
-    while(1){
-        door_startCloseLock();
-        //PIN_SET(R1);
-        for(l=0; l<2000000; l++);
-        door_stopLock();
-        for(l=0; l<500000; l++);
-        PIN_CLEAR(R1);
-        door_startOpenLock();
-        for(l=0; l<2000000; l++);
-        door_stopLock();
-        for(l=0; l<500000; l++);
-    }
-#endif
+    door_barState = BAR_UNKNOWN;
+    door_state = DOOR_LOCK;
 }
 
 
@@ -109,7 +95,9 @@ static void door_update_inputs(void)
 
     // TODO: These might be insufficient criteria!
     if( !PIN_HIGH(DOOR_LOCK_UNLOCKED_CONTACT) ){
+        // The bar is retracted
         if( !PIN_HIGH(DOOR_LOCK_CONTACT) ){
+            // The bar is retracted because we unlocked it
             door_doorstate |= DOOR_LOCK_UNLOCKED;
         }else{
             door_doorstate |= DOOR_LOCK_MANUAL_UNLOCKED;
@@ -117,15 +105,15 @@ static void door_update_inputs(void)
     }
 }
 
-static uint8_t door_locked(void)
-{
-    return door_doorstate & DOOR_LOCK_LOCKED;
-}
+//static uint8_t door_locked(void)
+//{
+//    return door_doorstate & DOOR_LOCK_LOCKED;
+//}
 
-static uint8_t door_unlocked(void)
-{
-    return door_doorstate & DOOR_LOCK_UNLOCKED;
-}
+//static uint8_t door_unlocked(void)
+//{
+//    return door_doorstate & DOOR_LOCK_UNLOCKED;
+//}
 
 static uint8_t door_closed(void)
 {
@@ -137,52 +125,73 @@ static uint8_t door_handlePressed(void)
     return door_doorstate & DOOR_HANDLE_PRESSED;
 }
 
+static bool door_barSensor(void)
+{
+    if( PIN_HIGH(DOOR_LOCK_CONTACT) ){
+        return true;
+    }
+    return false;
+}
+
 void door_tick(void)
 {
     static uint16_t timeout = 0;
+    static bool previousbarsensor = false;
+    bool barsensor = door_barSensor();
 
     door_update_inputs();
 
     switch(door_state)
     {
         case DOOR_IDLE:
-            if( door_desiredState == DOOR_LOCK_LOCKED && !door_locked() ){
-                //if( !door_locked() && door_closed() ){
-                if( door_closed() && !door_handlePressed()){
-                    door_startCloseLock();
-                    door_state = DOOR_LOCKING;
-                    // Timeout in which the action must be
-                    // completed by the motor.
-                    timeout = 6000;
-                }
-            }else if( door_desiredState == DOOR_LOCK_UNLOCKED &&
-                        !door_unlocked() ){
-                //if( door_locked() && door_closed() ){
-                if( door_closed() && !door_handlePressed()){
-                    door_startOpenLock();
-                    door_state = DOOR_UNLOCKING;
-                    // Timeout in which the action must be
-                    // completed by the motor.
-                    timeout = 6000;
-                }
+            if( door_desiredState == DOOR_LOCK_LOCKED && door_barState != BAR_LOCKED ){
+                door_state = DOOR_LOCK;
+            }else if( door_desiredState == DOOR_LOCK_UNLOCKED && door_barState != BAR_UNLOCKED ){
+                door_state = DOOR_UNLOCK;
+            }else if( door_barState == BAR_UNKNOWN ){
+                door_state = DOOR_LOCKING;
+            }
+        break;
+        case DOOR_LOCK:
+            if( door_closed() && !door_handlePressed()){
+                previousbarsensor = barsensor;
+                door_startLock();
+                door_state = DOOR_LOCKING;
+                // Timeout in which the action must be
+                // completed by the motor.
+                timeout = 6000;
             }
         break;
         case DOOR_LOCKING:
-            if( door_locked() ){
+            //if( door_locked() ){
+            if( previousbarsensor == false && barsensor == true ){
                 door_stopLock();
                 door_state = DOOR_IDLE;
                 timeout = 0;
+                door_barState = BAR_LOCKED;
             }else if( --timeout == 0 ) {
                 door_stopLock();
                 // TODO: handle the error or retry.
                 door_state = DOOR_IDLE;
             }
         break;
+
+        case DOOR_UNLOCK:
+            if( door_closed() && !door_handlePressed()){
+                door_startLock();
+                door_state = DOOR_UNLOCKING;
+                // Timeout in which the action must be
+                // completed by the motor.
+                timeout = 6000;
+            }
+        break;
         case DOOR_UNLOCKING:
-            if( door_unlocked() ){
+            //if( door_unlocked() ){
+            if( previousbarsensor == true && barsensor == false ){
                 door_stopLock();
                 door_state = DOOR_IDLE;
                 timeout = 0;
+                door_barState = BAR_UNLOCKED;
             }else if( --timeout == 0 ) {
                 door_stopLock();
                 // TODO: handle the error or retry.
@@ -190,6 +199,8 @@ void door_tick(void)
             }
         break;
     }
+    
+    previousbarsensor = barsensor;
     // TODO: put overcurrent detection here
 }
 

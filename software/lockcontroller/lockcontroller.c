@@ -53,8 +53,8 @@ int main(void)
     sei();
     
     while( 1 ){
-        if( timebase ){
-            timebase--;
+        if( timer0_timebase ){
+            timer0_timebase--;
             bus_tick();
             door_tick();
             power_tick();
