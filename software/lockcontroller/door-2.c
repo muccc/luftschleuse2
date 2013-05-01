@@ -1,11 +1,9 @@
 #include "config.h"
-#if DOOR_MODEL == DOOR_2
+#if DOOR_MODEL == DOOR_MODEL_2
 #include "door.h"
 #include "pinutils.h"
 #include <stdbool.h>
 #include <stdint.h>
-
-#include "leds.h"
 
 static uint8_t door_doorstate;
 static uint8_t door_desiredState;
@@ -164,7 +162,7 @@ void door_tick(void)
         break;
         case DOOR_LOCKING:
             //if( door_locked() ){
-            if( previousbarsensor == false && barsensor == true ){
+            if( previousbarsensor == true && barsensor == false ){
                 door_stopLock();
                 door_state = DOOR_IDLE;
                 timeout = 0;
@@ -187,7 +185,7 @@ void door_tick(void)
         break;
         case DOOR_UNLOCKING:
             //if( door_unlocked() ){
-            if( previousbarsensor == true && barsensor == false ){
+            if( previousbarsensor == false && barsensor == true ){
                 door_stopLock();
                 door_state = DOOR_IDLE;
                 timeout = 0;
