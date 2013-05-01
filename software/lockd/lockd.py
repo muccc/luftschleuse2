@@ -53,9 +53,15 @@ try:
                 txseq = int(config.get(section, 'txsequence'))
                 rxseq = int(config.get(section, 'rxsequence'))
                 address = config.get(section, 'address')
+                initial_unlock = config.get(section, 'inital_unlock')
+                if initial_unlock == 'True':
+                    initial_unlock = True
+                else:
+                    initial_unlock = False
+
                 key = config.get(section, 'key')
                 logger.debug('Adding door "%s"'%section)
-                door = Door(name, address, txseq, rxseq, key, ser)
+                door = Door(name, address, txseq, rxseq, key, ser, initial_unlock)
                 doors[address] = door
             else:
                 logger.warning('Unknown entry type "%s"', t)
@@ -72,18 +78,26 @@ try:
     command_queue.put('announce_closed')
     
     while True:
-        address, message = ser.readMessage()
-        logger.debug('Received data from address %s :%s'%(address, str(list(message))))
-        if address in doors:
-            doors[address].update(message)
-        elif address == '0':
-            master.update(message)
+        timeout = False
+        while not timeout:
+            address, message = ser.readMessage()
+            if address != False:
+                logger.debug('Received data from address %s :%s'%(address, str(list(message))))
+            else:
+                timeout = True
+
+            if address in doors:
+                doors[address].update(message)
+            elif address == '0':
+                master.update(message)
 
         if not command_queue.empty():
             command = command_queue.get()
+            logger.info("-------------Received new command: %s----------------"%command)
             if command == 'unlock':
-                for door in doors.values():
-                    door.unlock(relock_timeout=50)
+                for door in [door for door in doors.values() if door.initial_unlock == True]:
+                    logger.info("Unlocking %s"%door.name)
+                    door.unlock(relock_timeout=5)
             elif command == 'lock':
                 for door in doors.values():
                     door.lock()

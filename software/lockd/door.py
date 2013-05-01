@@ -12,7 +12,7 @@ class Door:
     HANDLE_PRESSED     = (1<<5)
     LOCK_PERM_UNLOCKED = (1<<6)
     
-    def __init__(self, name, address, txseq, rxseq, key, interface):
+    def __init__(self, name, address, txseq, rxseq, key, interface, initial_unlock):
         self.name = name
         self.address = address
         self.txseq = txseq
@@ -32,15 +32,16 @@ class Door:
         self.command_accepted = None
         self.command = None
         self.periodic = 10
-        self.relock_timeout = 0
+        self.relock_time = 0
         self.desired_state = Door.LOCK_LOCKED
         self.buttons_toggle_state = None
         self.logger = logging.getLogger('logger')
         self.pressed_buttons = 0
+        self.initial_unlock = initial_unlock
 
     def unlock(self, relock_timeout=0):
         self.desired_state = Door.LOCK_UNLOCKED
-        self.relock_timeout = relock_timeout
+        self.relock_time = time.time() + relock_timeout
 
         #if timeout:
         #    self._send_command(command=ord('D'), data='\x02')
@@ -151,10 +152,10 @@ class Door:
             self.periodic = 2
             self._send_command(ord('D'), chr(self.desired_state))
         
-        if self.relock_timeout:
-            self.relock_timeout-=1
-            if self.relock_timeout == 0:
+        if self.relock_time:
+            if time.time() > self.relock_time:
                 self.desired_state = Door.LOCK_LOCKED
+                self.relock_time = 0
         '''
         if time.time() - self.command_time > 5:
             if self.command_accepted == False:
@@ -168,6 +169,7 @@ class Door:
                     AES.keySize["SIZE_128"])
         msg = ''.join([chr(x) for x in msg])
 
+        self.logger.debug('Msg to door %s: %s'%(self.name, list(p.toMessage())))
         self.interface.writeMessage(self.address, msg)
         '''
         self.command_accepted = None

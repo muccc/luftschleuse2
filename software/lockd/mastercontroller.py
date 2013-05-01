@@ -76,7 +76,7 @@ class MasterController:
         
     def _send_command(self, command, data):
         p = Packet(seq=self.txseq, cmd=command, data=data)
-        self.logger.debug('Msg to master: %s'%list(p.toMessage()))
+        self.logger.debug('Msg to mastercontroller: %s'%list(p.toMessage()))
 
         msg = self.aes.encrypt([ord(x) for x in p.toMessage()], self.key,
                     AES.keySize["SIZE_128"])

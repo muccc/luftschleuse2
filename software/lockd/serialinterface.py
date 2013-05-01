@@ -49,9 +49,12 @@ class SerialInterface:
 
     def writeMessage(self,command,message):
         enc = "\\"+ command + message.replace('\\','\\\\') + "\\9";
-        self.logger.debug('writing %s' % list(enc))
+        #self.logger.debug('writing %s' % list(enc))
         try:
             self.ser.write(enc)
+            # Hack to avoid collisions, needs to be
+            # convertet to some sort of queue management
+            time.sleep(.05)
         except :
             pass
             #self.reinit()
