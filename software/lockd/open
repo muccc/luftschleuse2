@@ -1,0 +1,2 @@
+#!/bin/sh
+echo "unlock" | nc -u 127.0.0.1 2323 -q 1

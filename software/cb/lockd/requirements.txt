@@ -1,6 +1,0 @@
-argparse==1.2.1
-crc16==0.1.1
-distribute==0.6.24
-pycrypto-on-pypi==2.3
-pyserial==2.6
-wsgiref==0.1.2
