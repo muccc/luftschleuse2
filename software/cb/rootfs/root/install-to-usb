@@ -1,0 +1,2 @@
+/bin/sh
+opkg install $1 -d usb

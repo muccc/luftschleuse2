@@ -56,3 +56,12 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
+
+
+*.eep
+*.elf
+*.hex
+*.lss
+*.map
+*.sym
+*.swp
