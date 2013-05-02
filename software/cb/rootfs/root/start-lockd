@@ -1,0 +1,5 @@
+#!/bin/sh
+. /root/lockd-env/bin/activate
+cd /root/lockd
+python lockd.py /root/lockd.cfg
+
