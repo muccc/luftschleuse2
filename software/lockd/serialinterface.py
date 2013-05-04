@@ -13,6 +13,8 @@ class SerialInterface:
             self.dummy = True
             self.portopen = True
 
+      self.logger = logging.getLogger('logger')
+
       while not self.portopen:
         try:
             self.ser = serial.Serial(path2device, baudrate)
@@ -30,7 +32,6 @@ class SerialInterface:
             self.logger.warning("Exception while opening %s"%path2device)
         time.sleep(1)
 
-      self.logger = logging.getLogger('logger')
       self.logger.info("Opened %s"%path2device)
 
     def close(self):
