@@ -48,9 +48,9 @@ class DoorLogic():
                     if not self.isPublic(origin_name):
                         self.public(origin_name)
                     else:
-                        if self.state == self.State.DOWN
+                        if self.state == self.State.DOWN:
                             self.lock(origin_name)
-                        elif self.state == self.State.CLOSED
+                        elif self.state == self.State.CLOSED:
                             self.lock(origin_name)
                         elif self.state == self.State.MEMEBER:
                             self.private(origin_name)
@@ -59,7 +59,7 @@ class DoorLogic():
                         else:
                             self.lock(origin_name)
 
-        if origin_type == self.Origin.CONTROL_PANNEL
+        if origin_type == self.Origin.CONTROL_PANNEL:
             if input_type == self.Input.BUTTON:
                 if input_name == 'down':
                     self.lock('all')
@@ -83,9 +83,7 @@ class DoorLogic():
         all_private = all([door.is_private() for door in self.doors])
         all_public = all([door.is_public() for door in self.doors])
         
-        if self.all_locked != all_locked or
-                self.all_private != all_private or
-                self.all_public != all_public:
+        if self.all_locked != all_locked or self.all_private != all_private or self.all_public != all_public:
             system_state_changed = True
 
         #if system_state_changed:
