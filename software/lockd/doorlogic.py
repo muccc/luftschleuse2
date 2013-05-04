@@ -13,6 +13,14 @@ class DoorLogic():
         SWITCH           =   3
         SENSOR           =   4
 
+    class State:
+        DOWN            =   1
+        CLOSED          =   2
+        MEMEBER         =   3
+        OPEN            =   4
+        PUBLIC          =   5
+
+
     def __init__(self):
         self.logger = logging.get_logger('logger')
         self.allow_public = True
@@ -32,22 +40,40 @@ class DoorLogic():
                     self.open_temp()
                 if input_value == 'close':
                     self.lock('all')
+                    self.state = self.State.DOWN
+
         if origin_type == self.Origin.DOOR:
             if input_type == self.Input.BUTTON:
                 if input_name == 'public':
-                    if self.allow_public:
+                    if not self.isPublic(origin_name):
                         self.public(origin_name)
-                if input_name == 'private':
-                    self.private(origin_name)
-                if input_name == 'close':
-                    self.lock(origin_name)
+                    else:
+                        if self.state == self.State.DOWN
+                            self.lock(origin_name)
+                        elif self.state == self.State.CLOSED
+                            self.lock(origin_name)
+                        elif self.state == self.State.MEMEBER:
+                            self.private(origin_name)
+                        elif self.state == self.State.PUBLIC:
+                            pass
+                        else:
+                            self.lock(origin_name)
+
         if origin_type == self.Origin.CONTROL_PANNEL
             if input_type == self.Input.BUTTON:
-                if input_name == 'private':
-                    self.private('all')
-                if input_name == 'close':
+                if input_name == 'down':
                     self.lock('all')
-    
+                    self.state = self.State.DOWN
+                elif input_name == 'closed':
+                    self.lock('all')
+                    self.state = self.State.CLOSED
+                elif input_name == 'memeber':
+                    self.private('all')
+                    self.state = self.State.MEMBER
+                elif input_name == 'public':
+                    self.public('all')
+                    self.state = self.State.PUBLIC
+
     # The state of a door has changed
     # Check what is going on and send updates to all parts of the system
     def door_state_update(self, door):
@@ -57,25 +83,26 @@ class DoorLogic():
         all_private = all([door.is_private() for door in self.doors])
         all_public = all([door.is_public() for door in self.doors])
         
-
-        if all_locked and not self.all_locked and self.announce_open:
-            self.announce_open = False
-            system_state_changed = True
-
         if self.all_locked != all_locked or
                 self.all_private != all_private or
                 self.all_public != all_public:
             system_state_changed = True
 
-        if system_state_changed:
-            self.notify_system_state_listeners()
+        #if system_state_changed:
+        #    self.notify_system_state_listeners()
 
     # Locks one or all doors in the system
     def lock(self, door_name):
         for door in self.doors:
-            if value == 'all' or door.name == door_name:
+            if door_name == 'all' or door.name == door_name:
                 door.lock()
         
+    # Puts one or all doors into the private mode.
+    # If the door is in public mode, it gets locked for the public
+    def private(self, door_name):
+        # TODO: implement
+        pass
+
     # Opens a specific door for a short amount of time to
     # allow someone to enter and operate the system from the inside
     def temp_public(self):
@@ -88,11 +115,6 @@ class DoorLogic():
             if door.name == door_name:
                  door.unlock()
     
-    # Puts one or all doors into the private mode.
-    # If the door is in public mode, it gets locked for the public
-    def private(self, door_name):
-        pass
-
     def add_timer(self, timeout, function, arguments):
         self.timers.append((time.time()+timeout, function, arguments))
 
@@ -108,11 +130,4 @@ class DoorLogic():
     def add_door(self, door):
         self.doors.append(door)
         door.add_state_listener(self.door_state_update)
-
-
-
-
-
-
-
 
