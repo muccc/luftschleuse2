@@ -2,9 +2,10 @@ from packet import Packet
 import time
 from aes import AES
 import logging
+from doorlogic import DoorLogic
 
 class MasterController:
-    def __init__(self, address, txseq, rxseq, key, interface, command_queue):
+    def __init__(self, address, txseq, rxseq, key, interface, input_queue):
         self.address = address
         self.txseq = txseq
         self.rxseq = rxseq
@@ -19,7 +20,7 @@ class MasterController:
         self.logger = logging.getLogger('logger')
         self.pressed_buttons = 0
         
-        self.command_queue = command_queue
+        self.input_queue = input_queue
         self.all_locked = False
 
     def update(self, message):
@@ -41,13 +42,22 @@ class MasterController:
 
             if pressed_buttons & 0x01 and not self.pressed_buttons & 0x01:
                 self.pressed_buttons |= 0x01
-                self.command_queue.put('lock')
+                self.input_queue.put({'origin_name': 'master',
+                     'origin_type': DoorLogic.Origin.CONTROL_PANNEL,
+                     'input_name': 'down',
+                     'input_type': DoorLogic.Input.BUTTON,
+                     'input_value': ''})
+
             elif not pressed_buttons & 0x01:
                 self.pressed_buttons &= ~0x01
 
             if pressed_buttons & 0x02 and not self.pressed_buttons & 0x02:
                 self.pressed_buttons |= 0x02
-                self.command_queue.put('toggle_announce')
+                self.input_queue.put({'origin_name': 'master',
+                     'origin_type': DoorLogic.Origin.CONTROL_PANNEL,
+                     'input_name': 'public',
+                     'input_type': DoorLogic.Input.BUTTON,
+                     'input_value': ''})
             elif not pressed_buttons & 0x02:
                 self.pressed_buttons &= ~0x02
 
