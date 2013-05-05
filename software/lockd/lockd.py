@@ -46,7 +46,7 @@ try:
 
     master = None
 
-    logic = doorlogic.DoorLogic()
+    logic = DoorLogic()
 
     for section in config.sections():
         if config.has_option(section, 'type'):
@@ -73,7 +73,14 @@ try:
             txseq = int(config.get(section, 'txsequence'))
             rxseq = int(config.get(section, 'rxsequence'))
             key = config.get(section, 'key')
-            master = MasterController('0', txseq, rxseq, key, ser, input_queue) 
+            
+            buttons_section = 'Master Controller Buttons'
+            buttons = {}
+            for button_name in config.options(buttons_section):
+                button_pin = int(config.get(buttons_section, button_name))
+                buttons[button_pin] = button_name
+
+            master = MasterController('0', txseq, rxseq, key, ser, input_queue, buttons) 
     
     if master == None:
         logger.error('Please specify a master controller')

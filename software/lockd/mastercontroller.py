@@ -5,7 +5,7 @@ import logging
 from doorlogic import DoorLogic
 
 class MasterController:
-    def __init__(self, address, txseq, rxseq, key, interface, input_queue):
+    def __init__(self, address, txseq, rxseq, key, interface, input_queue, buttons):
         self.address = address
         self.txseq = txseq
         self.rxseq = rxseq
@@ -19,6 +19,8 @@ class MasterController:
         self.periodic = 10
         self.logger = logging.getLogger('logger')
         self.pressed_buttons = 0
+
+        self.buttons = buttons
         
         self.input_queue = input_queue
         self.all_locked = False
@@ -39,32 +41,16 @@ class MasterController:
             
             pressed_buttons = ord(p.data[0])
             self.logger.debug('master: pressed_buttons = %d', pressed_buttons)
-
-            if pressed_buttons & 0x01 and not self.pressed_buttons & 0x01:
-                self.pressed_buttons |= 0x01
-                self.input_queue.put({'origin_name': 'master',
-                     'origin_type': DoorLogic.Origin.CONTROL_PANNEL,
-                     'input_name': 'down',
-                     'input_type': DoorLogic.Input.BUTTON,
-                     'input_value': ''})
-
-            elif not pressed_buttons & 0x01:
-                self.pressed_buttons &= ~0x01
-
-            if pressed_buttons & 0x02 and not self.pressed_buttons & 0x02:
-                self.pressed_buttons |= 0x02
-                self.input_queue.put({'origin_name': 'master',
-                     'origin_type': DoorLogic.Origin.CONTROL_PANNEL,
-                     'input_name': 'public',
-                     'input_type': DoorLogic.Input.BUTTON,
-                     'input_value': ''})
-            elif not pressed_buttons & 0x02:
-                self.pressed_buttons &= ~0x02
-
-            if pressed_buttons & 0x04 and not self.pressed_buttons & 0x04:
-                self.pressed_buttons |= 0x04
-            elif not pressed_buttons & 0x04:
-                self.pressed_buttons &= ~0x04
+            for pin in self.buttons:
+                if pressed_buttons & pin and not self.pressed_buttons & pin:
+                    self.pressed_buttons |= pin
+                    self.input_queue.put({'origin_name': 'master',
+                        'origin_type': DoorLogic.Origin.CONTROL_PANNEL,
+                        'input_name': self.buttons[pin],
+                        'input_type': DoorLogic.Input.BUTTON,
+                        'input_value': ''})
+                elif not pressed_buttons & pin:
+                    self.pressed_buttons &= ~pin
 
             self.logger.info('Master state: %s'%self.get_state())
 

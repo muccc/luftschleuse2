@@ -22,7 +22,7 @@ class DoorLogic():
 
 
     def __init__(self):
-        self.logger = logging.get_logger('logger')
+        self.logger = logging.getLogger('logger')
         self.allow_public = True
         self.timers = []
         self.doors = []
@@ -133,5 +133,5 @@ class DoorLogic():
                 
     def add_door(self, door):
         self.doors.append(door)
-        door.add_state_listener(self.door_state_update)
+        #door.add_state_listener(self.door_state_update)
 
