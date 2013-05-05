@@ -16,7 +16,7 @@ class DoorLogic():
     class State:
         DOWN            =   1
         CLOSED          =   2
-        MEMEBER         =   3
+        MEMBER         =   3
         OPEN            =   4
         PUBLIC          =   5
 
@@ -52,7 +52,7 @@ class DoorLogic():
                             self.lock(origin_name)
                         elif self.state == self.State.CLOSED:
                             self.lock(origin_name)
-                        elif self.state == self.State.MEMEBER:
+                        elif self.state == self.State.MEMBER:
                             self.private(origin_name)
                         elif self.state == self.State.PUBLIC:
                             pass
@@ -67,12 +67,18 @@ class DoorLogic():
                 elif input_name == 'closed':
                     self.lock('all')
                     self.state = self.State.CLOSED
-                elif input_name == 'memeber':
+                elif input_name == 'member':
                     self.private('all')
                     self.state = self.State.MEMBER
                 elif input_name == 'public':
                     self.public('all')
                     self.state = self.State.PUBLIC
+        if origin_type == self.Origin.INTERNAL:
+            if input_type == self.Input.COMMAND:
+                if input_value == 'down':
+                    self.lock('all')
+                    self.state = self.State.DOWN
+
 
     # The state of a door has changed
     # Check what is going on and send updates to all parts of the system
