@@ -38,6 +38,7 @@ class Door:
         self.logger = logging.getLogger('logger')
         self.pressed_buttons = 0
         self.initial_unlock = initial_unlock
+        self.periodic_timeout = time.time() + 1;
 
     def unlock(self, relock_timeout=0):
         self.desired_state = Door.LOCK_UNLOCKED
@@ -147,9 +148,8 @@ class Door:
         return state
 
     def tick(self):
-        self.periodic-=1
-        if self.periodic == 0:
-            self.periodic = 2
+        if time.time() > self.periodic_timeout:
+            self.periodic_timeout = time.time() + .2
             self._send_command(ord('D'), chr(self.desired_state))
         
         if self.relock_time:
