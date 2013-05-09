@@ -2,6 +2,7 @@ from packet import Packet
 import time
 from aes import AES
 import logging
+from doorlogic import DoorLogic
 
 class Door:
     DOOR_CLOSED        = (1<<0)
@@ -12,7 +13,7 @@ class Door:
     HANDLE_PRESSED     = (1<<5)
     LOCK_PERM_UNLOCKED = (1<<6)
     
-    def __init__(self, name, address, txseq, rxseq, key, interface, initial_unlock):
+    def __init__(self, name, address, txseq, rxseq, key, interface, initial_unlock, input_queue):
         self.name = name
         self.address = address
         self.txseq = txseq
@@ -40,10 +41,15 @@ class Door:
         self.initial_unlock = initial_unlock
         self.periodic_timeout = time.time() + 1;
         self.state_listeners = []
+        self.perm_unlocked = False
+        self.input_queue = input_queue
 
     def unlock(self, relock_timeout=0):
         self.desired_state = Door.LOCK_UNLOCKED
-        self.relock_time = time.time() + relock_timeout
+        if relock_timeout:
+            self.relock_time = time.time() + relock_timeout
+        else:
+            self.relock_time = 0
 
         #if timeout:
         #    self._send_command(command=ord('D'), data='\x02')
@@ -108,6 +114,15 @@ class Door:
                     self.command_accepted = True
                 else:
                     self.logger.warning('Command at %d was NOT accepted'% self.command_time)
+
+    def is_locked(self):
+        return self.locked
+
+    def is_private(self):
+        return False
+
+    def is_public(self):
+        return self.perm_unlocked
 
     def add_state_listener(self, listener):
         self.state_listeners.append(listener)

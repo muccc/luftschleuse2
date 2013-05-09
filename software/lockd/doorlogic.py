@@ -27,13 +27,16 @@ class DoorLogic():
         self.doors = []
         self.state_listeners = []
         self.state = None
+        self.all_locked = False
+        self.all_private = False
+        self.all_public = False
 
     '''
     Accepts an input from a device. Checks if the action is valid and allowed.
     Returns the command that should be executed by the system
     '''
     def policy(self, origin_name, origin_type, input_name, input_type, input_value):
-        self.logger('New DoorLogic input: %d, %d, %d, %d, %d', origin_name, origin_type, input_name, input_type, input_value)
+        self.logger.debug('New DoorLogic input: %s, %d, %s, %d, %s'%(origin_name, origin_type, input_name, input_type, input_value))
 
         if origin_type == self.Origin.NETWORK:
             if input_type == self.Input.COMMAND:
@@ -46,7 +49,7 @@ class DoorLogic():
         if origin_type == self.Origin.DOOR:
             if input_type == self.Input.BUTTON:
                 if input_name == 'public':
-                    if not self.isPublic(origin_name):
+                    if not self.is_public(origin_name):
                         self.public(origin_name)
                     else:
                         if self.state == self.State.DOWN:
@@ -105,6 +108,10 @@ class DoorLogic():
         if self.all_locked != all_locked or self.all_private != all_private or self.all_public != all_public:
             system_state_changed = True
 
+        self.all_locked = all_locked
+        self.all_private = all_private
+        self.all_public = all_public
+
         #if system_state_changed:
         #    self.notify_system_state_listeners()
 
@@ -129,9 +136,16 @@ class DoorLogic():
     # Unlocks one door without a time limit for the public
     def public(self, door_name):
         for door in self.doors:
-            if door.name == door_name:
+            if door.name == door_name or door_name == 'all':
                  door.unlock()
-    
+
+    # Unlocks one door without a time limit for the public
+    def is_public(self, door_name):
+        for door in self.doors:
+            if door.name == door_name:
+                 return door.is_public()
+        return False
+   
     def add_timer(self, timeout, function, arguments):
         self.timers.append((time.time()+timeout, function, arguments))
 

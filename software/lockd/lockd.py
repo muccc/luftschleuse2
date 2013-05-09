@@ -66,7 +66,7 @@ try:
 
                 key = config.get(section, 'key')
                 logger.debug('Adding door "%s"'%section)
-                door = Door(name, address, txseq, rxseq, key, ser, initial_unlock)
+                door = Door(name, address, txseq, rxseq, key, ser, initial_unlock, input_queue)
                 doors[address] = door
                 logic.add_door(door)
             else:
