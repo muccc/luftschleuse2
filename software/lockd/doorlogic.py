@@ -20,12 +20,13 @@ class DoorLogic():
         OPEN            =   4
         PUBLIC          =   5
 
-
     def __init__(self):
         self.logger = logging.getLogger('logger')
         self.allow_public = True
         self.timers = []
         self.doors = []
+        self.state_listeners = []
+        self.state = None
 
     '''
     Accepts an input from a device. Checks if the action is valid and allowed.
@@ -40,7 +41,7 @@ class DoorLogic():
                     self.open_temp()
                 if input_value == 'close':
                     self.lock('all')
-                    self.state = self.State.DOWN
+                    self.set_state(self.State.DOWN)
 
         if origin_type == self.Origin.DOOR:
             if input_type == self.Input.BUTTON:
@@ -63,22 +64,34 @@ class DoorLogic():
             if input_type == self.Input.BUTTON:
                 if input_name == 'down':
                     self.lock('all')
-                    self.state = self.State.DOWN
+                    self.set_state(self.State.DOWN)
                 elif input_name == 'closed':
                     self.lock('all')
-                    self.state = self.State.CLOSED
+                    self.set_state(self.State.CLOSED)
                 elif input_name == 'member':
                     self.private('all')
-                    self.state = self.State.MEMBER
+                    self.set_state(self.State.MEMBER)
                 elif input_name == 'public':
                     self.public('all')
-                    self.state = self.State.PUBLIC
+                    self.set_state(self.State.PUBLIC)
         if origin_type == self.Origin.INTERNAL:
             if input_type == self.Input.COMMAND:
                 if input_value == 'down':
                     self.lock('all')
-                    self.state = self.State.DOWN
+                    self.set_state(self.State.DOWN)
 
+    def set_state(self, state):
+        if state != self.state:
+            self.state = state
+            self.notify_state_listeners()
+
+    def add_state_listener(self, listener):
+        if listener not in self.state_listeners:
+            self.state_listeners.append(listener)
+    
+    def notify_state_listeners(self):
+        for listener in self.state_listeners:
+            listener(self)
 
     # The state of a door has changed
     # Check what is going on and send updates to all parts of the system
@@ -134,4 +147,16 @@ class DoorLogic():
     def add_door(self, door):
         self.doors.append(door)
         door.add_state_listener(self.door_state_update)
+    
+    def get_state_as_string(self):
+        if self.state == self.State.DOWN:
+            return 'down'
+        if self.state == self.State.CLOSED:
+            return 'closed'
+        if self.state == self.State.MEMBER:
+            return 'memeber'
+        if self.state == self.State.PUBLIC:
+            return 'public'
 
+        return 'fnord'
+        

@@ -10,8 +10,8 @@ import Queue
 import logging
 import logging.handlers
 import traceback
-from announce import Announcer
 from doorlogic import DoorLogic
+from announce import Announcer
 
 config = ConfigParser.RawConfigParser()
 config.read(sys.argv[1])
@@ -35,8 +35,6 @@ try:
     serialdevice = config.get('Master Controller', 'serialdevice')
     baudrate = config.get('Master Controller', 'baudrate')
 
-    announcer = Announcer(False)
-
     ser = serialinterface.SerialInterface(serialdevice, baudrate, timeout=.1)
     input_queue = Queue.Queue()
 
@@ -47,6 +45,10 @@ try:
     master = None
 
     logic = DoorLogic()
+
+    announcer = Announcer()
+
+    logic.add_state_listener(announcer.update_state)
 
     for section in config.sections():
         if config.has_option(section, 'type'):
