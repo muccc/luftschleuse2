@@ -39,6 +39,7 @@ class Door:
         self.pressed_buttons = 0
         self.initial_unlock = initial_unlock
         self.periodic_timeout = time.time() + 1;
+        self.state_listeners = []
 
     def unlock(self, relock_timeout=0):
         self.desired_state = Door.LOCK_UNLOCKED
@@ -67,30 +68,19 @@ class Door:
         if p.cmd==83:
             self.supply_voltage = ord(p.data[3])*0.1
             
-            '''
-            pressed_buttons = 0
-            if self.buttons_toggle_state == None:
-                self.buttons_toggle_state = ord(p.data[0])
-            else:
-                pressed_buttons = self.buttons_toggle_state ^ ord(p.data[0])
-                self.buttons_toggle_state = ord(p.data[0])
-            if pressed_buttons:
-                self.logger.info('Got pressed buttons: %d' % pressed_buttons)
-                if pressed_buttons & 0x01:
-
-            '''
             pressed_buttons = ord(p.data[0])
             if pressed_buttons & 0x01 and not self.pressed_buttons & 0x01:
                 self.pressed_buttons |= 0x01
-                if self.desired_state == Door.LOCK_LOCKED:
-                    self.desired_state = Door.LOCK_UNLOCKED
-                elif self.desired_state == Door.LOCK_UNLOCKED:
-                    self.desired_state = Door.LOCK_LOCKED 
+                self.input_queue.put({
+                    'origin_type': DoorLogic.Origin.DOOR,
+                    'origin_name': self.name,
+                    'input_type': DoorLogic.Input.BUTTON,
+                    'input_name': 'public',
+                    'input_value': ''})
             elif not pressed_buttons & 0x01:
                 self.pressed_buttons &= ~0x01
            
             doorstate = ord(p.data[1])
-            state = ''
             self.closed = doorstate & Door.DOOR_CLOSED \
                             == Door.DOOR_CLOSED
             self.locked = doorstate & Door.LOCK_LOCKED \
@@ -108,6 +98,8 @@ class Door:
             self.logger.info('Door state: %s'%self.get_state())
             self.logger.info('Desired door state: %s'%self.get_desired_state())
 
+            self.notify_state_listeners()
+
         elif p.cmd==ord('A'):
             accepted = ord(p.data[0]) == 1
             if not self.command_accepted:
@@ -116,6 +108,13 @@ class Door:
                     self.command_accepted = True
                 else:
                     self.logger.warning('Command at %d was NOT accepted'% self.command_time)
+
+    def add_state_listener(self, listener):
+        self.state_listeners.append(listener)
+
+    def notify_state_listeners(self):
+        for listener in self.state_listeners:
+            listener(self)
 
     def get_state(self):
         state = ''
