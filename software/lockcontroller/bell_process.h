@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #define BELL_PORT              D
-#define BELL_PIN               7
+#define BELL_PIN               6
 
 //#define BELL_PORT              C
 //#define BELL_PIN               1

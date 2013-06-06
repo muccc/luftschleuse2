@@ -7,23 +7,14 @@ static leds_state_t leds_state[LEDS_COUNT];
 
 void leds_init(void)
 {
-    DDR_CONFIG_OUT(LED_RED_0);
-    PIN_CLEAR(LED_RED_0);
+    DDR_CONFIG_OUT(LED_0);
+    PIN_CLEAR(LED_0);
 
-    DDR_CONFIG_OUT(LED_RED_1);
-    PIN_CLEAR(LED_RED_1);
+    DDR_CONFIG_OUT(LED_1);
+    PIN_CLEAR(LED_1);
 
-    DDR_CONFIG_OUT(LED_YELLOW_0);
-    PIN_CLEAR(LED_YELLOW_0);
-
-    DDR_CONFIG_OUT(LED_YELLOW_1);
-    PIN_CLEAR(LED_YELLOW_1);
-
-    DDR_CONFIG_OUT(LED_GREEN_0);
-    PIN_CLEAR(LED_GREEN_0);
-
-    //DDR_CONFIG_OUT(LED_GREEN_1);
-    //PIN_CLEAR(LED_GREEN_1);
+    DDR_CONFIG_OUT(LED_2);
+    PIN_CLEAR(LED_2);
 
     uint8_t i;
     for(i=0; i<LEDS_COUNT; i++){
@@ -40,48 +31,27 @@ uint8_t leds_getState(void)
 static void leds_set_pin(leds_led_t led, bool on)
 {
     switch( led ){
-        case LED_RED_0:
+        case LED_0:
             if( on ){
-                PIN_SET(LED_RED_0);
+                PIN_SET(LED_0);
             }else{
-                PIN_CLEAR(LED_RED_0);
+                PIN_CLEAR(LED_0);
             }
         break;
-        case LED_RED_1:
+        case LED_1:
             if( on ){
-                PIN_SET(LED_RED_1);
+                PIN_SET(LED_1);
             }else{
-                PIN_CLEAR(LED_RED_1);
+                PIN_CLEAR(LED_1);
             }
         break;
-        case LED_YELLOW_0:
+        case LED_2:
             if( on ){
-                PIN_SET(LED_YELLOW_0);
+                PIN_SET(LED_2);
             }else{
-                PIN_CLEAR(LED_YELLOW_0);
+                PIN_CLEAR(LED_2);
             }
         break;
-        case LED_YELLOW_1:
-            if( on ){
-                PIN_SET(LED_YELLOW_1);
-            }else{
-                PIN_CLEAR(LED_YELLOW_1);
-            }
-        break;
-        case LED_GREEN_0:
-            if( on ){
-                PIN_SET(LED_GREEN_0);
-            }else{
-                PIN_CLEAR(LED_GREEN_0);
-            }
-        break;
-        //case LED_GREEN_1:
-        //    if( on ){
-        //        PIN_SET(LED_GREEN_1);
-        //    }else{
-        //        PIN_CLEAR(LED_GREEN_1);
-        //    }
-        //break;
     }
 }
 

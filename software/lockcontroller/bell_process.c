@@ -48,13 +48,13 @@ void bell_tick(void)
     }
 
     if( debounce == 0 && !pressed && isPressed() ){
-        debounce = 10;
+        debounce = 50;
         pressed = true;
         press_timer = 0;
     }
 
     if( debounce == 0 && pressed && !isPressed() ){
-        debounce = 10;
+        debounce = 50;
         pressed = false;
         break_timer = 0;
     }
