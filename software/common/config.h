@@ -15,16 +15,16 @@
 #define BUS_nRX_PORT  D
 #define BUS_nRX_PIN   5
 
-//#define BUS_QUERY_INTERVAL      500
-//#define BUS_QUERY_START         'A'
-//#define BUS_QUERY_AMOUNT        3
-
+// B is the back door
+// A is the front door
 //#define NODE_ADDRESS    'A'
 #define NODE_ADDRESS    'B'
 
 #define DOOR_MODEL_1      0
 #define DOOR_MODEL_2      1
 
+// Front door is model 2
+// Back door is model 1
 #define DOOR_MODEL  DOOR_MODEL_1
 //#define DOOR_MODEL  DOOR_MODEL_2
 #endif
