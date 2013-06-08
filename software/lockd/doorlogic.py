@@ -24,7 +24,7 @@ class DoorLogic():
         self.logger = logging.getLogger('logger')
         self.allow_public = True
         self.timers = []
-        self.doors = []
+        self.doors = {}
         self.state_listeners = []
         self.state = None
         self.all_locked = False
@@ -101,9 +101,9 @@ class DoorLogic():
     def door_state_update(self, door):
         system_state_changed = False
 
-        all_locked = all([d.is_locked() for d in self.doors])
-        all_private = all([d.is_private() for d in self.doors])
-        all_public = all([d.is_public() for d in self.doors])
+        all_locked = all([d.is_locked() for d in self.doors.values()])
+        all_private = all([d.is_private() for d in self.doors.values()])
+        all_public = all([d.is_public() for d in self.doors.values()])
         
         if self.all_locked != all_locked or self.all_private != all_private or self.all_public != all_public:
             system_state_changed = True
@@ -117,10 +117,12 @@ class DoorLogic():
 
     # Locks one or all doors in the system
     def lock(self, door_name):
-        for door in self.doors:
-            if door_name == 'all' or door.name == door_name:
-                door.lock()
-        
+        if door_name == 'all':
+            for door in self.doors.values():
+                 door.lock()
+        else:
+            doors[door_name].lock()
+
     # Puts one or all doors into the private mode.
     # If the door is in public mode, it gets locked for the public
     def private(self, door_name):
@@ -135,16 +137,17 @@ class DoorLogic():
 
     # Unlocks one door without a time limit for the public
     def public(self, door_name):
-        for door in self.doors:
-            if door.name == door_name or door_name == 'all':
+        if door_name == 'all':
+            for door in self.doors.values():
                  door.unlock()
+        else:
+            doors[door_name].unlock()
 
-    # Unlocks one door without a time limit for the public
+    # returns true if a specific door is in public mode
     def is_public(self, door_name):
-        for door in self.doors:
-            if door.name == door_name:
-                 return door.is_public()
-        return False
+        #if door_name in doors:
+        return doors[door_name].is_public();
+        #return False
    
     def add_timer(self, timeout, function, arguments):
         self.timers.append((time.time()+timeout, function, arguments))
@@ -159,7 +162,7 @@ class DoorLogic():
             timer[1](*timer[2])
                 
     def add_door(self, door):
-        self.doors.append(door)
+        self.doors[door.name] = door
         door.add_state_listener(self.door_state_update)
     
     def get_state_as_string(self):
@@ -168,7 +171,7 @@ class DoorLogic():
         if self.state == self.State.CLOSED:
             return 'closed'
         if self.state == self.State.MEMBER:
-            return 'memeber'
+            return 'member'
         if self.state == self.State.PUBLIC:
             return 'public'
 

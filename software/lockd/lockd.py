@@ -82,7 +82,14 @@ try:
                 button_pin = int(config.get(buttons_section, button_name))
                 buttons[button_pin] = button_name
 
-            master = MasterController('0', txseq, rxseq, key, ser, input_queue, buttons) 
+            leds_section = 'Master Controller LEDs'
+            leds = {}
+            for led_name in config.options(leds_section):
+                led_pin = int(config.get(leds_section, led_name))
+                leds[led_name] = led_pin
+
+
+            master = MasterController('0', txseq, rxseq, key, ser, input_queue, buttons, leds) 
     
     if master == None:
         logger.error('Please specify a master controller')

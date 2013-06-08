@@ -5,7 +5,7 @@ import logging
 from doorlogic import DoorLogic
 
 class MasterController:
-    def __init__(self, address, txseq, rxseq, key, interface, input_queue, buttons):
+    def __init__(self, address, txseq, rxseq, key, interface, input_queue, buttons, leds):
         self.address = address
         self.txseq = txseq
         self.rxseq = rxseq
@@ -21,6 +21,7 @@ class MasterController:
         self.pressed_buttons = 0
 
         self.buttons = buttons
+        self.leds = leds
         
         self.input_queue = input_queue
         self.all_locked = False

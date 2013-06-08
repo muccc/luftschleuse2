@@ -40,7 +40,7 @@ class Door:
         self.pressed_buttons = 0
         self.initial_unlock = initial_unlock
         self.periodic_timeout = time.time() + 1;
-        self.state_listeners = []
+        self.state_listeners = set()
         self.perm_unlocked = False
         self.input_queue = input_queue
 
@@ -125,7 +125,7 @@ class Door:
         return self.perm_unlocked
 
     def add_state_listener(self, listener):
-        self.state_listeners.append(listener)
+        self.state_listeners.add(listener)
 
     def notify_state_listeners(self):
         for listener in self.state_listeners:

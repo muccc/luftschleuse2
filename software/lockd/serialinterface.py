@@ -12,6 +12,7 @@ class SerialInterface:
       if path2device == '/dev/null':
             self.dummy = True
             self.portopen = True
+            self.timeout = timeout
 
       self.logger = logging.getLogger('logger')
 
@@ -77,6 +78,11 @@ class SerialInterface:
         start = False
         inframe = False
         command = ''
+
+        if self.dummy:
+            time.sleep(self.timeout)
+            return (False, '')
+
         while True:
             starttime = time.time()
             try:
