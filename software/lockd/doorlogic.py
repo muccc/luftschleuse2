@@ -61,6 +61,11 @@ class DoorLogic():
                             pass
                         else:
                             self.lock(origin_name)
+            elif input_type == self.Input.SENSOR:
+                if input_name == 'bell_code':
+                    if self.state == self.State.MEMBER and \
+                            not self.is_perm_unlocked(origin_name):
+                        self.temp_unlock(origin_name)
 
         if origin_type == self.Origin.CONTROL_PANNEL:
             if input_type == self.Input.BUTTON:
@@ -71,7 +76,7 @@ class DoorLogic():
                     self.lock('all')
                     self.set_state(self.State.CLOSED)
                 elif input_name == 'member':
-                    self.member('all')
+                    self.lock('all')
                     self.set_state(self.State.MEMBER)
                 elif input_name == 'public':
                     self.unlock('all')
@@ -119,12 +124,6 @@ class DoorLogic():
                  door.lock()
         else:
             doors[door_name].lock()
-
-    # Puts one or all doors into the member mode.
-    # If the door is in permanently unlocked, it gets locked
-    def member(self, door_name):
-        # TODO: implement
-        pass
 
     # Opens a specific door for a short amount of time to
     # allow someone to enter and operate the system from the inside

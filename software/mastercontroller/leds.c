@@ -82,6 +82,21 @@ void leds_tick(void)
                     leds_set_pin(i, false);
                 }
             break;
+            case LED_BLINK_FAST:
+                if( (counter % 256) < 128 ){
+                    leds_set_pin(i, true);
+                }else{
+                    leds_set_pin(i, false);
+                }
+            break;
+            case LED_BLINK_SLOW:
+                if( (counter % 1024) < 512 ){
+                    leds_set_pin(i, true);
+                }else{
+                    leds_set_pin(i, false);
+                }
+            break;
+
             default:
             break;
         }

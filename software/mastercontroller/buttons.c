@@ -85,7 +85,7 @@ void buttons_tick(void)
 
     if( buttons_getButtonState(BUTTON_3) ){
         buttons_latched_state |= BUTTON_3;
-        buttons_2_counter = 2000;
+        buttons_3_counter = 2000;
     }
 
     if( buttons_3_counter && --buttons_3_counter == 0 ){

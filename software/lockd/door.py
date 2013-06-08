@@ -85,6 +85,17 @@ class Door:
                     'input_value': ''})
             elif not pressed_buttons & 0x01:
                 self.pressed_buttons &= ~0x01
+
+            if pressed_buttons & 0x02 and not self.pressed_buttons & 0x02:
+                self.pressed_buttons |= 0x02
+                self.input_queue.put({
+                    'origin_type': DoorLogic.Origin.DOOR,
+                    'origin_name': self.name,
+                    'input_type': DoorLogic.Input.SENSOR,
+                    'input_name': 'bell_code',
+                    'input_value': ''})
+            elif not pressed_buttons & 0x02:
+                self.pressed_buttons &= ~0x02
            
             doorstate = ord(p.data[1])
             self.closed = doorstate & Door.DOOR_CLOSED \
