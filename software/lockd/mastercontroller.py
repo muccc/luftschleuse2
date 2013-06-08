@@ -5,6 +5,13 @@ import logging
 from doorlogic import DoorLogic
 
 class MasterController:
+    class LedState:
+        ON = 0
+        OFF = 1
+        BLINK_FAST = 2
+        BLINK_SLOW = 3
+        FLASH = 4
+
     def __init__(self, address, txseq, rxseq, key, interface, input_queue, buttons, leds):
         self.address = address
         self.txseq = txseq
@@ -66,10 +73,14 @@ class MasterController:
         if self.periodic == 0:
             self.periodic = 2
             self._send_command(ord('S'), '')
-            if self.all_locked:
-                self._send_command(ord('L'), '\x00\x04')
-            else:
-                self._send_command(ord('L'), '\x00\x00')
+            #if self.all_locked:
+            #    self._send_command(ord('L'), '\x00\x04')
+            #else:
+            #    self._send_command(ord('L'), '\x00\x00')
+        
+    def set_led(self, led_name, state):
+        led = self.leds[led_name]
+        self._send_command(ord('L'), '%c%c'%(led, state))
         
     def _send_command(self, command, data):
         p = Packet(seq=self.txseq, cmd=command, data=data)

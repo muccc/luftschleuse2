@@ -27,8 +27,8 @@ class DoorLogic():
         self.doors = {}
         self.state_listeners = []
         self.state = None
-        self.all_locked = False
-        self.all_perm_unlocked = False
+        self.all_doors_locked = False
+        self.all_doors_perm_unlocked = False
 
     '''
     Accepts an input from a device. Checks if the action is valid and allowed.
@@ -100,14 +100,14 @@ class DoorLogic():
     def door_state_update(self, door):
         state_changed = False
 
-        all_locked = all([d.is_locked() for d in self.doors.values()])
-        all_perm_unlocked = all([d.is_perm_unlocked() for d in self.doors.values()])
+        all_doors_locked = all([d.is_locked() for d in self.doors.values()])
+        all_doors_perm_unlocked = all([d.is_perm_unlocked() for d in self.doors.values()])
         
-        if self.all_locked != all_locked or self.all_perm_unlocked != all_perm_unlocked:
+        if self.all_doors_locked != all_doors_locked or self.all_doors_perm_unlocked != all_doors_perm_unlocked:
             state_changed = True
 
-        self.all_locked = all_locked
-        self.all_perm_unlocked = all_perm_unlocked
+        self.all_doors_locked = all_doors_locked
+        self.all_doors_perm_unlocked = all_doors_perm_unlocked
 
         if state_changed:
             self.notify_state_listeners()
@@ -172,9 +172,16 @@ class DoorLogic():
         if self.state == self.State.PUBLIC:
             return 'public'
     
-    # Returns true if a door has been opened manually
-    # while actually every door should be closed
-    # according to the current state
+    # Returns true if a door is in a state not in
+    # sync with the global system state.
     def is_state_tainted(self):
-        return 'fnord'
+        if self.state == self.State.PUBLIC and \
+                not self.all_doors_perm_unlocked:
+            return True
+        
+        if self.state != self.State.PUBLIC and \
+                not self.all_doors_locked:
+            return True
+
+        return False
         

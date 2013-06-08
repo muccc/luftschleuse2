@@ -11,6 +11,7 @@ import logging
 import logging.handlers
 import traceback
 from doorlogic import DoorLogic
+from interfacelogic import InterfaceLogic
 from announce import Announcer
 
 config = ConfigParser.RawConfigParser()
@@ -95,6 +96,9 @@ try:
         logger.error('Please specify a master controller')
         sys.exit(1)
 
+    interface_logic = InterfaceLogic(master)
+    logic.add_state_listener(interface_logic.update_state)
+
     input_queue.put({'origin_name': 'init',
                      'origin_type': DoorLogic.Origin.INTERNAL,
                      'input_name': '',
@@ -124,6 +128,7 @@ try:
             doors[d].tick()
         master.tick()
         announcer.tick()
+        interface_logic.tick()
         
         all_locked = True
         for d in doors:
