@@ -138,12 +138,12 @@ class DoorLogic():
             for door in self.doors.values():
                  door.unlock()
         else:
-            doors[door_name].unlock()
+            self.doors[door_name].unlock()
 
     # returns true if a specific door is permanently unlocked
     def is_perm_unlocked(self, door_name):
         #if door_name in doors:
-        return doors[door_name].is_perm_unlocked();
+        return self.doors[door_name].is_perm_unlocked();
         #return False
    
     def add_timer(self, timeout, function, arguments):

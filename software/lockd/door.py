@@ -81,7 +81,7 @@ class Door:
                     'origin_type': DoorLogic.Origin.DOOR,
                     'origin_name': self.name,
                     'input_type': DoorLogic.Input.BUTTON,
-                    'input_name': 'public',
+                    'input_name': 'manual_control',
                     'input_value': ''})
             elif not pressed_buttons & 0x01:
                 self.pressed_buttons &= ~0x01
