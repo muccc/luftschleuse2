@@ -118,10 +118,7 @@ class Door:
     def is_locked(self):
         return self.locked
 
-    def is_private(self):
-        return False
-
-    def is_public(self):
+    def is_perm_unlocked(self):
         return self.perm_unlocked
 
     def add_state_listener(self, listener):

@@ -28,8 +28,7 @@ class DoorLogic():
         self.state_listeners = []
         self.state = None
         self.all_locked = False
-        self.all_private = False
-        self.all_public = False
+        self.all_perm_unlocked = False
 
     '''
     Accepts an input from a device. Checks if the action is valid and allowed.
@@ -41,23 +40,23 @@ class DoorLogic():
         if origin_type == self.Origin.NETWORK:
             if input_type == self.Input.COMMAND:
                 if input_value == 'open':
-                    self.open_temp()
+                    self.temp_unlock('front')
                 if input_value == 'close':
                     self.lock('all')
                     self.set_state(self.State.DOWN)
 
         if origin_type == self.Origin.DOOR:
             if input_type == self.Input.BUTTON:
-                if input_name == 'public':
-                    if not self.is_public(origin_name):
-                        self.public(origin_name)
+                if input_name == 'manual_control':
+                    if not self.is_perm_unlocked(origin_name):
+                        self.unlock(origin_name)
                     else:
                         if self.state == self.State.DOWN:
                             self.lock(origin_name)
                         elif self.state == self.State.CLOSED:
                             self.lock(origin_name)
                         elif self.state == self.State.MEMBER:
-                            self.private(origin_name)
+                            self.member(origin_name)
                         elif self.state == self.State.PUBLIC:
                             pass
                         else:
@@ -72,10 +71,10 @@ class DoorLogic():
                     self.lock('all')
                     self.set_state(self.State.CLOSED)
                 elif input_name == 'member':
-                    self.private('all')
+                    self.member('all')
                     self.set_state(self.State.MEMBER)
                 elif input_name == 'public':
-                    self.public('all')
+                    self.unlock('all')
                     self.set_state(self.State.PUBLIC)
         if origin_type == self.Origin.INTERNAL:
             if input_type == self.Input.COMMAND:
@@ -99,21 +98,19 @@ class DoorLogic():
     # The state of a door has changed
     # Check what is going on and send updates to all parts of the system
     def door_state_update(self, door):
-        system_state_changed = False
+        state_changed = False
 
         all_locked = all([d.is_locked() for d in self.doors.values()])
-        all_private = all([d.is_private() for d in self.doors.values()])
-        all_public = all([d.is_public() for d in self.doors.values()])
+        all_perm_unlocked = all([d.is_perm_unlocked() for d in self.doors.values()])
         
-        if self.all_locked != all_locked or self.all_private != all_private or self.all_public != all_public:
-            system_state_changed = True
+        if self.all_locked != all_locked or self.all_perm_unlocked != all_perm_unlocked:
+            state_changed = True
 
         self.all_locked = all_locked
-        self.all_private = all_private
-        self.all_public = all_public
+        self.all_perm_unlocked = all_perm_unlocked
 
-        #if system_state_changed:
-        #    self.notify_system_state_listeners()
+        if state_changed:
+            self.notify_state_listeners()
 
     # Locks one or all doors in the system
     def lock(self, door_name):
@@ -123,30 +120,30 @@ class DoorLogic():
         else:
             doors[door_name].lock()
 
-    # Puts one or all doors into the private mode.
-    # If the door is in public mode, it gets locked for the public
-    def private(self, door_name):
+    # Puts one or all doors into the member mode.
+    # If the door is in permanently unlocked, it gets locked
+    def member(self, door_name):
         # TODO: implement
         pass
 
     # Opens a specific door for a short amount of time to
     # allow someone to enter and operate the system from the inside
-    def temp_public(self):
-        self.public('front')
-        self.add_timer(5, self.close, ('front',))
+    def temp_unlock(self, door_name):
+        self.unlock(door_name)
+        self.add_timer(5, self.lock, (door_name,))
 
-    # Unlocks one door without a time limit for the public
-    def public(self, door_name):
+    # Unlocks one door without a time limit
+    def unlock(self, door_name):
         if door_name == 'all':
             for door in self.doors.values():
                  door.unlock()
         else:
             doors[door_name].unlock()
 
-    # returns true if a specific door is in public mode
-    def is_public(self, door_name):
+    # returns true if a specific door is permanently unlocked
+    def is_perm_unlocked(self, door_name):
         #if door_name in doors:
-        return doors[door_name].is_public();
+        return doors[door_name].is_perm_unlocked();
         #return False
    
     def add_timer(self, timeout, function, arguments):
@@ -174,6 +171,10 @@ class DoorLogic():
             return 'member'
         if self.state == self.State.PUBLIC:
             return 'public'
-
+    
+    # Returns true if a door has been opened manually
+    # while actually every door should be closed
+    # according to the current state
+    def is_state_tainted(self):
         return 'fnord'
         
