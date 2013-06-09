@@ -1,6 +1,8 @@
 #include "buttons.h"
 #include "pinutils.h"
 
+#include <stdbool.h>
+
 static uint8_t buttons_red_debounce;
 static bool buttons_red_state;
 static uint16_t buttons_red_counter;
@@ -40,7 +42,7 @@ uint8_t buttons_getButtonsToggleState(void)
 uint8_t buttons_getButtonsLatchedState(void)
 {
     uint8_t bell = 0;
-    if( bell_isAccepted() ){
+    if( bell_isAccepted() == true){
         bell = BUTTON_1;
     }
 
