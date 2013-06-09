@@ -10,6 +10,8 @@ import Queue
 import logging
 import logging.handlers
 import traceback
+from doorlogic import DoorLogic
+from interfacelogic import InterfaceLogic
 from announce import Announcer
 
 config = ConfigParser.RawConfigParser()
@@ -34,16 +36,20 @@ try:
     serialdevice = config.get('Master Controller', 'serialdevice')
     baudrate = config.get('Master Controller', 'baudrate')
 
-    announcer = Announcer(False)
-
     ser = serialinterface.SerialInterface(serialdevice, baudrate, timeout=.1)
-    command_queue = Queue.Queue()
+    input_queue = Queue.Queue()
 
-    udpcommand = UDPCommand('127.0.0.1', 2323, command_queue)
+    udpcommand = UDPCommand('127.0.0.1', 2323, input_queue)
 
     doors = {}
 
     master = None
+
+    logic = DoorLogic()
+
+    announcer = Announcer()
+
+    logic.add_state_listener(announcer.update_state)
 
     for section in config.sections():
         if config.has_option(section, 'type'):
@@ -61,21 +67,43 @@ try:
 
                 key = config.get(section, 'key')
                 logger.debug('Adding door "%s"'%section)
-                door = Door(name, address, txseq, rxseq, key, ser, initial_unlock)
+                door = Door(name, address, txseq, rxseq, key, ser, initial_unlock, input_queue)
                 doors[address] = door
+                logic.add_door(door)
             else:
                 logger.warning('Unknown entry type "%s"', t)
         elif section == 'Master Controller':
             txseq = int(config.get(section, 'txsequence'))
             rxseq = int(config.get(section, 'rxsequence'))
             key = config.get(section, 'key')
-            master = MasterController('0', txseq, rxseq, key, ser, command_queue) 
+            
+            buttons_section = 'Master Controller Buttons'
+            buttons = {}
+            for button_name in config.options(buttons_section):
+                button_pin = int(config.get(buttons_section, button_name))
+                buttons[button_pin] = button_name
+
+            leds_section = 'Master Controller LEDs'
+            leds = {}
+            for led_name in config.options(leds_section):
+                led_pin = int(config.get(leds_section, led_name))
+                leds[led_name] = led_pin
+
+
+            master = MasterController('0', txseq, rxseq, key, ser, input_queue, buttons, leds) 
     
     if master == None:
         logger.error('Please specify a master controller')
         sys.exit(1)
 
-    command_queue.put('announce_closed')
+    interface_logic = InterfaceLogic(master)
+    logic.add_state_listener(interface_logic.update_state)
+
+    input_queue.put({'origin_name': 'init',
+                     'origin_type': DoorLogic.Origin.INTERNAL,
+                     'input_name': '',
+                     'input_type': DoorLogic.Input.COMMAND,
+                     'input_value': 'down'})
     
     while True:
         timeout = False
@@ -91,32 +119,17 @@ try:
             elif address == '0':
                 master.update(message)
 
-        if not command_queue.empty():
-            command = command_queue.get()
-            logger.info("-------------Received new command: %s----------------"%command)
-            if command == 'unlock':
-                for door in [door for door in doors.values() if door.initial_unlock == True]:
-                    logger.info("Unlocking %s"%door.name)
-                    door.unlock(relock_timeout=5)
-            elif command == 'lock':
-                for door in doors.values():
-                    door.lock()
-                command_queue.put('announce_closed')
-            elif command == 'announce_open':
-                announcer.announce_open()
-                master.announce_open()
-            elif command == 'announce_closed':
-                announcer.announce_closed()
-                master.announce_closed()
-            elif command == 'toggle_announce':
-                if announcer.open:
-                    command_queue.put('announce_closed')
-                else:
-                    command_queue.put('announce_open')
+        if not input_queue.empty():
+            input = input_queue.get()
+            logic.policy(input['origin_name'], input['origin_type'],
+                         input['input_name'], input['input_type'], 
+                         input['input_value'])
         for d in doors:
             doors[d].tick()
         master.tick()
         announcer.tick()
+        interface_logic.tick()
+        logic.tick()
         
         all_locked = True
         for d in doors:

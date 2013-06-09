@@ -2,9 +2,17 @@ from packet import Packet
 import time
 from aes import AES
 import logging
+from doorlogic import DoorLogic
 
 class MasterController:
-    def __init__(self, address, txseq, rxseq, key, interface, command_queue):
+    class LedState:
+        ON = 0
+        OFF = 1
+        BLINK_FAST = 2
+        BLINK_SLOW = 3
+        FLASH = 4
+
+    def __init__(self, address, txseq, rxseq, key, interface, input_queue, buttons, leds):
         self.address = address
         self.txseq = txseq
         self.rxseq = rxseq
@@ -18,8 +26,11 @@ class MasterController:
         self.periodic = 10
         self.logger = logging.getLogger('logger')
         self.pressed_buttons = 0
+
+        self.buttons = buttons
+        self.leds = leds
         
-        self.command_queue = command_queue
+        self.input_queue = input_queue
         self.all_locked = False
 
     def update(self, message):
@@ -38,23 +49,21 @@ class MasterController:
             
             pressed_buttons = ord(p.data[0])
             self.logger.debug('master: pressed_buttons = %d', pressed_buttons)
-
-            if pressed_buttons & 0x01 and not self.pressed_buttons & 0x01:
-                self.pressed_buttons |= 0x01
-                self.command_queue.put('lock')
-            elif not pressed_buttons & 0x01:
-                self.pressed_buttons &= ~0x01
-
-            if pressed_buttons & 0x02 and not self.pressed_buttons & 0x02:
-                self.pressed_buttons |= 0x02
-                self.command_queue.put('toggle_announce')
-            elif not pressed_buttons & 0x02:
-                self.pressed_buttons &= ~0x02
-
-            if pressed_buttons & 0x04 and not self.pressed_buttons & 0x04:
-                self.pressed_buttons |= 0x04
-            elif not pressed_buttons & 0x04:
-                self.pressed_buttons &= ~0x04
+            for pin in self.buttons:
+                if pressed_buttons & pin and not self.pressed_buttons & pin:
+                    self.pressed_buttons |= pin
+                    self.input_queue.put({'origin_name': 'master',
+                        'origin_type': DoorLogic.Origin.CONTROL_PANNEL,
+                        'input_name': self.buttons[pin],
+                        'input_type': DoorLogic.Input.BUTTON,
+                        'input_value': True})
+                elif not pressed_buttons & pin and self.pressed_buttons & pin:
+                    self.input_queue.put({'origin_name': 'master',
+                        'origin_type': DoorLogic.Origin.CONTROL_PANNEL,
+                        'input_name': self.buttons[pin],
+                        'input_type': DoorLogic.Input.BUTTON,
+                        'input_value': False})
+                    self.pressed_buttons &= ~pin
 
             self.logger.info('Master state: %s'%self.get_state())
 
@@ -69,10 +78,14 @@ class MasterController:
         if self.periodic == 0:
             self.periodic = 2
             self._send_command(ord('S'), '')
-            if self.all_locked:
-                self._send_command(ord('L'), '\x00\x04')
-            else:
-                self._send_command(ord('L'), '\x00\x00')
+            #if self.all_locked:
+            #    self._send_command(ord('L'), '\x00\x04')
+            #else:
+            #    self._send_command(ord('L'), '\x00\x00')
+        
+    def set_led(self, led_name, state):
+        led = self.leds[led_name]
+        self._send_command(ord('L'), '%c%c'%(led, state))
         
     def _send_command(self, command, data):
         p = Packet(seq=self.txseq, cmd=command, data=data)

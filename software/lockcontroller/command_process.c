@@ -6,10 +6,13 @@
 #include "leds.h"
 #include "buttons.h"
 #include "power_process.h"
+#include "bell_process.h"
+
 #include <avr/io.h>
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+
 static uint16_t cmd_desiredDoorStateTimeout;
 static uint8_t cmd_desiredDoorState;
 
@@ -52,6 +55,11 @@ static void cmd_sendState(void)
 
    p.cmd = CMD_SEND_STATE;
    p.data[0] = buttons_getButtonsLatchedState();
+   
+   //if( bell_isAccepted() ){
+     //p.data[0] = 1;
+   //}
+
    p.data[1] = door_getState();
    p.data[2] = 0;
    p.data[3] = power_getInputVoltage()/100;
@@ -69,10 +77,12 @@ void cmd_new(uint8_t cmd, uint8_t *data)
         bus_sendAck(true);
     //}else if( cmd == CMD_SEND_STATE ){
         //cmd_sendState();
+#if 0
     }else if( cmd == CMD_CLEAR_BUTTONS ){
         uint8_t buttons = data[0];
         buttons_clearPendingButtons(buttons);
         bus_sendAck(true);
+#endif
     }else if( cmd == CMD_DOOR_STATE ){
         uint8_t door_state = data[0];
         cmd_setDesiredDoorState(door_state);

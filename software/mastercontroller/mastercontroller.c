@@ -52,6 +52,8 @@ int main(void)
     sei();
     
     leds_set(0,LED_SHORT_FLASH);
+    leds_set(1,LED_BLINK_FAST);
+    leds_set(2,LED_BLINK_SLOW);
 
     while( 1 ){
         if( timer0_timebase ){
