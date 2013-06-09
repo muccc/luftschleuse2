@@ -97,7 +97,8 @@ bus_process.c \
 leds.c \
 door-1.c \
 door-2.c \
-buttons.c
+buttons.c \
+bell_process.c
 
 # List C++ source files here. (C dependencies are automatically generated.)
 CPPSRC = 

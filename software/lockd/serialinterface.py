@@ -12,6 +12,9 @@ class SerialInterface:
       if path2device == '/dev/null':
             self.dummy = True
             self.portopen = True
+            self.timeout = timeout
+
+      self.logger = logging.getLogger('logger')
 
       while not self.portopen:
         try:
@@ -30,7 +33,6 @@ class SerialInterface:
             self.logger.warning("Exception while opening %s"%path2device)
         time.sleep(1)
 
-      self.logger = logging.getLogger('logger')
       self.logger.info("Opened %s"%path2device)
 
     def close(self):
@@ -76,6 +78,11 @@ class SerialInterface:
         start = False
         inframe = False
         command = ''
+
+        if self.dummy:
+            time.sleep(self.timeout)
+            return (False, '')
+
         while True:
             starttime = time.time()
             try:

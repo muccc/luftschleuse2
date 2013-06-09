@@ -9,6 +9,7 @@
 #include "power_process.h"
 #include "leds.h"
 #include "buttons.h"
+#include "bell_process.h"
 
 #include <avr/io.h>
 #include <avr/wdt.h>
@@ -49,6 +50,7 @@ int main(void)
     bus_handler_init();
     bus_init();
     cmd_init();
+    bell_init();
     timer0_init();
     sei();
     
@@ -61,6 +63,7 @@ int main(void)
             cmd_tick();
             buttons_tick();
             leds_tick();
+            bell_tick();
         }
         bus_process();
         door_process();

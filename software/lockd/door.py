@@ -2,6 +2,7 @@ from packet import Packet
 import time
 from aes import AES
 import logging
+from doorlogic import DoorLogic
 
 class Door:
     DOOR_CLOSED        = (1<<0)
@@ -12,7 +13,7 @@ class Door:
     HANDLE_PRESSED     = (1<<5)
     LOCK_PERM_UNLOCKED = (1<<6)
     
-    def __init__(self, name, address, txseq, rxseq, key, interface, initial_unlock):
+    def __init__(self, name, address, txseq, rxseq, key, interface, initial_unlock, input_queue):
         self.name = name
         self.address = address
         self.txseq = txseq
@@ -38,10 +39,17 @@ class Door:
         self.logger = logging.getLogger('logger')
         self.pressed_buttons = 0
         self.initial_unlock = initial_unlock
+        self.periodic_timeout = time.time() + 1;
+        self.state_listeners = set()
+        self.perm_unlocked = False
+        self.input_queue = input_queue
 
     def unlock(self, relock_timeout=0):
         self.desired_state = Door.LOCK_UNLOCKED
-        self.relock_time = time.time() + relock_timeout
+        if relock_timeout:
+            self.relock_time = time.time() + relock_timeout
+        else:
+            self.relock_time = 0
 
         #if timeout:
         #    self._send_command(command=ord('D'), data='\x02')
@@ -66,30 +74,31 @@ class Door:
         if p.cmd==83:
             self.supply_voltage = ord(p.data[3])*0.1
             
-            '''
-            pressed_buttons = 0
-            if self.buttons_toggle_state == None:
-                self.buttons_toggle_state = ord(p.data[0])
-            else:
-                pressed_buttons = self.buttons_toggle_state ^ ord(p.data[0])
-                self.buttons_toggle_state = ord(p.data[0])
-            if pressed_buttons:
-                self.logger.info('Got pressed buttons: %d' % pressed_buttons)
-                if pressed_buttons & 0x01:
-
-            '''
             pressed_buttons = ord(p.data[0])
+            self.logger.debug('door: pressed_buttons = %d', pressed_buttons)
             if pressed_buttons & 0x01 and not self.pressed_buttons & 0x01:
                 self.pressed_buttons |= 0x01
-                if self.desired_state == Door.LOCK_LOCKED:
-                    self.desired_state = Door.LOCK_UNLOCKED
-                elif self.desired_state == Door.LOCK_UNLOCKED:
-                    self.desired_state = Door.LOCK_LOCKED 
+                self.input_queue.put({
+                    'origin_type': DoorLogic.Origin.DOOR,
+                    'origin_name': self.name,
+                    'input_type': DoorLogic.Input.BUTTON,
+                    'input_name': 'manual_control',
+                    'input_value': ''})
             elif not pressed_buttons & 0x01:
                 self.pressed_buttons &= ~0x01
+
+            if pressed_buttons & 0x02 and not self.pressed_buttons & 0x02:
+                self.pressed_buttons |= 0x02
+                self.input_queue.put({
+                    'origin_type': DoorLogic.Origin.DOOR,
+                    'origin_name': self.name,
+                    'input_type': DoorLogic.Input.SENSOR,
+                    'input_name': 'bell_code',
+                    'input_value': ''})
+            elif not pressed_buttons & 0x02:
+                self.pressed_buttons &= ~0x02
            
             doorstate = ord(p.data[1])
-            state = ''
             self.closed = doorstate & Door.DOOR_CLOSED \
                             == Door.DOOR_CLOSED
             self.locked = doorstate & Door.LOCK_LOCKED \
@@ -107,6 +116,8 @@ class Door:
             self.logger.info('Door state: %s'%self.get_state())
             self.logger.info('Desired door state: %s'%self.get_desired_state())
 
+            self.notify_state_listeners()
+
         elif p.cmd==ord('A'):
             accepted = ord(p.data[0]) == 1
             if not self.command_accepted:
@@ -115,6 +126,19 @@ class Door:
                     self.command_accepted = True
                 else:
                     self.logger.warning('Command at %d was NOT accepted'% self.command_time)
+
+    def is_locked(self):
+        return self.locked
+
+    def is_perm_unlocked(self):
+        return self.perm_unlocked
+
+    def add_state_listener(self, listener):
+        self.state_listeners.add(listener)
+
+    def notify_state_listeners(self):
+        for listener in self.state_listeners:
+            listener(self)
 
     def get_state(self):
         state = ''
@@ -147,9 +171,8 @@ class Door:
         return state
 
     def tick(self):
-        self.periodic-=1
-        if self.periodic == 0:
-            self.periodic = 2
+        if time.time() > self.periodic_timeout:
+            self.periodic_timeout = time.time() + .2
             self._send_command(ord('D'), chr(self.desired_state))
         
         if self.relock_time:

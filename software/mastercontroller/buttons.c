@@ -4,6 +4,7 @@
 static uint16_t buttons_0_counter;
 static uint16_t buttons_1_counter;
 static uint16_t buttons_2_counter;
+static uint16_t buttons_3_counter;
 
 static uint8_t buttons_latched_state;
 
@@ -18,9 +19,13 @@ void buttons_init(void)
     DDR_CONFIG_IN(BUTTON_2);
     PIN_SET(BUTTON_2);
 
+    DDR_CONFIG_IN(BUTTON_3);
+    PIN_SET(BUTTON_3);
+
     buttons_0_counter = 0;
     buttons_1_counter = 0;
     buttons_2_counter = 0;
+    buttons_3_counter = 0;
     buttons_latched_state = 0;
 }
 
@@ -41,7 +46,9 @@ bool buttons_getButtonState(buttons_button_t button)
         case BUTTON_2:
             return !PIN_HIGH(BUTTON_2);
         break;
-
+        case BUTTON_3:
+            return !PIN_HIGH(BUTTON_3);
+        break;
     }
     return false;
 }
@@ -75,5 +82,15 @@ void buttons_tick(void)
     if( buttons_2_counter && --buttons_2_counter == 0 ){
         buttons_latched_state &= ~BUTTON_2;
     }
+
+    if( buttons_getButtonState(BUTTON_3) ){
+        buttons_latched_state |= BUTTON_3;
+        buttons_3_counter = 2000;
+    }
+
+    if( buttons_3_counter && --buttons_3_counter == 0 ){
+        buttons_latched_state &= ~BUTTON_3;
+    }
+
 }
 
