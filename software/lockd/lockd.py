@@ -129,6 +129,7 @@ try:
         master.tick()
         announcer.tick()
         interface_logic.tick()
+        logic.tick()
         
         all_locked = True
         for d in doors:

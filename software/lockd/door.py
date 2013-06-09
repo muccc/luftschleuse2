@@ -75,6 +75,7 @@ class Door:
             self.supply_voltage = ord(p.data[3])*0.1
             
             pressed_buttons = ord(p.data[0])
+            self.logger.debug('door: pressed_buttons = %d', pressed_buttons)
             if pressed_buttons & 0x01 and not self.pressed_buttons & 0x01:
                 self.pressed_buttons |= 0x01
                 self.input_queue.put({

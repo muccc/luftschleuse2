@@ -1,4 +1,5 @@
 import logging
+import time
 
 class DoorLogic():
     class Origin:
@@ -39,9 +40,9 @@ class DoorLogic():
 
         if origin_type == self.Origin.NETWORK:
             if input_type == self.Input.COMMAND:
-                if input_value == 'open':
-                    self.temp_unlock('front')
-                if input_value == 'close':
+                if input_value == 'unlock':
+                    self.temp_unlock('Back Door')
+                if input_value == 'lock':
                     self.lock('all')
                     self.set_state(self.State.DOWN)
 
@@ -56,9 +57,10 @@ class DoorLogic():
                         elif self.state == self.State.CLOSED:
                             self.lock(origin_name)
                         elif self.state == self.State.MEMBER:
-                            self.member(origin_name)
+                            self.lock(origin_name)
                         elif self.state == self.State.PUBLIC:
-                            pass
+                            self.lock('all')
+                            self.set_state(self.State.MEMBER)
                         else:
                             self.lock(origin_name)
             elif input_type == self.Input.SENSOR:
@@ -83,8 +85,9 @@ class DoorLogic():
                     self.set_state(self.State.PUBLIC)
             elif input_type == self.Input.BUTTON and input_value == False:
                 if input_name == 'public':
-                    self.lock('all')
-                    self.set_state(self.State.MEMBER)
+                    if self.state == self.State.PUBLIC:
+                        self.lock('all')
+                        self.set_state(self.State.MEMBER)
         if origin_type == self.Origin.INTERNAL:
             if input_type == self.Input.COMMAND:
                 if input_value == 'down':
@@ -127,7 +130,7 @@ class DoorLogic():
             for door in self.doors.values():
                  door.lock()
         else:
-            doors[door_name].lock()
+            self.doors[door_name].lock()
 
     # Opens a specific door for a short amount of time to
     # allow someone to enter and operate the system from the inside
@@ -150,15 +153,17 @@ class DoorLogic():
         #return False
    
     def add_timer(self, timeout, function, arguments):
+        self.logger.debug('timer: new %s %s %s'%(timeout, function, arguments))
         self.timers.append((time.time()+timeout, function, arguments))
 
     def tick(self):
         the_time = time.time()
         
-        execution_list = [timer for timer in self.timers if timer[0] > the_time]
-        self.timers = [timer for timer in self.timers if timer[0] <= the_time]
+        execution_list = [timer for timer in self.timers if timer[0] <= the_time]
+        self.timers = [timer for timer in self.timers if timer[0] > the_time]
 
         for timer in execution_list:
+            self.logger.debug('timer: executing %s %s'%(timer[1], timer[2]))
             timer[1](*timer[2])
                 
     def add_door(self, door):
