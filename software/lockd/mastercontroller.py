@@ -56,8 +56,13 @@ class MasterController:
                         'origin_type': DoorLogic.Origin.CONTROL_PANNEL,
                         'input_name': self.buttons[pin],
                         'input_type': DoorLogic.Input.BUTTON,
-                        'input_value': ''})
-                elif not pressed_buttons & pin:
+                        'input_value': True})
+                elif not pressed_buttons & pin and self.pressed_buttons & pin:
+                    self.input_queue.put({'origin_name': 'master',
+                        'origin_type': DoorLogic.Origin.CONTROL_PANNEL,
+                        'input_name': self.buttons[pin],
+                        'input_type': DoorLogic.Input.BUTTON,
+                        'input_value': False})
                     self.pressed_buttons &= ~pin
 
             self.logger.info('Master state: %s'%self.get_state())

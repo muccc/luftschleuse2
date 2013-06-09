@@ -68,7 +68,7 @@ class DoorLogic():
                         self.temp_unlock(origin_name)
 
         if origin_type == self.Origin.CONTROL_PANNEL:
-            if input_type == self.Input.BUTTON:
+            if input_type == self.Input.BUTTON and input_value == True:
                 if input_name == 'down':
                     self.lock('all')
                     self.set_state(self.State.DOWN)
@@ -81,6 +81,10 @@ class DoorLogic():
                 elif input_name == 'public':
                     self.unlock('all')
                     self.set_state(self.State.PUBLIC)
+            elif input_type == self.Input.BUTTON and input_value == False:
+                if input_name == 'public':
+                    self.lock('all')
+                    self.set_state(self.State.MEMBER)
         if origin_type == self.Origin.INTERNAL:
             if input_type == self.Input.COMMAND:
                 if input_value == 'down':
