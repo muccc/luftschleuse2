@@ -7,7 +7,6 @@
 #define SERIAL_END      '9'
 
 #define UART_BAUDRATE   115200
-#define UART_USE_0
 
 #define BUS_TX_PORT  D
 #define BUS_TX_PIN   4
