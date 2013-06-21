@@ -84,21 +84,21 @@ OBJDIR = .
 
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = $(TARGET).c \
+SRC = ../lockcontroller/$(TARGET).c \
 ../common/aes.c \
 ../common/timer0.c \
-command_process.c \
-power_process.c \
+../lockcontroller/command_process.c \
+../lockcontroller/power_process.c \
 ../common/bus_handler.c \
-bus_process.c \
+../lockcontroller/bus_process.c \
 ../common/uart.c \
 ../common/adc.c \
 ../common/packet.c \
-leds.c \
-door-1.c \
-door-2.c \
-buttons.c \
-bell_process.c
+../lockcontroller/leds.c \
+../lockcontroller/door-1.c \
+../lockcontroller/door-2.c \
+../lockcontroller/buttons.c \
+../lockcontroller/bell_process.c
 
 # List C++ source files here. (C dependencies are automatically generated.)
 CPPSRC = 
@@ -312,7 +312,7 @@ AVRDUDE_WRITE_EEPROM = -F -U eeprom:w:$(TARGET).eep
 # reports about avrdude. See <http://savannah.nongnu.org/projects/avrdude> 
 # to submit bug reports.
 #AVRDUDE_VERBOSE = -v -v
-AVRDUDE_FLAGS = -p $(MCU) -B 1
+AVRDUDE_FLAGS = -p $(MCU) -B 15
 
 ifdef AVRDUDE_PROGRAMMER
 AVRDUDE_FLAGS += -c $(AVRDUDE_PROGRAMMER)

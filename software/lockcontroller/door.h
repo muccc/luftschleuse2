@@ -1,3 +1,4 @@
+#include "door-config.h"
 #include "config.h"
 #if DOOR_MODEL == DOOR_MODEL_1
 #include "door-1.h"

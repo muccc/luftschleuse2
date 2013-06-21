@@ -84,8 +84,6 @@ void bell_tick(void)
             if( press_timer > MIN_PRESS &&
                 press_timer < -times[step] ){
                 step++;
-                //if( step > 4 )
-                //accepted = true;c = 2000;
             }else{
                 step = 0;
             }

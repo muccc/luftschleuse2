@@ -37,7 +37,7 @@ int main(void)
     WDTCSR |= (1<<WDCE) | (1<<WDE);
     /* Turn off WDT */
     WDTCSR = 0x00;
-    DDRC |= 0xC0;
+    //DDRC |= 0xC0;
 
     eeprom_read_block(&state, &state_ee, sizeof(state));
     

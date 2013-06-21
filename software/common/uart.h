@@ -3,7 +3,7 @@
 /************************************************************************
 Title:    Interrupt UART library with receive/transmit circular buffers
 Author:   Peter Fleury <pfleury@gmx.ch>   http://jump.to/fleury
-File:     $Id: uart.h,v 1.8.2.1 2007/07/01 11:14:38 peter Exp $
+File:     $Id: uart.h,v 1.12 2012/11/19 19:52:27 peter Exp $
 Software: AVR-GCC 4.1, AVR Libc 1.4
 Hardware: any AVR with built-in UART, tested on AT90S8515 & ATmega8 at 4 Mhz
 License:  GNU General Public License 
@@ -52,24 +52,23 @@ LICENSE:
 #error "This library requires AVR-GCC 3.4 or later, update to newer AVR-GCC compiler !"
 #endif
 
-#include <avr/io.h> 
-#include "config.h"
+#include <avr/io.h>
 
 /*
 ** constants and macros
 */
 
 /** @brief  UART Baudrate Expression
- *  @param  xtalcpu  system clock in Mhz, e.g. 4000000L for 4Mhz          
+ *  @param  xtalcpu  system clock in Mhz, e.g. 4000000UL for 4Mhz          
  *  @param  baudrate baudrate in bps, e.g. 1200, 2400, 9600     
  */
-#define UART_BAUD_SELECT(baudRate,xtalCpu) ((xtalCpu)/((baudRate)*16l)-1)
+#define UART_BAUD_SELECT(baudRate,xtalCpu)  (((xtalCpu) + 8UL * (baudRate)) / (16UL * (baudRate)) -1UL)
 
 /** @brief  UART Baudrate Expression for ATmega double speed mode
- *  @param  xtalcpu  system clock in Mhz, e.g. 4000000L for 4Mhz           
+ *  @param  xtalcpu  system clock in Mhz, e.g. 4000000UL for 4Mhz           
  *  @param  baudrate baudrate in bps, e.g. 1200, 2400, 9600     
  */
-#define UART_BAUD_SELECT_DOUBLE_SPEED(baudRate,xtalCpu) (((xtalCpu)/((baudRate)*8l)-1)|0x8000)
+#define UART_BAUD_SELECT_DOUBLE_SPEED(baudRate,xtalCpu) ( ((((xtalCpu) + 4UL * (baudRate)) / (8UL * (baudRate)) -1UL)) | 0x8000)
 
 
 /** Size of the circular receive buffer, must be power of 2 */
@@ -89,12 +88,11 @@ LICENSE:
 /* 
 ** high byte error return code of uart_getc()
 */
-#define UART_FRAME_ERROR      0x0800              /* Framing Error by UART       */
-#define UART_OVERRUN_ERROR    0x0400              /* Overrun condition by UART   */
+#define UART_FRAME_ERROR      0x1000              /* Framing Error by UART       */
+#define UART_OVERRUN_ERROR    0x0800              /* Overrun condition by UART   */
+#define UART_PARITY_ERROR     0x0400              /* Parity Error by UART        */ 
 #define UART_BUFFER_OVERFLOW  0x0200              /* receive ringbuffer overflow */
 #define UART_NO_DATA          0x0100              /* no receive data available   */
-
-#include <stdio.h>
 
 
 /*
@@ -143,8 +141,6 @@ extern unsigned int uart_getc(void);
  *  @return  none
  */
 extern void uart_putc(unsigned char data);
-
-//extern int uart_putc_file(char c, FILE *stream);
 
 
 /**
