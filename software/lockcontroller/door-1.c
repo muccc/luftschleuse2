@@ -1,4 +1,5 @@
 #include "config.h"
+#include "door-config.h"
 #if DOOR_MODEL == DOOR_MODEL_1
 #include "door-1.h"
 #include "pinutils.h"
@@ -55,7 +56,7 @@ static bool door_locking(void)
 static void door_update_inputs(void)
 {
     door_doorstate &= ~(DOOR_DOOR_CLOSED | DOOR_LOCK_LOCKED | DOOR_HANDLE_PRESSED | DOOR_LOCK_UNLOCKED| DOOR_LOCK_MANUAL_UNLOCKED);
-    //TODO: also query the reed contact here
+
     if( !PIN_HIGH(DOOR_DOOR_OPEN_CONTACT) && !PIN_HIGH(DOOR_REED_CONTACT) )
         door_doorstate |= DOOR_DOOR_CLOSED;
     
