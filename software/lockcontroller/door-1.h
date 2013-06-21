@@ -12,10 +12,10 @@
 #define DOOR_LOCK_MANUAL_UNLOCKED   (1<<6)
 
 #define DOOR_REED_CONTACT_PORT              A
-#define DOOR_REED_CONTACT_PIN               5
+#define DOOR_REED_CONTACT_PIN               4
 
 #define DOOR_LOCK_BRIDGE_PORT               A
-#define DOOR_LOCK_BRIDGE_PIN                4
+#define DOOR_LOCK_BRIDGE_PIN                5
 
 #define DOOR_LOCK_UNLOCKED_CONTACT_PORT     A
 #define DOOR_LOCK_UNLOCKED_CONTACT_PIN      2

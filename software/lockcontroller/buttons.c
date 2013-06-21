@@ -1,5 +1,6 @@
 #include "buttons.h"
 #include "pinutils.h"
+#include "bell_process.h"
 
 #include <stdbool.h>
 
@@ -42,7 +43,7 @@ uint8_t buttons_getButtonsToggleState(void)
 uint8_t buttons_getButtonsLatchedState(void)
 {
     uint8_t bell = 0;
-    if( bell_isAccepted() == true){
+    if( bell_isAccepted() == true ){
         bell = BUTTON_1;
     }
 
