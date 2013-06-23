@@ -37,9 +37,9 @@ bool sequence_numbers_check_rx(uint32_t seq)
     bool result = false;
     if( seq > sequence_numbers_rx ){
         result = true;
-        sequence_numbers_rx = seq;
         sequence_numbers_check_next(sequence_numbers_rx_ee,
-            seq);
+            sequence_numbers_rx);
+        sequence_numbers_rx = seq;
     }
     return result;
 }
