@@ -56,11 +56,11 @@ try:
         if config.has_option(section, 'type'):
             t = config.get(section, 'type')
             if t == 'door':
-                name = section
-                logger.debug('Adding door "%s"'%name)
-                door = Door(name, config_file, config, ser, input_queue)
-                address = config.get(name, 'address')
-                doors[address] = door
+                door_name = section
+                logger.debug('Adding door "%s"'%door_name)
+                door = Door(door_name, config_file, config, ser, input_queue)
+                door_address = config.get(door_name, 'address')
+                doors[door_address] = door
                 logic.add_door(door)
             else:
                 logger.warning('Unknown entry type "%s"', t)
@@ -96,10 +96,6 @@ try:
                      'input_name': '',
                      'input_type': DoorLogic.Input.COMMAND,
                      'input_value': 'down'})
-    f = open(sys.argv[1],'w');
-    config.write(f);
-    f.close()
-
     while True:
         timeout = False
         while not timeout:

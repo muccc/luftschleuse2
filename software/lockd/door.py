@@ -18,7 +18,7 @@ class Door:
         self.logger = logging.getLogger('logger')
         
         self.tx_seq = 0
-        self.rx_seq = int(config.get(name, 'rxsequence'))
+        self.rx_seq = int(config.get(name, 'rx_sequence'))
         self.address = config.get(name, 'address')
 
         initial_unlock = config.get(name, 'inital_unlock')
@@ -51,6 +51,18 @@ class Door:
         self.state_listeners = set()
         self.perm_unlocked = False
         self.input_queue = input_queue
+
+    def write_rx_sequence_number_to_config(rx_seq):
+        config = ConfigParser.RawConfigParser()
+        config.read(self.config_file)
+        
+        if config.has_section(self.name):
+            if config.has_option(self.name, "rx_seqeunce"):
+                config.set(self.name, "rx_sequence", rx_seq)
+                f = open(self.config_file,'w');
+                config.write(f);
+                f.close()
+
 
     def unlock(self, relock_timeout=0):
         self.desired_state = Door.LOCK_UNLOCKED
@@ -97,7 +109,12 @@ class Door:
             self.logger.debug('Msg to door %s: %s'%(self.name, list(p.toMessage())))
             self.interface.writeMessage(self.address, msg)
             return;
+        
+        rx_seq_increment = 2**15
+        if self.rx_seq & (rx_seq_increment - 1) == 0:
+            self.write_rx_sequence_number_to_config(self.rx_seq + rx_seq_increment)
 
+        self.rx_seq += 1
 
         if p.cmd==83:
             self.supply_voltage = ord(p.data[3])*0.1
