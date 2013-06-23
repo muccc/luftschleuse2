@@ -98,7 +98,8 @@ SRC = ../lockcontroller/$(TARGET).c \
 ../lockcontroller/door-1.c \
 ../lockcontroller/door-2.c \
 ../lockcontroller/buttons.c \
-../lockcontroller/bell_process.c
+../lockcontroller/bell_process.c \
+../lockcontroller/sequence_numbers.c
 
 # List C++ source files here. (C dependencies are automatically generated.)
 CPPSRC = 

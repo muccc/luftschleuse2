@@ -1,10 +1,15 @@
 #include "aes/aes.h"
 #include <avr/io.h>
 #include <stdint.h>
-static uint8_t aes_key[16]  = { 0x0, 0x0, 0x0, 0x0,
+#if 0
+static const uint8_t aes_key[16]  = { 0x0, 0x0, 0x0, 0x0,
                    0x0, 0x0, 0x0, 0x0,
                    0x0, 0x0, 0x0, 0x0,
                    0x0, 0x0, 0x0, 0x0 };
+#endif
+
+#include "door-config.h"
+static const uint8_t aes_key[16]  = {AES_KEY};
 
 static aes128_ctx_t aes_ctx; /* the context where the round keys are stored */
 

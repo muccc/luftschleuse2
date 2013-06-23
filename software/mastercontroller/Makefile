@@ -85,7 +85,6 @@ serial_handler.c \
 serial_process.c \
 buttons.c \
 leds.c \
-../common/aes.c \
 ../common/timer0.c \
 command_process.c \
 ../common/bus_handler.c \
@@ -307,7 +306,7 @@ AVRDUDE_WRITE_EEPROM = -F -U eeprom:w:$(TARGET).eep
 # reports about avrdude. See <http://savannah.nongnu.org/projects/avrdude> 
 # to submit bug reports.
 #AVRDUDE_VERBOSE = -v -v
-AVRDUDE_FLAGS = -p $(MCU) -B 1
+AVRDUDE_FLAGS = -p $(MCU) -B 15
 
 ifdef AVRDUDE_PROGRAMMER
 AVRDUDE_FLAGS += -c $(AVRDUDE_PROGRAMMER)

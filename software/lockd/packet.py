@@ -12,11 +12,13 @@ class Packet:
     # The AVR is a little endian device
     msgformat = "<IB5s6s"
     magic = 'SESAME'
+    sync_magic = 'SYNCME'
 
-    def __init__(self, seq, cmd, data):
+    def __init__(self, seq, cmd, data, seq_sync):
         self.seq = seq
         self.cmd = cmd
         self.data = data
+        self.seq_sync = seq_sync
     
     @classmethod
     def fromMessage(cls, message):
@@ -24,12 +26,18 @@ class Packet:
         if len(message) > 16:
             print 'Warning: Discarded %d bytes of data'%(len(message)-16)
         if magic == 'SESAME':
-            return cls(seq, cmd, data)
+            return cls(seq, cmd, data, False)
+        if magic == 'SYNCME':
+            return cls(seq, cmd, data, True)
         else:
             return None
 
     def toMessage(self):
-        message = pack(self.msgformat, self.seq, self.cmd, self.data, self.magic)
+        if self.seq_sync:
+            magic = self.sync_magic
+        else:
+            magic = self.magic
+        message = pack(self.msgformat, self.seq, self.cmd, self.data, magic)
         return message
 
     def __str__(self):

@@ -17,14 +17,6 @@
 #include <stdint.h>
 
 
-typedef struct{
-    uint32_t seq;
-    int locked:1;
-}__attribute__((packed)) state_t;
-
-state_t state_ee EEMEM = {.seq=3, .locked=1};
-state_t state;
-
 int main(void)
 {
     wdt_disable();
@@ -35,13 +27,7 @@ int main(void)
     WDTCSR |= (1<<WDCE) | (1<<WDE);
     /* Turn off WDT */
     WDTCSR = 0x00;
-    //DDRA |= 0x07;
-    //PORTA &= ~7;
-    //DDRC |= 0x07;
-    //DDRC |= 0xC0;
 
-    eeprom_read_block(&state, &state_ee, sizeof(state));
-    aes_handler_init();
     bus_handler_init();
     serial_init();
     bus_init();
