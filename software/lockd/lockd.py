@@ -15,7 +15,8 @@ from interfacelogic import InterfaceLogic
 from announce import Announcer
 
 config = ConfigParser.RawConfigParser()
-config.read(sys.argv[1])
+config_file = sys.argv[1]
+config.read(config_file)
 
 logger = logging.getLogger('logger')
 logger.setLevel(logging.DEBUG)
@@ -56,18 +57,9 @@ try:
             t = config.get(section, 'type')
             if t == 'door':
                 name = section
-                #txseq = int(config.get(section, 'txsequence'))
-                rxseq = int(config.get(section, 'rxsequence'))
-                address = config.get(section, 'address')
-                initial_unlock = config.get(section, 'inital_unlock')
-                if initial_unlock == 'True':
-                    initial_unlock = True
-                else:
-                    initial_unlock = False
-
-                key = config.get(section, 'key')
-                logger.debug('Adding door "%s"'%section)
-                door = Door(name, address, rxseq, key, ser, initial_unlock, input_queue)
+                logger.debug('Adding door "%s"'%name)
+                door = Door(name, config_file, config, ser, input_queue)
+                address = config.get(name, 'address')
                 doors[address] = door
                 logic.add_door(door)
             else:
@@ -104,7 +96,10 @@ try:
                      'input_name': '',
                      'input_type': DoorLogic.Input.COMMAND,
                      'input_value': 'down'})
-    
+    f = open(sys.argv[1],'w');
+    config.write(f);
+    f.close()
+
     while True:
         timeout = False
         while not timeout:

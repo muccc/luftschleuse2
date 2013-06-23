@@ -13,17 +13,27 @@ class Door:
     HANDLE_PRESSED     = (1<<5)
     LOCK_PERM_UNLOCKED = (1<<6)
     
-    def __init__(self, name, address, rx_seq, key, interface, initial_unlock, input_queue):
+    def __init__(self, name, config_file, config, interface, input_queue):
         self.name = name
-        self.address = address
-        self.tx_seq = 0
-        self.rx_seq = rx_seq
+        self.logger = logging.getLogger('logger')
         
+        self.tx_seq = 0
+        self.rx_seq = int(config.get(name, 'rxsequence'))
+        self.address = config.get(name, 'address')
+
+        initial_unlock = config.get(name, 'inital_unlock')
+        if initial_unlock == 'True':
+            self.initial_unlock = True
+        else:
+            self.initial_unlock = False
+
+        key = config.get(name, 'key')
         self.key = [int(x) for x in key.split()]
         self.aes = AES()
-        
+
         self.interface = interface
-        
+        self.config_file = config_file
+
         self.open = False
         self.closed = False
         self.locked = False
@@ -36,9 +46,7 @@ class Door:
         self.relock_time = 0
         self.desired_state = Door.LOCK_LOCKED
         self.buttons_toggle_state = None
-        self.logger = logging.getLogger('logger')
         self.pressed_buttons = 0
-        self.initial_unlock = initial_unlock
         self.periodic_timeout = time.time() + 1;
         self.state_listeners = set()
         self.perm_unlocked = False
