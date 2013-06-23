@@ -41,6 +41,8 @@ class DoorLogic():
         if origin_type == self.Origin.NETWORK:
             if input_type == self.Input.COMMAND:
                 if input_value == 'unlock':
+                    # TODO: change this to doors with the
+                    # initial unlock property set to 'true'.
                     self.temp_unlock('Back Door')
                 if input_value == 'lock':
                     self.lock('all')

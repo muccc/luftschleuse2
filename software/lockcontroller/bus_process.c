@@ -6,6 +6,7 @@
 #include "aes.h"
 #include "door.h"
 #include "pinutils.h"
+#include "sequence_numbers.h"
 
 #include <util/delay.h>
 #include <string.h>
@@ -28,12 +29,26 @@ void bus_process(void)
     if( channel == NODE_ADDRESS && len == 0 ){
         cmd_new(CMD_SEND_STATE, NULL);
     }else if( channel == NODE_ADDRESS && len == sizeof(packet_t) ){
+        // TODO: set a timeout to prevent us getting flooded with
+        // messages. Also enforce this timeout at boot-up.
         uint8_t *msg = bus_getMessage();
         aes_decrypt(msg);
         packet_t *packet = (packet_t *) msg;
-        if( packet_check(packet) ){
-            //TODO: check sequence number
-            cmd_new(packet->cmd, packet->data);
+
+        if( packet_check_magic(packet) ){
+            if( sequence_numbers_check_rx(packet->seq) ){
+                cmd_new(packet->cmd, packet->data);
+            }else{
+                uint32_t sync_seq = sequence_numbers_get_expected_rx();
+                packet_t p;
+                p.seq = sync_seq;
+                memcpy(p.magic, PACKET_SYNC_MAGIC, sizeof(p.magic));
+                uint8_t *msg = (uint8_t *)&p;
+                aes_encrypt(msg);
+                bus_sendFrame(NODE_ADDRESS, msg, sizeof(p));
+            }
+        }else if( packet_check_sync_magic(packet) ){
+            sequence_numbers_set_tx(packet->seq);
         }
     }
 }
@@ -41,8 +56,7 @@ void bus_process(void)
 void bus_sendPacket(packet_t *p)
 {
     memcpy(p->magic, PACKET_MAGIC, sizeof(p->magic));
-    //TODO: increment sequence number
-    p->seq = 0;
+    p->seq = sequence_numbers_get_tx();
     uint8_t *msg = (uint8_t *)p;
     aes_encrypt(msg);
     bus_sendFrame(NODE_ADDRESS, msg, sizeof(*p));

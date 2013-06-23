@@ -3,6 +3,7 @@ import time
 from aes import AES
 import logging
 from doorlogic import DoorLogic
+import ConfigParser
 
 class Door:
     DOOR_CLOSED        = (1<<0)
@@ -13,17 +14,27 @@ class Door:
     HANDLE_PRESSED     = (1<<5)
     LOCK_PERM_UNLOCKED = (1<<6)
     
-    def __init__(self, name, address, txseq, rxseq, key, interface, initial_unlock, input_queue):
+    def __init__(self, name, config_file, config, interface, input_queue):
         self.name = name
-        self.address = address
-        self.txseq = txseq
-        self.rxseq = rxseq
+        self.logger = logging.getLogger('logger')
         
+        self.tx_seq = 0
+        self.rx_seq = int(config.get(name, 'rx_sequence'))
+        self.address = config.get(name, 'address')
+
+        initial_unlock = config.get(name, 'inital_unlock')
+        if initial_unlock == 'True':
+            self.initial_unlock = True
+        else:
+            self.initial_unlock = False
+
+        key = config.get(name, 'key')
         self.key = [int(x) for x in key.split()]
         self.aes = AES()
-        
+
         self.interface = interface
-        
+        self.config_file = config_file
+
         self.open = False
         self.closed = False
         self.locked = False
@@ -36,13 +47,26 @@ class Door:
         self.relock_time = 0
         self.desired_state = Door.LOCK_LOCKED
         self.buttons_toggle_state = None
-        self.logger = logging.getLogger('logger')
         self.pressed_buttons = 0
-        self.initial_unlock = initial_unlock
         self.periodic_timeout = time.time() + 1;
         self.state_listeners = set()
         self.perm_unlocked = False
         self.input_queue = input_queue
+
+    def write_rx_sequence_number_to_config(self, rx_seq):
+        config = ConfigParser.RawConfigParser()
+        config.read(self.config_file)
+        
+        self.logger.debug("%s: Writing sequence number: %d" % (self.name, rx_seq))
+
+        if config.has_section(self.name):
+            if config.has_option(self.name, "rx_sequence"):
+                config.set(self.name, "rx_sequence", rx_seq)
+                f = open(self.config_file,'w');
+                config.write(f);
+                f.close()
+                self.logger.debug("%s: Done" % (self.name))
+
 
     def unlock(self, relock_timeout=0):
         self.desired_state = Door.LOCK_UNLOCKED
@@ -62,20 +86,47 @@ class Door:
 
     def update(self, message):
     	if len(message) != 16:
-            self.logger.warning("The received message is not 16 bytes long")
+            self.logger.warning("%s: The received message is not 16 bytes long"%(self.name))
     	    return
         message = self.aes.decrypt([ord(x) for x in message], self.key,
                     AES.keySize["SIZE_128"])
         message = ''.join([chr(x) for x in message])
 
-        self.logger.debug("Decoded message: %s"%str(list(message)))
+        self.logger.debug("%s: Decoded message: %s"%(self.name,str(list(message))))
         
         p = Packet.fromMessage(message)
+
+        if p.seq_sync:
+            self.logger.debug("%s: Sync packet with seq: %d" % (self.name, p.seq))
+            # This message contains a synchronization message for our
+            # tx sequence number.
+            self.tx_seq = p.seq
+            return
+
+        if not p.seq > self.rx_seq:
+            self.logger.debug("%s: Seq %d not ok. Sending seq update to %d." % (self.name, p.seq, self.rx_seq))
+            # The door sent a sequence number which is too low.
+            # Inform it about what we expect.
+            p = Packet(seq=self.rx_seq, cmd=0, data='', seq_sync=True)
+            msg = self.aes.encrypt([ord(x) for x in p.toMessage()], self.key,
+                        AES.keySize["SIZE_128"])
+            msg = ''.join([chr(x) for x in msg])
+
+            self.logger.debug('%s: Msg to door: %s'%(self.name, list(p.toMessage())))
+            self.interface.writeMessage(self.address, msg)
+            return;
+        
+        rx_seq_increment = 2**15
+        if self.rx_seq & (rx_seq_increment - 1) == 0:
+            self.write_rx_sequence_number_to_config(self.rx_seq + rx_seq_increment)
+
+        self.rx_seq += 1
+
         if p.cmd==83:
             self.supply_voltage = ord(p.data[3])*0.1
             
             pressed_buttons = ord(p.data[0])
-            self.logger.debug('door: pressed_buttons = %d', pressed_buttons)
+            self.logger.debug('%s: pressed_buttons = %d'%(self.name,pressed_buttons))
             if pressed_buttons & 0x01 and not self.pressed_buttons & 0x01:
                 self.pressed_buttons |= 0x01
                 self.input_queue.put({
@@ -113,8 +164,8 @@ class Door:
                             == Door.HANDLE_PRESSED
             self.perm_unlocked = doorstate & Door.LOCK_PERM_UNLOCKED \
                             == Door.LOCK_PERM_UNLOCKED
-            self.logger.info('Door state: %s'%self.get_state())
-            self.logger.info('Desired door state: %s'%self.get_desired_state())
+            self.logger.info('%s: Door state: %s'%(self.name, self.get_state()))
+            self.logger.info('%s: Desired door state: %s'%(self.name, self.get_desired_state()))
 
             self.notify_state_listeners()
 
@@ -172,7 +223,7 @@ class Door:
 
     def tick(self):
         if time.time() > self.periodic_timeout:
-            self.periodic_timeout = time.time() + .2
+            self.periodic_timeout = time.time() + 1/3.
             self._send_command(ord('D'), chr(self.desired_state))
         
         if self.relock_time:
@@ -187,12 +238,13 @@ class Door:
                 print 'Error: Command was not received'
         '''
     def _send_command(self, command, data):
-        p = Packet(seq=self.txseq, cmd=command, data=data)
+        self.tx_seq += 1
+        p = Packet(seq=self.tx_seq, cmd=command, data=data, seq_sync=False)
         msg = self.aes.encrypt([ord(x) for x in p.toMessage()], self.key,
                     AES.keySize["SIZE_128"])
         msg = ''.join([chr(x) for x in msg])
 
-        self.logger.debug('Msg to door %s: %s'%(self.name, list(p.toMessage())))
+        self.logger.debug('%s Msg to door: %s'%(self.name, list(p.toMessage())))
         self.interface.writeMessage(self.address, msg)
         '''
         self.command_accepted = None
