@@ -10,22 +10,13 @@
 #include "leds.h"
 #include "buttons.h"
 #include "bell_process.h"
+#include "sequence_numbers.h"
 
-#include <avr/io.h>
 #include <avr/wdt.h>
 #include <avr/interrupt.h>
-#include <avr/eeprom.h>
-#include <util/delay.h>
+#include <stdbool.h>
 #include <string.h>
 #include <stdint.h>
-
-typedef struct{
-    uint32_t seq;
-    int locked:1;
-}__attribute__((packed)) state_t;
-
-state_t state_ee EEMEM = {.seq=3, .locked=1};
-state_t state;
 
 int main(void)
 {
@@ -37,15 +28,13 @@ int main(void)
     WDTCSR |= (1<<WDCE) | (1<<WDE);
     /* Turn off WDT */
     WDTCSR = 0x00;
-    //DDRC |= 0xC0;
 
-    eeprom_read_block(&state, &state_ee, sizeof(state));
-    
     leds_init();
     buttons_init();
     adc_init();
     power_init();
     door_init();
+    sequence_numbers_init();
     aes_handler_init();
     bus_handler_init();
     bus_init();
@@ -54,7 +43,7 @@ int main(void)
     timer0_init();
     sei();
     
-    while( 1 ){
+    while( true ){
         if( timer0_timebase ){
             timer0_timebase--;
             bus_tick();

@@ -56,7 +56,7 @@ try:
             t = config.get(section, 'type')
             if t == 'door':
                 name = section
-                txseq = int(config.get(section, 'txsequence'))
+                #txseq = int(config.get(section, 'txsequence'))
                 rxseq = int(config.get(section, 'rxsequence'))
                 address = config.get(section, 'address')
                 initial_unlock = config.get(section, 'inital_unlock')
@@ -67,15 +67,15 @@ try:
 
                 key = config.get(section, 'key')
                 logger.debug('Adding door "%s"'%section)
-                door = Door(name, address, txseq, rxseq, key, ser, initial_unlock, input_queue)
+                door = Door(name, address, rxseq, key, ser, initial_unlock, input_queue)
                 doors[address] = door
                 logic.add_door(door)
             else:
                 logger.warning('Unknown entry type "%s"', t)
         elif section == 'Master Controller':
-            txseq = int(config.get(section, 'txsequence'))
-            rxseq = int(config.get(section, 'rxsequence'))
-            key = config.get(section, 'key')
+            #txseq = int(config.get(section, 'txsequence'))
+            #rxseq = int(config.get(section, 'rxsequence'))
+            #key = config.get(section, 'key')
             
             buttons_section = 'Master Controller Buttons'
             buttons = {}
@@ -90,7 +90,7 @@ try:
                 leds[led_name] = led_pin
 
 
-            master = MasterController('0', txseq, rxseq, key, ser, input_queue, buttons, leds) 
+            master = MasterController('0', ser, input_queue, buttons, leds) 
     
     if master == None:
         logger.error('Please specify a master controller')
@@ -130,7 +130,7 @@ try:
         announcer.tick()
         interface_logic.tick()
         logic.tick()
-        
+        ''' 
         all_locked = True
         for d in doors:
             if not doors[d].locked:
@@ -139,8 +139,7 @@ try:
             logger.debug("All doors locked")
         else:
             logger.debug("NOT all doors locked")
-        master.set_global_state(all_locked)
-
+        '''
 #try:
 #    pass
 except Exception, e:

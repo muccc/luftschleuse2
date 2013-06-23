@@ -85,7 +85,6 @@ serial_handler.c \
 serial_process.c \
 buttons.c \
 leds.c \
-../common/aes.c \
 ../common/timer0.c \
 command_process.c \
 ../common/bus_handler.c \

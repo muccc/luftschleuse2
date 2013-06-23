@@ -25,25 +25,21 @@ void serial_process(void)
     if( serial_getMessageLen() == 16 ){
         uint8_t *msg = serial_getMessage();
         if( serial_channel == '0' ){
-            aes_decrypt(msg);
             packet = (packet_t *) msg;
 
-            if( packet_check(packet) ){
+            if( packet_check_magic(packet) ){
                 cmd_new(packet->cmd, packet->data);
             }
         }else if(serial_channel != 0) {
             bus_sendFrame(serial_channel, msg, 16);
         }
     }
-    
 }
 
 void serial_sendPacket(packet_t *p)
 {
     memcpy(p->magic, PACKET_MAGIC, sizeof(p->magic));
-    //TODO: increment sequence number
-    p->seq = 0;
     uint8_t *msg = (uint8_t *)p;
-    aes_encrypt(msg);
     serial_sendFrame('0', msg, sizeof(*p));
 }
+

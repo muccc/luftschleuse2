@@ -13,11 +13,11 @@ class Door:
     HANDLE_PRESSED     = (1<<5)
     LOCK_PERM_UNLOCKED = (1<<6)
     
-    def __init__(self, name, address, txseq, rxseq, key, interface, initial_unlock, input_queue):
+    def __init__(self, name, address, rx_seq, key, interface, initial_unlock, input_queue):
         self.name = name
         self.address = address
-        self.txseq = txseq
-        self.rxseq = rxseq
+        self.tx_seq = 0
+        self.rx_seq = rx_seq
         
         self.key = [int(x) for x in key.split()]
         self.aes = AES()
@@ -71,6 +71,26 @@ class Door:
         self.logger.debug("Decoded message: %s"%str(list(message)))
         
         p = Packet.fromMessage(message)
+
+        if p.seq_sync:
+            # This message contains a synchronization message for our
+            # tx sequence number.
+            self.tx_seq = p.seq
+            return
+
+        if not p.seq > self.rx_seq:
+            # The door sent a sequence number which is too low.
+            # Inform it about what we expect.
+            p = Packet(seq=self.rx_seq, cmd=0, data='', seq_sync=True)
+            msg = self.aes.encrypt([ord(x) for x in p.toMessage()], self.key,
+                        AES.keySize["SIZE_128"])
+            msg = ''.join([chr(x) for x in msg])
+
+            self.logger.debug('Msg to door %s: %s'%(self.name, list(p.toMessage())))
+            self.interface.writeMessage(self.address, msg)
+            return;
+
+
         if p.cmd==83:
             self.supply_voltage = ord(p.data[3])*0.1
             
@@ -172,7 +192,7 @@ class Door:
 
     def tick(self):
         if time.time() > self.periodic_timeout:
-            self.periodic_timeout = time.time() + .2
+            self.periodic_timeout = time.time() + 1/3.
             self._send_command(ord('D'), chr(self.desired_state))
         
         if self.relock_time:
@@ -187,7 +207,8 @@ class Door:
                 print 'Error: Command was not received'
         '''
     def _send_command(self, command, data):
-        p = Packet(seq=self.txseq, cmd=command, data=data)
+        self.tx_seq += 1
+        p = Packet(seq=self.tx_seq, cmd=command, data=data, seq_sync=False)
         msg = self.aes.encrypt([ord(x) for x in p.toMessage()], self.key,
                     AES.keySize["SIZE_128"])
         msg = ''.join([chr(x) for x in msg])
