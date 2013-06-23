@@ -3,6 +3,7 @@ import time
 from aes import AES
 import logging
 from doorlogic import DoorLogic
+import ConfigParser
 
 class Door:
     DOOR_CLOSED        = (1<<0)
@@ -52,16 +53,19 @@ class Door:
         self.perm_unlocked = False
         self.input_queue = input_queue
 
-    def write_rx_sequence_number_to_config(rx_seq):
+    def write_rx_sequence_number_to_config(self, rx_seq):
         config = ConfigParser.RawConfigParser()
         config.read(self.config_file)
         
+        self.logger.debug("%s: Writing sequence number: %d" % (self.name, rx_seq))
+
         if config.has_section(self.name):
-            if config.has_option(self.name, "rx_seqeunce"):
+            if config.has_option(self.name, "rx_sequence"):
                 config.set(self.name, "rx_sequence", rx_seq)
                 f = open(self.config_file,'w');
                 config.write(f);
                 f.close()
+                self.logger.debug("%s: Done" % (self.name))
 
 
     def unlock(self, relock_timeout=0):
@@ -82,23 +86,25 @@ class Door:
 
     def update(self, message):
     	if len(message) != 16:
-            self.logger.warning("The received message is not 16 bytes long")
+            self.logger.warning("%s: The received message is not 16 bytes long"%(self.name))
     	    return
         message = self.aes.decrypt([ord(x) for x in message], self.key,
                     AES.keySize["SIZE_128"])
         message = ''.join([chr(x) for x in message])
 
-        self.logger.debug("Decoded message: %s"%str(list(message)))
+        self.logger.debug("%s: Decoded message: %s"%(self.name,str(list(message))))
         
         p = Packet.fromMessage(message)
 
         if p.seq_sync:
+            self.logger.debug("%s: Sync packet with seq: %d" % (self.name, p.seq))
             # This message contains a synchronization message for our
             # tx sequence number.
             self.tx_seq = p.seq
             return
 
         if not p.seq > self.rx_seq:
+            self.logger.debug("%s: Seq %d not ok. Sending seq update to %d." % (self.name, p.seq, self.rx_seq))
             # The door sent a sequence number which is too low.
             # Inform it about what we expect.
             p = Packet(seq=self.rx_seq, cmd=0, data='', seq_sync=True)
@@ -106,7 +112,7 @@ class Door:
                         AES.keySize["SIZE_128"])
             msg = ''.join([chr(x) for x in msg])
 
-            self.logger.debug('Msg to door %s: %s'%(self.name, list(p.toMessage())))
+            self.logger.debug('%s: Msg to door: %s'%(self.name, list(p.toMessage())))
             self.interface.writeMessage(self.address, msg)
             return;
         
@@ -120,7 +126,7 @@ class Door:
             self.supply_voltage = ord(p.data[3])*0.1
             
             pressed_buttons = ord(p.data[0])
-            self.logger.debug('door: pressed_buttons = %d', pressed_buttons)
+            self.logger.debug('%s: pressed_buttons = %d'%(self.name,pressed_buttons))
             if pressed_buttons & 0x01 and not self.pressed_buttons & 0x01:
                 self.pressed_buttons |= 0x01
                 self.input_queue.put({
@@ -158,8 +164,8 @@ class Door:
                             == Door.HANDLE_PRESSED
             self.perm_unlocked = doorstate & Door.LOCK_PERM_UNLOCKED \
                             == Door.LOCK_PERM_UNLOCKED
-            self.logger.info('Door state: %s'%self.get_state())
-            self.logger.info('Desired door state: %s'%self.get_desired_state())
+            self.logger.info('%s: Door state: %s'%(self.name, self.get_state()))
+            self.logger.info('%s: Desired door state: %s'%(self.name, self.get_desired_state()))
 
             self.notify_state_listeners()
 
@@ -238,7 +244,7 @@ class Door:
                     AES.keySize["SIZE_128"])
         msg = ''.join([chr(x) for x in msg])
 
-        self.logger.debug('Msg to door %s: %s'%(self.name, list(p.toMessage())))
+        self.logger.debug('%s Msg to door: %s'%(self.name, list(p.toMessage())))
         self.interface.writeMessage(self.address, msg)
         '''
         self.command_accepted = None
