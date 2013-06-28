@@ -4,10 +4,17 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define CS 2,1
-#define SCK 2,11
-#define SDA 0,9
-#define RST 2,2
+#define LCD_CS_PORT     B
+#define LCD_CS_PIN      1
+
+#define LCD_SCK_PORT    B
+#define LCD_SCK_PIN     0
+
+#define LCD_SDA_PORT    B
+#define LCD_SDA_PIN     3
+
+#define LCD_RST_PORT    B
+#define LCD_RST_PIN     4
 
 void lcdhal_delayms(uint8_t ms);
 void lcdhal_select(void);

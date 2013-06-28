@@ -1,22 +1,28 @@
 #include "lcdhal.h"
+#include "pinutils.h"
+
+#include <util/delay.h>
+
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
 
-
 void lcdhal_delayms(uint8_t ms)
 {
+    while(ms--){
+        __delay_us(1000);
+    }
 }
 
 void lcdhal_select(void)
 {
     /* the LCD requires 9-Bit frames */
-    //gpioSetValue(RB_LCD_CS, 0);
+    PIN_CLEAR(LCD_CS);
 }
 
 void lcdhal_deselect(void)
 {
-    //gpioSetValue(RB_LCD_CS, 1);
+    PIN_SET(LCD_CS);
     /* reset the bus to 8-Bit frames that everyone else uses */
 }
 
@@ -33,11 +39,6 @@ void lcdhal_write(uint8_t cd, uint8_t data)
     /* clear the FIFO */
     //frame = SSP_SSP0DR;
 }
-
-#define CS 2,1
-#define SCK 2,11
-#define SDA 0,9
-#define RST 2,2
 
 uint8_t lcdhal_read(uint8_t data)
 {
