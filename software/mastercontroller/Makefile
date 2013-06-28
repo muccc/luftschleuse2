@@ -92,7 +92,10 @@ bus_process.c \
 ../common/uart.c \
 ../common/packet.c \
 power_process.c \
-../common/adc.c
+../common/adc.c \
+lcd.c \
+lcdhal.c
+
 
 # List C++ source files here. (C dependencies are automatically generated.)
 CPPSRC = 
