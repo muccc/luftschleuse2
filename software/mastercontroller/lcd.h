@@ -19,14 +19,13 @@
 /* Display buffer */
 extern uint8_t lcdBuffer[RESX*RESY_B];
 
-void lcdInit(void);
-void lcdFill(char f);
-void lcdDisplay(void);
-void lcdInvert(void);
-void lcdToggleFlag(int flag);
-void lcdSetPixel(char x, char y, bool f);
-bool lcdGetPixel(char x, char y);
-void lcdShift(int x, int y, bool wrap);
-void lcdSetContrast(int c);
-void lcdSetInvert(int c);
+void lcd_init(void);
+void lcd_fill(uint8_t f);
+void lcd_display(void);
+void lcd_invert(void);
+void lcd_toggleFlag(int flag);
+void lcd_setPixel(uint8_t x, uint8_t y, bool f);
+bool lcd_getPixel(uint8_t x, uint8_t y);
+void lcd_setContrast(uint8_t c);
+void lcd_setInvert(uint8_t c);
 #endif

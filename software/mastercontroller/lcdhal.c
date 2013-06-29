@@ -7,10 +7,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-void lcdhal_delayms(uint8_t ms)
+void lcdhal_delayms(uint16_t ms)
 {
     while(ms--){
-        __delay_us(1000);
+        _delay_ms(1);
     }
 }
 
@@ -32,85 +32,87 @@ void lcdhal_write(uint8_t cd, uint8_t data)
 
     frame = cd << 8;
     frame |= data;
+    PIN_CLEAR(LCD_SCK);
+    PIN_CLEAR(LCD_CS);
+    
+    uint8_t i;
+    for(i = 0; i < 9; i++){
+        if( frame & 0x100 ){
+            PIN_SET(LCD_SDA);
+        }else{
+            PIN_CLEAR(LCD_SDA);
+        }
 
-    //while ((SSP_SSP0SR & (SSP_SSP0SR_TNF_NOTFULL | SSP_SSP0SR_BSY_BUSY)) != SSP_SSP0SR_TNF_NOTFULL);
-    //SSP_SSP0DR = frame;
-    //while ((SSP_SSP0SR & (SSP_SSP0SR_BSY_BUSY|SSP_SSP0SR_RNE_NOTEMPTY)) != SSP_SSP0SR_RNE_NOTEMPTY);
-    /* clear the FIFO */
-    //frame = SSP_SSP0DR;
+        PIN_SET(LCD_SCK);
+        PIN_CLEAR(LCD_SCK);
+        frame <<= 1;
+    }
+    PIN_SET(LCD_CS);
 }
 
 uint8_t lcdhal_read(uint8_t data)
 {
-#if 0
-    uint32_t op211cache=IOCON_PIO2_11;
-    uint32_t op09cache=IOCON_PIO0_9;
-    uint32_t dircache=GPIO_GPIO2DIR;
-    IOCON_PIO2_11=IOCON_PIO2_11_FUNC_GPIO|IOCON_PIO2_11_MODE_PULLUP;
-    IOCON_PIO0_9=IOCON_PIO0_9_FUNC_GPIO|IOCON_PIO0_9_MODE_PULLUP;
-    gpioSetDir(SCK, 1);
+    DDR_CONFIG_OUT(LCD_SCK);
 
     uint8_t i;
 
-    gpioSetDir(SDA, 1);
-    gpioSetValue(SCK, 0);
-    gpioSetValue(CS, 0);
-    delayms(1);
+    DDR_CONFIG_OUT(LCD_SDA);
+    PIN_CLEAR(LCD_SCK);
+    PIN_CLEAR(LCD_CS);
+    lcdhal_delayms(1);
 
-    gpioSetValue(SDA, 0);
-    gpioSetValue(SCK, 1);
-    delayms(1);
+    PIN_CLEAR(LCD_SDA);
+    PIN_SET(LCD_SCK);
+    lcdhal_delayms(1);
     
     for(i=0; i<8; i++){
-        gpioSetValue(SCK, 0);
-        delayms(1);
+        PIN_CLEAR(LCD_SCK);
+        lcdhal_delayms(1);
         if( data & 0x80 )
-            gpioSetValue(SDA, 1);
+            PIN_SET(LCD_SDA);
         else
-            gpioSetValue(SDA, 0);
+            PIN_CLEAR(LCD_SDA);
         data <<= 1;
-        gpioSetValue(SCK, 1);
-        delayms(1);
+        PIN_SET(LCD_SCK);
+        lcdhal_delayms(1);
     }
     uint8_t ret = 0;
 
-    gpioSetDir(SDA, 0);
+    DDR_CONFIG_IN(LCD_SDA);
     for(i=0; i<8; i++){
-        gpioSetValue(SCK, 0);
-        delayms(1);
+        PIN_CLEAR(LCD_SCK);
+        lcdhal_delayms(1);
         ret <<= 1;
-        ret |= gpioGetValue(SDA);
-        gpioSetValue(SCK, 1);
-        delayms(1);
+        if( PIN_HIGH(LCD_SDA) ){
+            ret |= 1;
+        }
+        PIN_SET(LCD_SCK);
+        lcdhal_delayms(1);
     }
-    gpioSetValue(SCK, 0);
+    PIN_CLEAR(LCD_SCK);
 
-    gpioSetValue(CS, 1);
-    gpioSetDir(SDA, 1);
-    IOCON_PIO2_11=op211cache;
-    IOCON_PIO0_9=op09cache;
-    GPIO_GPIO2DIR=dircache;
-    delayms(1);
+    PIN_SET(LCD_CS);
+    DDR_CONFIG_OUT(LCD_SDA);
+    lcdhal_delayms(1);
     return ret;
-#endif
-    return 0;
 }
 
 
 void lcdhal_init(void)
 {
+    DDR_CONFIG_OUT(LCD_SCK);
+    DDR_CONFIG_OUT(LCD_SDA);
+    DDR_CONFIG_OUT(LCD_RST);
+    DDR_CONFIG_OUT(LCD_CS);
 
-    //sspInit(0, sspClockPolarity_Low, sspClockPhase_RisingEdge);
-
-    //gpioSetValue(RB_LCD_CS, 1);
-    //gpioSetValue(RB_LCD_RST, 1);
-
-    //gpioSetDir(RB_LCD_CS, gpioDirection_Output);
-    //gpioSetDir(RB_LCD_RST, gpioDirection_Output);
+    PIN_CLEAR(LCD_SCK);
+    PIN_SET(LCD_CS);
+    PIN_CLEAR(LCD_SDA);
+    PIN_SET(LCD_RST);
 
     lcdhal_delayms(100);
-    //gpioSetValue(RB_LCD_RST, 0);
+    PIN_CLEAR(LCD_RST);
     lcdhal_delayms(100);
-    //gpioSetValue(RB_LCD_RST, 1);
+    PIN_SET(LCD_RST);
     lcdhal_delayms(100);
 }

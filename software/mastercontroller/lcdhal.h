@@ -16,7 +16,7 @@
 #define LCD_RST_PORT    B
 #define LCD_RST_PIN     4
 
-void lcdhal_delayms(uint8_t ms);
+void lcdhal_delayms(uint16_t ms);
 void lcdhal_select(void);
 void lcdhal_deselect(void);
 void lcdhal_write(uint8_t cd, uint8_t data);

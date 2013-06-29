@@ -8,7 +8,7 @@
 #define DISPLAY_N1200 0
 #define DISPLAY_N1600 1
 
-#define MODE 8 /* 8 or 16 */
+#define MODE 16 /* 8 or 16 */
 
 #if MODE == 8
 #define putpix(x) _helper_pixel8(x)
@@ -41,17 +41,18 @@ static bool lcdinvert;
 #define TYPE_CMD    0
 #define TYPE_DATA   1
 
-void lcdInit(void) {
-    int id;
+void lcd_init(void)
+{
+    uint8_t id;
 
     lcdhal_init();
 
-    id=lcdhal_read(220); // ID3
+    //id=lcdhal_read(220); // ID3
     
-    if(id==14)
+    //if(id==14)
         displayType=DISPLAY_N1600;
-    else /* ID3 == 48 */
-        displayType=DISPLAY_N1200;
+    //else /* ID3 == 48 */
+    //    displayType=DISPLAY_N1200;
     
 /* Small Nokia 1200 LCD docs:
  *           clear/ set
@@ -81,7 +82,7 @@ void lcdInit(void) {
         static uint8_t initseq[]= { 0xE2,0xAF, // Display ON
                              0xA1, // Mirror-X
                              0xA4, 0x2F, 0xB0, 0x10};
-        int i = 0;
+        uint8_t i = 0;
         while(i<sizeof(initseq)){
             lcdhal_write(TYPE_CMD,initseq[i++]);
             lcdhal_delayms(5); // actually only needed after the first
@@ -123,7 +124,7 @@ void lcdInit(void) {
                 (1<<6) | (0<< 7) | (0<< 8) |
                 (1<<9) | (0<<10) | (0<<11) |
                 0);
-        int i = 0;
+        uint8_t i = 0;
 
         lcdhal_write(0, 0x01); /* most color displays need the pause */
         lcdhal_delayms(10);
@@ -136,16 +137,18 @@ void lcdInit(void) {
     lcdhal_deselect();
 }
 
-void lcdFill(char f){
+void lcd_fill(uint8_t f)
+{
     memset(lcdBuffer,f,RESX*RESY_B);
-};
+}
 
-void lcdSetPixel(char x, char y, bool f){
+void lcd_setPixel(uint8_t x, uint8_t y, bool f)
+{
     if (x<0 || x> RESX || y<0 || y > RESY)
         return;
-    char y_byte = (RESY-(y+1)) / 8;
-    char y_off = (RESY-(y+1)) % 8;
-    char byte = lcdBuffer[y_byte*RESX+(RESX-(x+1))];
+    uint8_t y_byte = (RESY-(y+1)) / 8;
+    uint8_t y_off = (RESY-(y+1)) % 8;
+    uint8_t byte = lcdBuffer[y_byte*RESX+(RESX-(x+1))];
     if (f) {
         byte |= (1 << y_off);
     } else {
@@ -154,32 +157,36 @@ void lcdSetPixel(char x, char y, bool f){
     lcdBuffer[y_byte*RESX+(RESX-(x+1))] = byte;
 }
 
-bool lcdGetPixel(char x, char y){
-    char y_byte = (RESY-(y+1)) / 8;
-    char y_off = (RESY-(y+1)) % 8;
-    char byte = lcdBuffer[y_byte*RESX+(RESX-(x+1))];
+bool lcd_getPixel(uint8_t x, uint8_t y)
+{
+    uint8_t y_byte = (RESY-(y+1)) / 8;
+    uint8_t y_off = (RESY-(y+1)) % 8;
+    uint8_t byte = lcdBuffer[y_byte*RESX+(RESX-(x+1))];
     return byte & (1 << y_off);
 }
 
 // Color display helper functions
-static inline void _helper_pixel8(uint8_t color1){
+static inline void _helper_pixel8(uint8_t color1)
+{
     lcdhal_write(TYPE_DATA, color1);
 }
 
-static void _helper_pixel12(uint16_t color){
-    static char odd=0;
-    static char rest;
+static void _helper_pixel12(uint16_t color)
+{
+    static uint8_t odd=0;
+    static uint8_t rest;
     if(odd){
         lcdhal_write(TYPE_DATA,(rest<<4) | (color>>8));
         lcdhal_write(TYPE_DATA,color&0xff);
     }else{
         lcdhal_write(TYPE_DATA,(color>>4)&0xff);
         rest=(color&0x0f);
-    };
+    }
     odd=1-odd;
 }
 
-static void _helper_pixel16(uint16_t color){
+static void _helper_pixel16(uint16_t color)
+{
     lcdhal_write(TYPE_DATA,color>>8);
     lcdhal_write(TYPE_DATA,color&0xFF);
 }
@@ -188,62 +195,65 @@ static void _helper_pixel16(uint16_t color){
 #define COLORPACK_RGB444(r,g,b) ( ((r&0xF0)<<4) | (g&0xF0) | ((b&0xF0)>>4) )
 #define COLORPACK_RGB332(r,g,b) ( (((r>>5)&0x7)<<5) | (((g>>5)&0x7)<<2) | ((b>>6)&0x3) )
 
-static const px_type COLOR_FG =   px_PACK(0x00, 0x00, 0x00);
-static const px_type COLOR_BG =   px_PACK(0xff, 0xff, 0xff);
+static const px_type COLOR_FG =   px_PACK(0xff, 0x00, 0x00);
+static const px_type COLOR_BG =   px_PACK(0x00, 0x00, 0x00);
 
-void lcdDisplay(void) {
-    char byte;
+void lcd_display(void)
+{
+    uint8_t byte;
     lcdhal_select();
 
     if(displayType==DISPLAY_N1200){
-      lcdhal_write(TYPE_CMD,0xB0);
-      lcdhal_write(TYPE_CMD,0x10);
-      lcdhal_write(TYPE_CMD,0x00);
-      uint16_t i,page;
-      for(page=0; page<RESY_B;page++) {
-          for(i=0; i<RESX; i++) {
-              if (lcdmirror)
-                  byte=lcdBuffer[page*RESX+RESX-1-(i)];
-              else
-                  byte=lcdBuffer[page*RESX+(i)];
+        lcdhal_write(TYPE_CMD,0xB0);
+        lcdhal_write(TYPE_CMD,0x10);
+        lcdhal_write(TYPE_CMD,0x00);
+        uint16_t i,page;
+        for(page=0; page<RESY_B;page++) {
+            for(i=0; i<RESX; i++) {
+                if (lcdmirror)
+                    byte=lcdBuffer[page*RESX+RESX-1-(i)];
+                else
+                    byte=lcdBuffer[page*RESX+(i)];
   
-              if (lcdinvert)
-                  byte=~byte;
+                if (lcdinvert)
+                    byte=~byte;
       
-              lcdhal_write(TYPE_DATA,byte);
-          }
-      }
+                lcdhal_write(TYPE_DATA,byte);
+            }
+        }
     } else { /* displayType==DISPLAY_N1600 */
-      uint16_t x,y;
-      bool px;
+        uint16_t x,y;
+        bool px;
  
-      lcdhal_write(TYPE_CMD,0x2C);
+        lcdhal_write(TYPE_CMD,0x2C);
   
-      for(y=RESY;y>0;y--){
-          for(x=RESX;x>0;x--){
-              if(lcdmirror)
-                  px=lcdGetPixel(RESX-x,y-1);
-              else
-                  px=lcdGetPixel(x-1,y-1);
+        for(y=RESY;y>0;y--){
+            for(x=RESX;x>0;x--){
+                if(lcdmirror)
+                    px=lcd_getPixel(RESX-x,y-1);
+                else
+                    px=lcd_getPixel(x-1,y-1);
 
-	      if((!px)^(!lcdinvert)) {
-		      putpix(COLOR_FG); /* foreground */
-	      } else {
-		      putpix(COLOR_BG); /* background */
-	      }
-          }
-      }
-    };
+                if((!px)^(!lcdinvert)) {
+                    putpix(COLOR_FG); /* foreground */
+                } else {
+                    putpix(COLOR_BG); /* background */
+                }
+            }
+        }
+    }
     lcdhal_deselect();
 }
 
-void lcdRefresh(void) __attribute__ ((weak, alias ("lcdDisplay")));
+void lcdRefresh(void) __attribute__ ((weak, alias ("lcd_display")));
 
-inline void lcdInvert(void) {
+inline void lcd_invert(void)
+{
     lcdinvert=!lcdinvert;
 }
 
-void lcdSetContrast(int c) {
+void lcd_setContrast(uint8_t c)
+{
     lcdhal_select();
     if(displayType==DISPLAY_N1200){
         if(c<0x1F)
@@ -252,16 +262,17 @@ void lcdSetContrast(int c) {
         if(c<0x40) {
             lcdhal_write(TYPE_CMD,0x25);
             lcdhal_write(TYPE_DATA,4*c);
-        };
+        }
     }
     lcdhal_deselect();
-};
+}
 
-void lcdSetInvert(int c) {
+void lcd_setInvert(uint8_t c)
+{
     lcdhal_select();
      /* it doesn't harm N1600, save space */
 //  if(displayType==DISPLAY_N1200)
         lcdhal_write(TYPE_CMD,(c&1)+0xa6);
     lcdhal_deselect();
-};
+}
 
