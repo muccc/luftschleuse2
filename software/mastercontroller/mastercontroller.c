@@ -8,6 +8,7 @@
 #include "timer0.h"
 #include "buttons.h"
 #include "leds.h"
+#include "display_process.h"
 
 #include <avr/io.h>
 #include <avr/wdt.h>
@@ -34,6 +35,8 @@ int main(void)
     cmd_init();
     buttons_init();
     leds_init();
+    display_init();
+    display_init();
     timer0_init();
     sei();
     
@@ -48,12 +51,11 @@ int main(void)
             serial_tick();
             buttons_tick();
             leds_tick();
+            display_tick();
         }
         bus_process();
         serial_process();
-
-        //aes128_enc(data, &ctx); /* encrypting the data block */
+        display_process();
     }
-
 }
 

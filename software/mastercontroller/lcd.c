@@ -8,7 +8,7 @@
 #define DISPLAY_N1200 0
 #define DISPLAY_N1600 1
 
-#define MODE 16 /* 8 or 16 */
+#define MODE 12 /* 8 or 16 */
 
 #if MODE == 8
 #define putpix(x) _helper_pixel8(x)
@@ -242,6 +242,22 @@ void lcd_display(void)
             }
         }
     }
+    lcdhal_deselect();
+}
+
+void lcd_startStream(void)
+{
+    lcdhal_select();
+    lcdhal_write(TYPE_CMD,0x2C);
+}
+
+void lcd_stream(uint8_t r, uint8_t g, uint8_t b)
+{
+    putpix(px_PACK(r, g, b));
+}
+
+void lcd_stopStream(void)
+{
     lcdhal_deselect();
 }
 

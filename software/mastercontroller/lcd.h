@@ -28,4 +28,9 @@ void lcd_setPixel(uint8_t x, uint8_t y, bool f);
 bool lcd_getPixel(uint8_t x, uint8_t y);
 void lcd_setContrast(uint8_t c);
 void lcd_setInvert(uint8_t c);
+
+void lcd_startStream(void);
+void lcd_stream(uint8_t r, uint8_t g, uint8_t b);
+void lcd_stopStream(void);
+
 #endif

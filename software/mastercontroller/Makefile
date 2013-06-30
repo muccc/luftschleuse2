@@ -94,7 +94,8 @@ bus_process.c \
 power_process.c \
 ../common/adc.c \
 lcd.c \
-lcdhal.c
+lcdhal.c \
+display_process.c
 
 
 # List C++ source files here. (C dependencies are automatically generated.)
