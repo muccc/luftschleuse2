@@ -36,7 +36,6 @@ int main(void)
     buttons_init();
     leds_init();
     display_init();
-    display_init();
     timer0_init();
     sei();
     
