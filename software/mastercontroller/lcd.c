@@ -112,8 +112,10 @@ void lcd_init(void)
             0x03, 
             0x13, 
             0x3A, px_INIT_MODE, 
-            0x2A, 1, 98-2, 
-            0x2B, 1, 70-2
+//            0x2A, 1, 98-2, 
+            0x2A, 0, 98, 
+//            0x2B, 1, 70-2
+            0x2B, 0, 70
         };
         uint16_t initseq_c = ~  (  /* comands: 1, data: 0 */
                 (1<<0) |
