@@ -95,6 +95,9 @@ try:
             elif display_type == 'simulation':
                 from display_pygame import Display
                 display = Display()
+            elif display_type == 'network':
+                from display_network import Display
+                display = Display()
             elif display_type == 'None':
                 display = None
             else:
