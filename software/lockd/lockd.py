@@ -50,6 +50,8 @@ try:
     master = None
 
     display = None
+    
+    display_controller = None
 
     logic = DoorLogic()
 
@@ -152,6 +154,8 @@ try:
         announcer.tick()
         interface_logic.tick()
         logic.tick()
+        if display_controller != None:
+            display_controller.tick()
         ''' 
         all_locked = True
         for d in doors:
