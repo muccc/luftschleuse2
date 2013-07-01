@@ -8,7 +8,7 @@
 #define DISPLAY_N1200 0
 #define DISPLAY_N1600 1
 
-#define MODE 12 /* 8 or 16 */
+#define MODE 16 /* 8 or 16 */
 
 #if MODE == 8
 #define putpix(x) _helper_pixel8(x)
@@ -113,9 +113,9 @@ void lcd_init(void)
             0x13, 
             0x3A, px_INIT_MODE, 
 //            0x2A, 1, 98-2, 
-            0x2A, 0, 98, 
+            0x2A, 0, 97, 
 //            0x2B, 1, 70-2
-            0x2B, 0, 70
+            0x2B, 0, 69
         };
         uint16_t initseq_c = ~  (  /* comands: 1, data: 0 */
                 (1<<0) |
