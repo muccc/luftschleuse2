@@ -14,6 +14,7 @@ from doorlogic import DoorLogic
 from interfacelogic import InterfaceLogic
 from announce import Announcer
 from display_controller import DisplayController
+from displaylogic import DisplayLogic
 
 config = ConfigParser.RawConfigParser()
 config_file = sys.argv[1]
@@ -113,8 +114,11 @@ try:
     
     if display != None:
         display_controller = DisplayController(display)
-        #display_logic = DisplayLogic(display_controller)
-        #logic.add_state_listener(display_logic.update_state)
+        display_logic = DisplayLogic(display_controller)
+        logic.add_state_listener(display_logic.update_state)
+        for door in doors.values():
+            display_logic.add_door(door)
+
     else:
         logger.warning('No display specified.')
 
