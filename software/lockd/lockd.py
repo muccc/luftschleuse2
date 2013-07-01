@@ -13,6 +13,8 @@ import traceback
 from doorlogic import DoorLogic
 from interfacelogic import InterfaceLogic
 from announce import Announcer
+from display_controller import DisplayController
+from display import Display
 
 config = ConfigParser.RawConfigParser()
 config_file = sys.argv[1]
@@ -38,6 +40,10 @@ try:
     baudrate = config.get('Master Controller', 'baudrate')
 
     ser = serialinterface.SerialInterface(serialdevice, baudrate, timeout=.1)
+    
+    display = Display(ser)
+    display_controller = DisplayController(display)
+
     input_queue = Queue.Queue()
 
     udpcommand = UDPCommand('127.0.0.1', 2323, input_queue)

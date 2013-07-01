@@ -10,7 +10,6 @@ class Display:
         self._image = Image.new("RGB", (x,y), (0,0,0))
 
         self.reset()
-        self.update()
     
     def __getattr__(self, name):
         return getattr(self._image, name)
@@ -23,6 +22,7 @@ class Display:
         time.sleep(1)
 
     def update(self):
+        #t = time.time();
         self._start_stream()
 
         chain = self._image.tobytes()
@@ -54,9 +54,12 @@ class Display:
                 count = 0
         
         pixel_data += pack_pixel(count, prev)
-
+        
+        #print time.time() - t
+        #t = time.time()
         self._stream(pixel_data)
         self._stop_stream()
+        #print time.time() - t
 
     def _command(self, cmd, data = []):
         msg = "%c"%chr(cmd)
