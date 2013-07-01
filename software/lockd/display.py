@@ -25,7 +25,7 @@ class Display:
         #t = time.time();
         self._start_stream()
 
-        chain = self._image.tobytes()
+        chain = self._image.tostring()
         chain = [chain[i:i+3] for i in range(0, len(chain), 3)]
 
         prev = None
