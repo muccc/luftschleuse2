@@ -1,8 +1,10 @@
 import time
+import logging
 from PIL import Image
 
 class Display:
     def __init__(self, interface, x=98, y=70):
+        self.logger = logging.getLogger('logger')
         self._interface = interface
         self.X = x
         self.Y = y
@@ -22,7 +24,7 @@ class Display:
         time.sleep(1)
 
     def update(self):
-        #t = time.time();
+        t = time.time();
         self._start_stream()
 
         chain = self._image.tostring()
@@ -55,11 +57,11 @@ class Display:
         
         pixel_data += pack_pixel(count, prev)
         
-        #print time.time() - t
-        #t = time.time()
+        self.logger.debug('Display: prep %f'%(time.time()-t))
+        t = time.time()
         self._stream(pixel_data)
         self._stop_stream()
-        #print time.time() - t
+        self.logger.debug('Display: disp %f'%(time.time()-t))
 
     def _command(self, cmd, data = []):
         msg = "%c"%chr(cmd)
@@ -76,15 +78,15 @@ class Display:
         self._command(0x01)
         
     def _stream(self, pixel_data):
-        multi = 126
+        multi = 16
         for i in range(0, len(pixel_data), multi):
             self._interface.writeMessage(chr(0xFF), pixel_data[i:i+multi])
-            time.sleep(self._count_pixels(pixel_data[i:i+multi])*7.5e-5)
+            time.sleep(self._count_pixels(pixel_data[i:i+multi])*3.5e-5)
+            pass
 
     def _stream_raw(self, raw_data):
         for i in range(0, len(raw_data), 120):
             self._interface.writeMessage(chr(0xFD), raw_data[i:i+120])
-
 
     def _stop_stream(self):
         self._command(0x02)
