@@ -14,7 +14,6 @@ from doorlogic import DoorLogic
 from interfacelogic import InterfaceLogic
 from announce import Announcer
 from display_controller import DisplayController
-from display import Display
 
 config = ConfigParser.RawConfigParser()
 config_file = sys.argv[1]
@@ -40,9 +39,6 @@ try:
     baudrate = config.get('Master Controller', 'baudrate')
 
     ser = serialinterface.SerialInterface(serialdevice, baudrate, timeout=.1)
-    
-    display = Display(ser)
-    display_controller = DisplayController(display)
 
     input_queue = Queue.Queue()
 
@@ -51,6 +47,8 @@ try:
     doors = {}
 
     master = None
+
+    display = None
 
     logic = DoorLogic()
 
@@ -86,9 +84,22 @@ try:
             for led_name in config.options(leds_section):
                 led_pin = int(config.get(leds_section, led_name))
                 leds[led_name] = led_pin
-
-
+            
             master = MasterController('0', ser, input_queue, buttons, leds) 
+        
+        elif section == 'Display':
+            display_type = t = config.get(section, 'display_type') 
+            if display_type == "Nokia_1600":
+                from display import Display
+                display = Display(ser)
+            elif display_type == 'simulation':
+                from display_pygame import Display
+                display = Display()
+            elif display_type == 'None':
+                display = None
+            else:
+                logger.warning('Unknown display type "%s"', display_type)
+                
     
     if master == None:
         logger.error('Please specify a master controller')
@@ -96,6 +107,13 @@ try:
 
     interface_logic = InterfaceLogic(master)
     logic.add_state_listener(interface_logic.update_state)
+    
+    if display != None:
+        display_controller = DisplayController(display)
+        #display_logic = DisplayLogic(display_controller)
+        #logic.add_state_listener(display_logic.update_state)
+    else:
+        logger.warning('No display specified.')
 
     input_queue.put({'origin_name': 'init',
                      'origin_type': DoorLogic.Origin.INTERNAL,
