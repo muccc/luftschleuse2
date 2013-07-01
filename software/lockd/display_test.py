@@ -5,12 +5,14 @@ import display
 from PIL import ImageDraw
 from PIL import ImageFont
 
-ser = serialinterface.SerialInterface("/dev/ttyUSB0", 115200, timeout=.1)
+ser = serialinterface.SerialInterface(sys.argv[1], 115200, timeout=.1)
 
 lcd = display.Display(ser)
 draw = ImageDraw.Draw(lcd)
 
-usr_font = ImageFont.truetype("Arial.ttf", 8)
+font_size = int(sys.argv[3])
+
+usr_font = ImageFont.truetype(sys.argv[2], font_size)
 
 i = True
 while 1:
@@ -34,8 +36,8 @@ while 1:
 
     draw.text((0,0), "Hello World",'white', font=usr_font)
     if i:
-        draw.text((0,8), "Hello World",'red', font=usr_font)
-    draw.text((0,16), "Hello World",'blue', font=usr_font)
+        draw.text((0,font_size), "Hello World",'red', font=usr_font)
+    draw.text((0,font_size*2), "Hello World",'blue', font=usr_font)
 
     lcd.update()
     time.sleep(1)
