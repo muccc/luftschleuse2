@@ -2,6 +2,7 @@ import logging
 
 class DisplayLogic():
     def __init__(self, display_controller):
+        self.logger = logging.getLogger('logger')
         self._display_controller = display_controller
         self._doors = {}
         self._state = False
@@ -10,6 +11,7 @@ class DisplayLogic():
         pass
 
     def update_state(self, state):
+        self.logger.debug('DisplayLogic: update_state().')
         self._tainted = state.is_state_tainted()
         self._state = state
         self._update_display()
@@ -59,6 +61,7 @@ class DisplayLogic():
         door.add_state_listener(self._door_state_update)
  
     def _door_state_update(self, door):
+        self.logger.debug('DisplayLogic: _door_state_update().')
         self._update_display()
 
         #state_changed = False
