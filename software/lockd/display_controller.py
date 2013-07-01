@@ -1,4 +1,5 @@
 import display
+import logging
 
 from PIL import ImageDraw
 from PIL import ImageFont
@@ -6,6 +7,7 @@ from PIL import ImageFont
 
 class DisplayController:
     def __init__(self, display):
+        self.logger = logging.getLogger('logger')
         self._display = display
         self._draw = ImageDraw.Draw(display)
         self._small_font_size = 8
@@ -26,6 +28,7 @@ class DisplayController:
         self._display.paste((0,0,0))
 
     def update(self):
+        self.logger.debug('Refreshing display content.')
         self._display.update()
 
 
