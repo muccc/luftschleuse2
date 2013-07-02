@@ -75,6 +75,7 @@ class MasterController:
 
     def tick(self):
         self.periodic-=1
+        self.logger.debug('master: tick')
         if self.periodic == 0:
             self.periodic = 2
             self._send_command(ord('S'), '')

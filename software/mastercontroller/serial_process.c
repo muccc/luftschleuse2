@@ -4,6 +4,7 @@
 #include "aes.h"
 #include "packet.h"
 #include "command_process.h"
+#include "display_process.h"
 
 #include <string.h>
 
@@ -21,6 +22,17 @@ void serial_process(void)
 {
     uint8_t serial_channel = serial_readFrame();
     packet_t *packet;
+
+    if( serial_channel == 0 ){
+        return;
+    }
+
+    if( serial_channel == 0xFF ||
+            serial_channel == 0xFE ){
+        display_data(serial_channel,
+                serial_getMessage(), serial_getMessageLen());
+        return;
+    }
 
     if( serial_getMessageLen() == 16 ){
         uint8_t *msg = serial_getMessage();

@@ -52,6 +52,7 @@ class Door:
         self.state_listeners = set()
         self.perm_unlocked = False
         self.input_queue = input_queue
+        self._old_state = None
 
     def write_rx_sequence_number_to_config(self, rx_seq):
         config = ConfigParser.RawConfigParser()
@@ -166,8 +167,10 @@ class Door:
                             == Door.LOCK_PERM_UNLOCKED
             self.logger.info('%s: Door state: %s'%(self.name, self.get_state()))
             self.logger.info('%s: Desired door state: %s'%(self.name, self.get_desired_state()))
-
-            self.notify_state_listeners()
+            
+            if self._old_state != p.data:
+                self._old_state = p.data
+                self.notify_state_listeners()
 
         elif p.cmd==ord('A'):
             accepted = ord(p.data[0]) == 1

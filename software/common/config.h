@@ -1,7 +1,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define SERIAL_BUFFERLEN    64
+#define SERIAL_BUFFERLEN    128
 
 #define SERIAL_ESCAPE   '\\'
 #define SERIAL_END      '9'
