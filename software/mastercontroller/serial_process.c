@@ -23,6 +23,10 @@ void serial_process(void)
     uint8_t serial_channel = serial_readFrame();
     packet_t *packet;
 
+    if( serial_channel == 0 ){
+        return;
+    }
+
     if( serial_channel == 0xFF ||
             serial_channel == 0xFE ){
         display_data(serial_channel,
