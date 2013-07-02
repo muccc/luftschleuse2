@@ -92,7 +92,11 @@ bus_process.c \
 ../common/uart.c \
 ../common/packet.c \
 power_process.c \
-../common/adc.c
+../common/adc.c \
+lcd.c \
+lcdhal.c \
+display_process.c
+
 
 # List C++ source files here. (C dependencies are automatically generated.)
 CPPSRC = 
@@ -111,7 +115,7 @@ ASRC =
 # Optimization level, can be [0, 1, 2, 3, s]. 
 #     0 = turn off optimization. s = optimize for size.
 #     (Note: 3 is not always the best optimization level. See avr-libc FAQ.)
-OPT = 2
+OPT = 3
 
 
 # Debugging format.
