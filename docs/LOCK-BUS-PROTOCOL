@@ -1,0 +1,142 @@
+This document describes the protocol used for communication
+between the different lock controllers and the master.
+
+= System Overview =
+
+A complete luftschleuse system consists of at least three parts:
+
+ - The master: An embedded Linux computer which manages the whole
+   system. It provides a Wireless LAN to access the system from
+   the outside.
+ 
+ - The master controller: A device to interface the master
+   to the physical world. It connects to the master via USB
+   or a serial line.
+ 
+ - One or more lock controllers: Devices which control
+   door locks or other security relevant devices. The lock
+   controllers are connected to the master controller
+   via a bus system. This bus system provides them with
+   power as well as shared data channel.
+
+    \ | /
+     \|/
+      |
+      | WIFI
+      |
+ +--------+
+ | Master |
+ +--------+                           +-------------------+    +-------------+
+      |                      +--------| Lock Controller A |----| Door Lock A +
+      | USB or Serial        |        +-------------------+    +-------------+
+      |                      |
+ +-------------------+       |        +-------------------+    +-------------+
+ | Master Controller |-------+--------| Lock Controller B |----| Door Lock B +
+ +-------------------+     Power      +-------------------+    +-------------+
+      |                      +
+      |                    Data
+      |
+ +----------------------+
+ | Power / Backup Power |
+ +----------------------+
+
+
+A typical system will have the master and master controller in another
+physical location as the lock controllers. The master is expected to be
+in the same (protected) physical housing as the master controller.
+
+To protect the system against malicious individuals, security
+measures are in place to secure the communication between the
+lock controllers and the master.
+
+
+= Electrical Characteristics =
+The whole system runs of a 12 V DC power supply. Battery backup is provided
+if the main power source is not available anymore.
+
+Every component (master, master controller, lock controllers) contains
+a local switch mode power converter. These convert the voltage to 3.3 V
+for the master and 5 V for the master controller as well as the
+lock controllers.
+
+The system can run off the battery backup system for TBD hours.
+
+The lock controllers are connected to the master controller via standard
+twisted pair rigid data cable. The bus system is based in the RS484
+standard. Two line pairs are used for the half duplex communication between
+the lock controllers and the master.
+
+= Protocol Description =
+The serial connection between the master and the master controller as
+well as the master (controller) and the lock controllers is telegram
+based. The master is the bus master for both connection. The master
+controller and the lock controllers are only allowed to use the bus if
+instructed by the master to do so.
+
+The telegrams can have a variable length and contain a destination address.
+This address is 8 Bit large and can be anything expect the ASCII codes
+for '\' (0x5c) and '9' (0x39).
+
+A telegram has the following format:
+
++------------------+---------------------+-----------------+------------------+------------------------+
+| Escape sequence  | Destination Address | Data section    | Escape sequence  | End of Telegram Marker |
++------------------+---------------------+-----------------+------------------+------------------------+
+| 0x5C (ASCII '\') |  Arbitrary Address  | Variable Length | 0x5C (ASCII '\') | 0x39 (ASCII '9')       |
+
+
+Devices which receive such a telegram discard it, if it is longer than the maximal length for such a
+telegram. The maximal length of a telegram is a compile time option.
+
+The following addresses are currently used by default:
+  - Address 0x30 (ASCII '0') -> The master controller.
+  - Address 0x41 (ASCII 'A') -> The first lock controller.
+  - Address 0x41 (ASCII 'B') -> The second lock controller.
+
+
+The telegrams from the master to the lock controllers contain a packet format.
+Each packet is 16 Bytes large and contains the following fields:
+
+0                 4         5           10                   16
++-----------------+---------+------------+--------------------+
+| Sequence Number | Command | Parameters | Public Magic Value |
++-----------------+---------+------------+--------------------+
+
+
+The different fields have the following meaning:
+  - Sequence Number: A number which gets increased by the sender of a packet, for
+    each packet that gets sent. This value is used by the receiver to check if
+    the packet has already been seen before. If it was seen before, the packet
+    gets discarded by the receiver.
+  - Command: A single byte, containing a command from one device to the other.
+  - Parameters: 5 Bytes of parameters which have a different meaning for each command.
+  - Public Magic Value: A 6 Bytes long field, which contains a publicly known
+    magic value. This field is used to ensure the integrity of the packet together
+    with the encryption algorithm
+
+== Encryption ==
+
+Each Lock Controller is equipped with a secret key. This key is also known by
+the master. The key is used to encrypt messages from and to the lock
+controller. The used encryption algorithm is AES. As packets are exactly
+16 Bytes long, no AES mode is used. Instead, every packet is encrypted
+individually.
+
+The magic value in each packet is used by both sides to verify that the sender
+of the packet knows the encryption key.
+
+To prevent brute force attacks, the devices do not accept more
+than two packets per second.
+
+
+
+
+
+
+
+
+
+
+
+
+
