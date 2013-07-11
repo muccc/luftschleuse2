@@ -46,26 +46,25 @@ location as the Lock Controllers. The Master is expected to be in the same
 To protect the system against malicious individuals, security measures are in
 place to secure the communication between the Lock Controllers and the Master.
 
-
 = Electrical Characteristics =
 The whole system runs of a 12 V DC power supply. Battery backup is provided if
-the main power source is not available anymore.
+the main power source is not available.
 
 Every component (Master, Master Controller, Lock Controllers) contains a local
-switch mode power converter. These convert the voltage to 3.3 V for the Master
+switch mode power supply. It converts the voltage to 3.3 V for the Master
 and 5 V for the Master Controller as well as the Lock Controllers.
 
 The system can run off the battery backup system for TBD hours.
 
 The Lock Controllers are connected to the Master Controller via standard
-twisted pair rigid data cable. The bus system is based in the RS484 standard.
-Two line pairs are used for the half duplex communication between the Lock
-Controllers and the Master.
+twisted pair rigid data cable. The bus system is based on the RS484 standard.
+One wire pair is used for the half duplex bus between the Lock
+Controllers and the Master Controller.
 
 = Protocol Description =
 The serial connection between the Master and the Master Controller as well as
-the Master (Controller) and the Lock Controllers is telegram based. The Master
-is the bus master for both connection. The Master Controller and the Lock
+the Master Controller and the Lock Controllers is telegram based. The Master
+is the bus master for the RS485 bus. The Master Controller and the Lock
 Controllers are only allowed to use the bus if instructed by the Master to do
 so.
 
@@ -86,7 +85,7 @@ Devices which receive such a telegram discard it, if it is longer than the
 maximum length for such a telegram. The maximal length of a telegram is a
 compile time option.
 
-The following channels are currently used by default:
+The following channels are currently used:
   - Channel 0x30 (ASCII '0') -> The Master Controller.
   - Channel 0x41 (ASCII 'A') -> The first Lock Controller.
   - Channel 0x42 (ASCII 'B') -> The second Lock Controller.
@@ -95,14 +94,14 @@ If the Master Controller receives a frame from the Master with a channel number
 other than its own, it forwards the frame to the RS485 bus, without modifying
 it.
 
-If the Master Controller receives a frame with a channel number other than its
-own from the RS485 bus, it forwards it to the Master. It discards packets with
-its channel number, coming from the RS485 bus.
+If the Master Controller receives a frame from the RS485 bus with a channel
+number other than its own, it forwards it to the Master. It discards frames
+with its channel number.
 
 = Packets =
 
-The telegrams from the Master to the Lock Controllers contain a packet format.
-Each packet is 16 bytes large and contains the following fields:
+The telegrams between the Master and the Lock Controllers contain a packet
+format. Each packet is 16 bytes large and contains the following fields:
 
 0                 4         5           10                   16
 +-----------------+---------+------------+--------------------+
@@ -111,16 +110,15 @@ Each packet is 16 bytes large and contains the following fields:
 
 
 The different fields have the following meaning:
-  - Sequence Number: A number which gets increased by the sender of a packet,
+  - Sequence Number: A number which gets increased by the sender of a packet
     for each packet that gets sent. This value is used by the receiver to check
     if the packet has already been seen before. If it was seen before, the
     packet gets discarded by the receiver.
-  - Command: A single byte, containing a command from one device to the other.
-  - Parameters: 5 bytes of parameters which have a different meaning for each
-    command.
+  - Command: A single byte, containing a command for the receiver.
+  - Parameters: 5 bytes of parameters which have a command dependent meaning.
   - Public Magic Value: A 6 bytes long field, which contains a publicly known
     magic value. This field is used to ensure the integrity of the packet
-    together with the encryption algorithm
+    together with the encryption algorithm.
 
 == Encryption ==
 
@@ -138,13 +136,13 @@ per second. They also do not accept new packets until a certain time after the
 reset.
 
 == Sequence Number Persistence ==
-To prevent either the Master or the Lock Controllers from accepting packets
+To prevent either the Master nor the Lock Controllers from accepting packets
 with the same sequence number twice, they need do keep track of highest
-sequence number that the have already seen.
+sequence number that they have already seen.
 
 Both devices run from flash memories which are either quite small or
 have unknown endurance. Writing a new sequence number to the flash each time
-a packet is received, might have a major impact on the endurance of the flash
+a packet is received might have a major impact on the endurance of the flash
 memories over time.
 
 The devices therefore do not directly persist the last received sequence
@@ -152,10 +150,10 @@ number. Instead, they persist a sequence number which is substantially higher
 than any sequence number they have already received.
 
 If a received sequence number reaches the persisted value, a new and increased
-value will be persisted in the flash memory.
+value gets persisted in the flash memory.
 
-This allows to reduce the number of write cycles to the flash memory and still
-guarantee that no sequence number will be accepted twice. A drawback is that
+This reduces the number of write cycles to the flash memory and still
+guarantees that no sequence number is accepted twice. A drawback is that
 each time a device resets, a substantial amount of sequence numbers get
 "wasted", i.e. can not be used anymore by the other device.
 
@@ -171,10 +169,10 @@ The above mentioned way to persist the sequence numbers leads to a problem when
 a device resets. From this point on it will not accepts packets until their
 sequence number reaches the sequence number which got persisted in the flash
 memory. Depending on how many sequence numbers have been invalidated by the
-reset, it may take the other device some time to send a packet with a valid
-sequence number.
+reset, it may take the other device quite some time to send a packet with a
+sequence number that gets accepted.
 
-To prevent this period, the devices reply with a special synchronization packet
+To prevent this, the devices reply with a special synchronization packet
 when they receive a packet with a sequence number which is to low.
 
 This packet contains the minimum sequence number which will be accepted and a
@@ -186,7 +184,6 @@ The synchronization packet is encrypted with the same key as other packets for
 a specific device. The devices recognize the synchronization packets by looking
 at the magic value of the packet.
 
-
 = Command Handling =
 The communication between the Master and the Lock Controllers is handled
 through a single command.
@@ -196,15 +193,16 @@ sets the desired state of the door. It is the responsibility of the Lock
 Controller to get the door into the desired state.
 
 After receiving this command, the Lock Controller answers with the current
-state of the door and input devices. Input devices are buttons or other digital
-inputs.
+state of its input devices and the door. Input devices are buttons or other
+digital inputs.
 
 If the Lock Controller does not receive this command for some time, it tries to
-lock the door. It does not unlock it until it receives a valid packet from the
-Master which sets the desired door state to unlocked.
+lock the door. It does not unlock the door, until it receives a valid packet
+from the Master which sets the desired door state to unlocked.
 
-This means that the Lock Controller locks the door if it gets reset, the Master
-stops working or the communication with the Master gets disrupted.
+This means that if a Lock Controller gets reset, the Master
+stops working or the communication with the Master gets disrupted, the
+Lock Controller locks the door.
 
 = Pseudo Code =
 
@@ -267,8 +265,7 @@ After receiving a packet, the receiver computes a hash of the received packet.
 It then appends this hash with some random number and sends this back to the
 sender. The sender must now verify the hash of the packet, sign the received
 data with the key and send this back to the receiver. The receiver can now
-check if the received data has been signed with the correct key and execute
-the command.
+check if the received signature is correct and execute the command.
 
 As the author of this system is not familiar with challenge/response schemes,
 the scheme described above probably contains major problems.
