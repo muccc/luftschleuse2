@@ -57,7 +57,7 @@ and 5 V for the Master Controller as well as the Lock Controllers.
 The system can run off the battery backup system for TBD hours.
 
 The Lock Controllers are connected to the Master Controller via standard
-twisted pair rigid data cable. The bus system is based on the RS484 standard.
+twisted pair rigid data cable. The bus system is based on the RS485 standard.
 One wire pair is used for the half duplex bus between the Lock
 Controllers and the Master Controller.
 
