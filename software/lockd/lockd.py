@@ -55,10 +55,6 @@ try:
 
     logic = DoorLogic()
 
-    announcer = Announcer()
-
-    logic.add_state_listener(announcer.update_state)
-
     for section in config.sections():
         if config.has_option(section, 'type'):
             t = config.get(section, 'type')
@@ -91,7 +87,7 @@ try:
             master = MasterController('0', ser, input_queue, buttons, leds) 
         
         elif section == 'Display':
-            display_type = t = config.get(section, 'display_type') 
+            display_type = config.get(section, 'display_type') 
             if display_type == "Nokia_1600":
                 from display import Display
                 display = Display(ser)
@@ -105,7 +101,11 @@ try:
                 display = None
             else:
                 logger.warning('Unknown display type "%s"', display_type)
-                
+        elif section == 'Status Receiver':
+            host = config.get(section, 'host')
+            port = int(config.get(section, 'port'))
+            announcer = Announcer(host, port)
+            logic.add_state_listener(announcer.update_state)
     
     if master == None:
         logger.error('Please specify a master controller')
