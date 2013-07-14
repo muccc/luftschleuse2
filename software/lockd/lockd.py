@@ -39,7 +39,7 @@ try:
     serialdevice = config.get('Master Controller', 'serialdevice')
     baudrate = config.get('Master Controller', 'baudrate')
 
-    ser = serialinterface.SerialInterface(serialdevice, baudrate, timeout=.1)
+    serial_interface = serialinterface.SerialInterface(serialdevice, baudrate, timeout=.1)
 
     input_queue = Queue.Queue()
 
@@ -61,7 +61,7 @@ try:
             if t == 'door':
                 door_name = section
                 logger.debug('Adding door "%s"'%door_name)
-                door = Door(door_name, config_file, config, ser, input_queue)
+                door = Door(door_name, config_file, config, serial_interface, input_queue)
                 door_address = config.get(door_name, 'address')
                 doors[door_address] = door
                 logic.add_door(door)
@@ -84,13 +84,13 @@ try:
                 led_pin = int(config.get(leds_section, led_name))
                 leds[led_name] = led_pin
             
-            master = MasterController('0', ser, input_queue, buttons, leds) 
+            master = MasterController(serial_interface, input_queue, buttons, leds) 
         
         elif section == 'Display':
             display_type = config.get(section, 'display_type') 
             if display_type == "Nokia_1600":
                 from display import Display
-                display = Display(ser)
+                display = Display(serial_interface)
             elif display_type == 'simulation':
                 from display_pygame import Display
                 display = Display()
@@ -132,7 +132,7 @@ try:
     while True:
         timeout = False
         while not timeout:
-            address, message = ser.readMessage()
+            address, message = serial_interface.readMessage()
             if address != False:
                 logger.debug('Received data from address %s :%s'%(address, str(list(message))))
             else:
@@ -140,7 +140,7 @@ try:
 
             if address in doors:
                 doors[address].update(message)
-            elif address == '0':
+            elif address == master.address:
                 master.update(message)
 
         if not input_queue.empty():

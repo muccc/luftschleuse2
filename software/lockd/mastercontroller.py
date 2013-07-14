@@ -11,8 +11,8 @@ class MasterController:
         BLINK_SLOW = 3
         FLASH = 4
 
-    def __init__(self, address, interface, input_queue, buttons, leds):
-        self.address = address
+    def __init__(self, interface, input_queue, buttons, leds):
+        self.address = '0'
         
         self.interface = interface
         
