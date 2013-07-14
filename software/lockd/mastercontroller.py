@@ -1,4 +1,5 @@
 from packet import Packet
+#import apptime as time
 import time
 import logging
 from doorlogic import DoorLogic
@@ -17,7 +18,6 @@ class MasterController:
         self.interface = interface
         
         self.supply_voltage = 0
-        self.periodic = 10
         self.logger = logging.getLogger('logger')
         self.pressed_buttons = 0
 
@@ -25,6 +25,8 @@ class MasterController:
         self.leds = leds
         
         self.input_queue = input_queue
+        
+        self.timestamp = time.time()
 
     def update(self, message):
     	if len(message) != 16:
@@ -34,7 +36,7 @@ class MasterController:
         self.logger.debug("Decoded message: %s"%str(list(message)))
         
         p = Packet.fromMessage(message)
-        if p.cmd==83:
+        if p.cmd == ord('S'):
             self.supply_voltage = ord(p.data[3])*0.1
             
             pressed_buttons = ord(p.data[0])
@@ -64,12 +66,11 @@ class MasterController:
         return state
 
     def tick(self):
-        self.periodic-=1
         self.logger.debug('master: tick')
-        if self.periodic == 0:
-            self.periodic = 2
+        if time.time() - self.timestamp > .5:
             self._send_command(ord('S'), '')
-        
+            self.timestamp = time.time()
+
     def set_led(self, led_name, state):
         led = self.leds[led_name]
         self._send_command(ord('L'), '%c%c'%(led, state))
