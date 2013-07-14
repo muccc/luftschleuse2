@@ -68,18 +68,12 @@ class Door:
                 f.close()
                 self.logger.debug("%s: Done" % (self.name))
 
-
     def unlock(self, relock_timeout=0):
         self.desired_state = Door.LOCK_UNLOCKED
         if relock_timeout:
             self.relock_time = time.time() + relock_timeout
         else:
             self.relock_time = 0
-
-        #if timeout:
-        #    self._send_command(command=ord('D'), data='\x02')
-        #else:
-        #    self._send_command(command=ord('D'), data='\x01')
 
     def lock(self):
         self.desired_state = Door.LOCK_LOCKED
@@ -172,15 +166,6 @@ class Door:
                 self._old_state = p.data
                 self.notify_state_listeners()
 
-        elif p.cmd==ord('A'):
-            accepted = ord(p.data[0]) == 1
-            if not self.command_accepted:
-                if accepted:
-                    self.logger.info('Command at %d was accepted'%self.command_time)
-                    self.command_accepted = True
-                else:
-                    self.logger.warning('Command at %d was NOT accepted'% self.command_time)
-
     def is_locked(self):
         return self.locked
 
@@ -233,13 +218,7 @@ class Door:
             if time.time() > self.relock_time:
                 self.desired_state = Door.LOCK_LOCKED
                 self.relock_time = 0
-        '''
-        if time.time() - self.command_time > 5:
-            if self.command_accepted == False:
-                print 'Error: Command at %d was not accepted!'
-            elif self.command_accepted == None:
-                print 'Error: Command was not received'
-        '''
+
     def _send_command(self, command, data):
         self.tx_seq += 1
         p = Packet(seq=self.tx_seq, cmd=command, data=data, seq_sync=False)
@@ -249,9 +228,4 @@ class Door:
 
         self.logger.debug('%s Msg to door: %s'%(self.name, list(p.toMessage())))
         self.interface.writeMessage(self.address, msg)
-        '''
-        self.command_accepted = None
-        self.command_time = time.time()
-        '''
-
 

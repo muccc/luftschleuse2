@@ -1,6 +1,5 @@
 from packet import Packet
 import time
-#from aes import AES
 import logging
 from doorlogic import DoorLogic
 
@@ -12,14 +11,8 @@ class MasterController:
         BLINK_SLOW = 3
         FLASH = 4
 
-#    def __init__(self, address, txseq, rxseq, key, interface, input_queue, buttons, leds):
     def __init__(self, address, interface, input_queue, buttons, leds):
         self.address = address
-        #self.txseq = txseq
-        #self.rxseq = rxseq
-        
-        #self.key = [int(x) for x in key.split()]
-        #self.aes = AES()
         
         self.interface = interface
         
@@ -37,9 +30,6 @@ class MasterController:
     	if len(message) != 16:
             self.logger.warning("The received message is not 16 bytes long")
     	    return
-        #message = self.aes.decrypt([ord(x) for x in message], self.key,
-        #            AES.keySize["SIZE_128"])
-        #message = ''.join([chr(x) for x in message])
 
         self.logger.debug("Decoded message: %s"%str(list(message)))
         
@@ -86,17 +76,8 @@ class MasterController:
         
     def _send_command(self, command, data):
         p = Packet(seq=0, cmd=command, data=data, seq_sync=False)
-        self.logger.debug('Msg to mastercontroller: %s'%list(p.toMessage()))
-        
-        msg =  p.toMessage()
-        #msg = self.aes.encrypt([ord(x) for x in p.toMessage()], self.key,
-        #            AES.keySize["SIZE_128"])
-        #msg = ''.join([chr(x) for x in msg])
+        msg = p.toMessage()
+
+        self.logger.debug('Msg to mastercontroller: %s'%list(msg))
         self.interface.writeMessage(self.address, msg)
 
-    def announce_open(self):
-        self._send_command(ord('L'), '\x02\x04')
-
-    def announce_closed(self):
-        self._send_command(ord('L'), '\x02\x01')
-    
