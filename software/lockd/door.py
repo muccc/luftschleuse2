@@ -90,7 +90,11 @@ class Door:
         self.logger.debug("%s: Decoded message: %s"%(self.name,str(list(message))))
         
         p = Packet.fromMessage(message)
-
+        
+        if p == None:
+            self.logger.debug("%s: Decoded message was invalid" % self.name)
+            return
+        
         if p.seq_sync:
             self.logger.debug("%s: Sync packet with seq: %d" % (self.name, p.seq))
             # This message contains a synchronization message for our

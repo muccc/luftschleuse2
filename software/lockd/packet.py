@@ -1,4 +1,5 @@
 from struct import pack, unpack
+from aes import AES
 
 class Packet:
     '''
@@ -19,6 +20,7 @@ class Packet:
         self.cmd = cmd
         self.data = data
         self.seq_sync = seq_sync
+        self.aes = AES()
     
     @classmethod
     def fromMessage(cls, message):
@@ -32,12 +34,17 @@ class Packet:
         else:
             return None
 
-    def toMessage(self):
+    def toMessage(self, key = None):
         if self.seq_sync:
             magic = self.sync_magic
         else:
             magic = self.magic
         message = pack(self.msgformat, self.seq, self.cmd, self.data, magic)
+        if key:
+            message = self.aes.encrypt([ord(x) for x in message], key,
+                    AES.keySize["SIZE_128"])
+            message = ''.join([chr(x) for x in message])
+
         return message
 
     def __str__(self):
