@@ -1,5 +1,6 @@
 from struct import pack, unpack
 from aes import AES
+import logging
 
 class Packet:
     '''
@@ -23,7 +24,14 @@ class Packet:
         self.aes = AES()
     
     @classmethod
-    def fromMessage(cls, message):
+    def fromMessage(cls, message, key = None):
+        if key:
+            aes = AES()
+            message = aes.decrypt([ord(x) for x in message], key,
+                    AES.keySize["SIZE_128"])
+            message = ''.join([chr(x) for x in message])
+            logging.getLogger('logger').debug("Decoded message: %s"%str(list(message)))
+           
         seq, cmd, data, magic = unpack(cls.msgformat, message[0:16])
         if len(message) > 16:
             print 'Warning: Discarded %d bytes of data'%(len(message)-16)

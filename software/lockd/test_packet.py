@@ -33,15 +33,37 @@ class PacketTest(unittest.TestCase):
         self.assertEquals(p.data, 'abcde')
         self.assertEquals(p.seq_sync, False)
 
+    def test_decoding_encrypted(self):
+        message = "01aebf56f797f8fca488a572386a8add".decode('hex')
+        p = packet.Packet.fromMessage(message,
+                key = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
+ 
+        self.assertIsInstance(p, packet.Packet)
+        self.assertEquals(p.seq, 0x55aa)
+        self.assertEquals(p.cmd, ord('T'))
+        self.assertEquals(p.data, 'abcde')
+        self.assertEquals(p.seq_sync, False)
+
     def test_encoding_sync(self):
         seq = 0xaa55
         cmd = ord('S')
         data = "abcde"
         seq_sync = True
         p = packet.Packet(seq, cmd, data, seq_sync)
-        message = p.toMessage()
 
+        message = p.toMessage()
         self.assertEquals(message, "\x55\xaa\x00\x00SabcdeSYNCME")
+
+    def test_encoding_sync_encrypted(self):
+        seq = 0xaa55
+        cmd = ord('S')
+        data = "abcde"
+        seq_sync = True
+        p = packet.Packet(seq, cmd, data, seq_sync)
+
+        message = p.toMessage(key = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
+        self.assertEquals(message,
+                "ec7d816b5c120fb04ce7a4c4f579207d".decode('hex'))
 
     def test_decoding_sync(self):
         message = "\xaa\x55\x00\x00TabcdeSYNCME"
@@ -51,12 +73,12 @@ class PacketTest(unittest.TestCase):
         self.assertEquals(p.cmd, ord('T'))
         self.assertEquals(p.data, 'abcde')
         self.assertEquals(p.seq_sync, True)
-
     
     def test_bad_packet(self):
         message = "\xaa\x55\x00\x00TabcdeSYNCMe"
         p = packet.Packet.fromMessage(message)
         self.assertIsNone(p)
+
  
 if __name__ == '__main__':
     unittest.main()
