@@ -20,9 +20,9 @@ class DoorTest(unittest.TestCase):
         self.t0 = time.time()
         (self.config_file, self.config_file_path) = tempfile.mkstemp()
 
-        self.config_file = os.fdopen(self.config_file, 'w')
-        self.config_file.write("[Door1]\r\nrx_sequence = 128\r\n")
-        self.config_file.close()
+        config_file = open(self.config_file_path, 'w')
+        config_file.write("[Door1]\r\nrx_sequence = 128\r\n")
+        config_file.close()
 
         config = ConfigParser.RawConfigParser()
         config.add_section("Door1")
@@ -62,7 +62,30 @@ class DoorTest(unittest.TestCase):
 
         p = packet.Packet(128, 0, '\x00\x00\x00\x00\x00', True)
         self.interface.writeMessage.assert_called_once_with('A', p.toMessage(self.key))
-    
+ 
+    def test_rx_seq_increase(self):
+        p = packet.Packet(160, ord('S'), '\x01\x00\x00\x00\x00', False)
+        self.door.update(p.toMessage(self.key))
+
+        input = self.input_queue.get(block = False)
+        self.assertEquals(input, {
+            'origin_name': 'Door1',
+            'origin_type': DoorLogic.Origin.DOOR,
+            'input_name': 'manual_control',
+            #'input_name': 'Button0',
+            'input_type': DoorLogic.Input.BUTTON,
+            'input_value': ''})
+            #'input_value': True})
+        
+        p = packet.Packet(140, ord('S'), '\x02\x00\x00\x00\x00', False)
+        self.door.update(p.toMessage(self.key))
+        
+        self.assertTrue(self.input_queue.empty(),
+            "accepted message with invalid sequence number")
+
+        p = packet.Packet(160, 0, '\x00\x00\x00\x00\x00', True)
+        self.interface.writeMessage.assert_called_with('A', p.toMessage(self.key))
+ 
     @patch('time.time')
     def test_update_sync(self, time_mock):
         p = packet.Packet(123, 0, '\x00\x00\x00\x00\x00', True)
@@ -71,12 +94,17 @@ class DoorTest(unittest.TestCase):
         self.door.tick()
         query = packet.Packet(124, ord('D'), '\x02\x00\x00\x00\x00', False)
         self.interface.writeMessage.assert_called_once_with('A', query.toMessage(self.key))
-        
-    def test_leds(self):
-        #self.door.set_led('LED0', self.door.LedState.OFF)
-        #p = packet.Packet(0, ord('L'), '\x00\x01\x00\x00\x00', False)
-        #self.interface.writeMessage.assert_called_with('0', p.toMessage())
-        pass
+    
+    def test_persist_sequence_number(self):
+        #self.door.rx_seq = 2**15
+        p = packet.Packet(2**15+1, ord('S'), '\x01\x00\x00\x00\x00', False)
+        self.door.update(p.toMessage(self.key))
+
+        config_file = open(self.config_file_path, 'r')
+        print config_file.read()
+        config_file.close()
+ 
+
 
     @patch('time.time')
     def test_tick(self, time_mock):
