@@ -56,6 +56,22 @@ class DoorTest(unittest.TestCase):
             'input_value': ''})
             #'input_value': True})
 
+    def test_out_of_sync_packet(self):
+        p = packet.Packet(10, ord('S'), '\x01\x00\x00\x00\x00', False)
+        self.door.update(p.toMessage(self.key))
+
+        p = packet.Packet(128, 0, '\x00\x00\x00\x00\x00', True)
+        self.interface.writeMessage.assert_called_once_with('A', p.toMessage(self.key))
+    
+    @patch('time.time')
+    def test_update_sync(self, time_mock):
+        p = packet.Packet(123, 0, '\x00\x00\x00\x00\x00', True)
+        self.door.update(p.toMessage(self.key))
+        time_mock.return_value = self.t0 + 3
+        self.door.tick()
+        query = packet.Packet(124, ord('D'), '\x02\x00\x00\x00\x00', False)
+        self.interface.writeMessage.assert_called_once_with('A', query.toMessage(self.key))
+        
     def test_leds(self):
         #self.door.set_led('LED0', self.door.LedState.OFF)
         #p = packet.Packet(0, ord('L'), '\x00\x01\x00\x00\x00', False)

@@ -1,6 +1,5 @@
 from packet import Packet
 import time
-from aes import AES
 import logging
 from doorlogic import DoorLogic
 import ConfigParser
@@ -30,7 +29,6 @@ class Door:
 
         key = config.get(name, 'key')
         self.key = [int(x) for x in key.split()]
-        self.aes = AES()
 
         self.interface = interface
         self.config_file = config_file
@@ -83,16 +81,11 @@ class Door:
     	if len(message) != 16:
             self.logger.warning("%s: The received message is not 16 bytes long"%(self.name))
     	    return
-        message = self.aes.decrypt([ord(x) for x in message], self.key,
-                    AES.keySize["SIZE_128"])
-        message = ''.join([chr(x) for x in message])
-
-        self.logger.debug("%s: Decoded message: %s"%(self.name,str(list(message))))
         
-        p = Packet.fromMessage(message)
+        p = Packet.fromMessage(message, key = self.key)
         
         if p == None:
-            self.logger.debug("%s: Decoded message was invalid" % self.name)
+            self.logger.debug("%s: Decoded packet was invalid" % self.name)
             return
         
         if p.seq_sync:
@@ -103,21 +96,22 @@ class Door:
             return
 
         if not p.seq > self.rx_seq:
-            self.logger.debug("%s: Seq %d not ok. Sending seq update to %d." % (self.name, p.seq, self.rx_seq))
+            self.logger.debug("%s: Seq %d not ok. Sending seq update to %d." %
+                    (self.name, p.seq, self.rx_seq))
             # The door sent a sequence number which is too low.
             # Inform it about what we expect.
             p = Packet(seq=self.rx_seq, cmd=0, data='', seq_sync=True)
-            msg = self.aes.encrypt([ord(x) for x in p.toMessage()], self.key,
-                        AES.keySize["SIZE_128"])
-            msg = ''.join([chr(x) for x in msg])
+            msg = p.toMessage(key = self.key)
 
-            self.logger.debug('%s: Msg to door: %s'%(self.name, list(p.toMessage())))
+            self.logger.debug('%s: Msg to door: %s' %
+                    (self.name, list(p.toMessage())))
             self.interface.writeMessage(self.address, msg)
-            return;
+            return
         
         rx_seq_increment = 2**15
         if self.rx_seq & (rx_seq_increment - 1) == 0:
-            self.write_rx_sequence_number_to_config(self.rx_seq + rx_seq_increment)
+            self.write_rx_sequence_number_to_config(self.rx_seq +
+                    rx_seq_increment)
 
         self.rx_seq += 1
 
@@ -226,9 +220,7 @@ class Door:
     def _send_command(self, command, data):
         self.tx_seq += 1
         p = Packet(seq=self.tx_seq, cmd=command, data=data, seq_sync=False)
-        msg = self.aes.encrypt([ord(x) for x in p.toMessage()], self.key,
-                    AES.keySize["SIZE_128"])
-        msg = ''.join([chr(x) for x in msg])
+        msg = p.toMessage(key = self.key)
 
         self.logger.debug('%s Msg to door: %s'%(self.name, list(p.toMessage())))
         self.interface.writeMessage(self.address, msg)
