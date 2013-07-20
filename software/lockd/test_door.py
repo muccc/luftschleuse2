@@ -64,7 +64,7 @@ class DoorTest(unittest.TestCase):
         self.door = door.Door('Door1', self.config_file_path,
                                 config, self.interface, self.input_queue,
                                 self.buttons)
-        self.door.logger = MockLogger()
+        #self.door.logger = MockLogger()
     def tearDown(self):
         os.remove(self.config_file_path)
 
