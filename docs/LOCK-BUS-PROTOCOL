@@ -146,11 +146,13 @@ a packet is received might have a major impact on the endurance of the flash
 memories over time.
 
 The devices therefore do not directly persist the last received sequence
-number. Instead, they persist a sequence number which is substantially higher
+number. Instead, they persist a sequence number which is always higher
 than any sequence number they have already received.
 
-If a received sequence number reaches the persisted value, a new and increased
-value gets persisted in the flash memory.
+If a received sequence number is higher as or reaches the persisted value,
+a new and increased value gets persisted in the flash memory. The persisted
+value is the last received sequence number plus a configurable increase for
+the sequence number (usually in the region of 2^15).
 
 This reduces the number of write cycles to the flash memory and still
 guarantees that no sequence number is accepted twice. A drawback is that
@@ -210,7 +212,7 @@ Pseudo code for receiving a packet:
 
 reset:
   sleep_seconds(2)
-  persisted_rx_sequence_number = fetch_min_rx_sequence_number_from_flash()
+  persisted_min_rx_sequence_number = fetch_min_rx_sequence_number_from_flash()
   min_rx_sequence_number = persisted_rx_sequence_number
 
   while 1:
@@ -220,12 +222,12 @@ reset:
       packet = decrypt_frame(frame, DEVICE_KEY)
       if packet.magic == PACKET_MAGIC_VALUE:
         if packet.sequence_number >= min_rx_sequence_number:
-          if packet.sequence_number == persisted_rx_sequence_number:
-            if overflows(persisted_rx_sequence_number, SEQUENCE_NUMBER_LEAP):
+          if persisted_min_rx_sequence_number <= packet.sequence_number:
+            if overflows(packet.sequence_number, SEQUENCE_NUMBER_LEAP):
               exit
-            persisted_rx_sequence_number += SEQUENCE_NUMBER_LEAP
-            persist_min_rx_sequence_number_to_flash(persisted_rx_sequence_number)
-          min_rx_sequence_number += 1 
+            persisted_rx_sequence_number = packet.sequence_number + SEQUENCE_NUMBER_LEAP
+            persist_min_rx_sequence_number_to_flash(persisted_min_rx_sequence_number)
+          min_rx_sequence_number = packet.sequence_number + 1 
           execute_command(packet.command, packet.parameters)
         
         else:
@@ -240,8 +242,8 @@ reset:
 Pseudo code for sending a packet:
 
 reset:
-  sleep_seconds(2)
   tx_sequence_number = 0
+  sleep_seconds(2)
 
 send_packet(command, parameters):
   new_packet.magic = PACKET_MAGIC_VALUE:
@@ -250,6 +252,7 @@ send_packet(command, parameters):
   new_packet.parameters = parameters
   new_frame = encrypt_packet(new_packet, DEVICE_KEY)
   send_frame_to_rs485(OTHER_DEVICE_ADDRESS, new_packet)
+  tx_sequence_number += 1
 
 
 = Alternatives =
