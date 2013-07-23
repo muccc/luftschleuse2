@@ -20,6 +20,7 @@ class DoorLogic():
         MEMBER         =   3
         OPEN            =   4
         PUBLIC          =   5
+        UNKNOWN         =   6
 
     def __init__(self):
         self.logger = logging.getLogger('logger')
@@ -27,7 +28,7 @@ class DoorLogic():
         self.timers = []
         self.doors = {}
         self.state_listeners = []
-        self.state = None
+        self.state = self.State.UNKNOWN
         self.all_doors_locked = False
         self.all_doors_perm_unlocked = False
 
@@ -175,12 +176,14 @@ class DoorLogic():
     def get_state_as_string(self):
         if self.state == self.State.DOWN:
             return 'down'
-        if self.state == self.State.CLOSED:
+        elif self.state == self.State.CLOSED:
             return 'closed'
-        if self.state == self.State.MEMBER:
+        elif self.state == self.State.MEMBER:
             return 'member'
-        if self.state == self.State.PUBLIC:
+        elif self.state == self.State.PUBLIC:
             return 'public'
+        elif self.state == self.State.UNKNOWN:
+            return 'unknown'
     
     # Returns true if a door is in a state not in
     # sync with the global system state.
