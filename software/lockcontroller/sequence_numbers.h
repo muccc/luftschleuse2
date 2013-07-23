@@ -13,7 +13,7 @@ uint32_t sequence_numbers_get_expected_rx(void);
 /* After n seq numbers a new entry gets written
  * to the eeprom.
  */
-#define SEQUENCE_NUMBERS_MASK   ((1024UL) - 1)
+#define SEQUENCE_NUMBERS_LEAP   (1024UL)
 
 /*
  * Amount of slots for the seq number round robin.
