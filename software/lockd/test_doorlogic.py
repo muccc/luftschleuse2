@@ -46,7 +46,7 @@ class DoorLogicTest(unittest.TestCase):
                                 doorlogic.DoorLogic.Input.COMMAND,
                                 'down')
         self.doorlogic.add_state_listener(self.state_listener)
-        self.doorlogic.logger = MockLogger()
+        #self.doorlogic.logger = MockLogger()
                                 
 
     def test_constructor(self):
