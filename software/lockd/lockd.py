@@ -79,7 +79,8 @@ try:
             if t == 'door':
                 door_name = section
                 logger.debug('Adding door "%s"'%door_name)
-                door = Door(door_name, config_file, config, serial_interface, input_queue)
+                buttons = {1: 'manual_control', 2: 'bell_code'}
+                door = Door(door_name, config, serial_interface, input_queue, buttons)
                 door_address = config.get(door_name, 'address')
                 doors[door_address] = door
                 logic.add_door(door)
