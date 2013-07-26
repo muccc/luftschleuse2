@@ -31,13 +31,11 @@ class Door:
     HANDLE_PRESSED     = (1<<5)
     LOCK_PERM_UNLOCKED = (1<<6)
     
-    def __init__(self, name, config_file, config, interface, input_queue, buttons):
+    def __init__(self, name, config, interface, input_queue, buttons):
         self.name = name
         self.logger = logging.getLogger('logger')
         
         self.tx_seq = 0
-        self.persisted_min_rx_seq = int(config.get(name, 'rx_sequence'))
-        self.min_rx_seq = self.persisted_min_rx_seq
         self.min_rx_seq_leap = int(config.get(name, 'rx_sequence_leap'))
         self.address = config.get(name, 'address')
 
@@ -49,9 +47,12 @@ class Door:
         key = config.get(name, 'key')
         self.key = [int(x) for x in key.split()]
 
-        self.interface = interface
-        self.config_file = config_file
+        self.config_file = config.get(name, 'sequence_number_container_file')
 
+        self.interface = interface
+        self.persisted_min_rx_seq = self.read_rx_sequence_number_from_container()
+
+        self.min_rx_seq = self.persisted_min_rx_seq
         self.closed = False
         self.locked = False
         self.unlocked = False
@@ -66,7 +67,28 @@ class Door:
         self._old_state = None
         self.buttons = buttons
 
-    def write_rx_sequence_number_to_config(self, min_rx_seq):
+    def read_rx_sequence_number_from_container(self):
+        config = None
+        
+        try:
+            config = ConfigParser.RawConfigParser()
+            config.read(self.config_file)
+        except:
+            self.logger.error("%s: Could not open rx sequence number \
+                                container at %s"%(self.name, self.config_file))
+        
+        if config is not None: 
+            if config.has_section(self.name):
+                if config.has_option(self.name, "rx_sequence"):
+                    return int(config.get(self.name, "rx_sequence"))
+        
+            self.logger.error("%s: Could not read rx sequence number \
+                            from container at %s"%(self.name, self.config_file))
+        
+        # TODO: what to do now? Raise an exception? Continue?
+        return 0
+           
+    def write_rx_sequence_number_to_container(self, min_rx_seq):
         config = ConfigParser.RawConfigParser()
         config.read(self.config_file)
         
@@ -76,7 +98,7 @@ class Door:
             if config.has_option(self.name, "rx_sequence"):
                 config.set(self.name, "rx_sequence", min_rx_seq)
                 f = open(self.config_file,'w');
-                config.write(f);
+                config.write(f)
                 f.close()
                 self.logger.debug("%s: Done" % (self.name))
 
@@ -123,7 +145,7 @@ class Door:
         
         if p.seq >= self.persisted_min_rx_seq:
             self.persisted_min_rx_seq = p.seq + self.min_rx_seq_leap
-            self.write_rx_sequence_number_to_config(self.persisted_min_rx_seq)
+            self.write_rx_sequence_number_to_container(self.persisted_min_rx_seq)
 
         self.min_rx_seq  = p.seq + 1
 

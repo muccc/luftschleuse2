@@ -52,21 +52,21 @@ class DoorTest(unittest.TestCase):
         self.t0 = time.time()
         self.door_name = 'Door1'
         self.persisted_min_rx_seq_leap = 2**15
+        self.persisted_min_rx_seq = 128
 
-        (self.config_file, self.config_file_path) = tempfile.mkstemp()
+        (sequence_number_container_file, self.sequence_number_container_file_path) = tempfile.mkstemp()
 
-        config_file = open(self.config_file_path, 'w')
-        config_file.write("[Door1]\r\nrx_sequence = 128\r\n")
-        config_file.close()
+        sequence_number_container_file = open(self.sequence_number_container_file_path, 'w')
+        sequence_number_container_file.write("[Door1]\r\nrx_sequence = %d\r\n" % self.persisted_min_rx_seq)
+        sequence_number_container_file.close()
 
         config = ConfigParser.RawConfigParser()
         config.add_section(self.door_name)
-        self.persisted_min_rx_seq = 128
-        config.set("Door1", "rx_sequence", self.persisted_min_rx_seq)
         config.set("Door1", "rx_sequence_leap", self.persisted_min_rx_seq_leap)
         config.set("Door1", "inital_unlock", True)
         config.set("Door1", "address", 'A')
         config.set("Door1", "key", '0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0')
+        config.set("Door1", "sequence_number_container_file", self.sequence_number_container_file_path)
         self.key = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 
 
@@ -79,12 +79,11 @@ class DoorTest(unittest.TestCase):
         self.packet_locked = packet.Packet(0, ord('S'), '\x00\x02\x00\x00\x00', False)
 
 
-        self.door = door.Door('Door1', self.config_file_path,
-                                config, self.interface, self.input_queue,
+        self.door = door.Door('Door1', config, self.interface, self.input_queue,
                                 self.buttons)
         #self.door.logger = MockLogger()
     def tearDown(self):
-        os.remove(self.config_file_path)
+        os.remove(self.sequence_number_container_file_path)
 
     def test_constructor(self):
         self.assertIsInstance(self.door, door.Door)
@@ -175,21 +174,21 @@ class DoorTest(unittest.TestCase):
     def test_persist_sequence_number_normal(self):
         self.do_accept(self.packet_press, self.persisted_min_rx_seq)
         parser = ConfigParser.RawConfigParser()
-        parser.read(self.config_file_path)
+        parser.read(self.sequence_number_container_file_path)
         min_rx_seq = int(parser.get(self.door_name, 'rx_sequence'))
         self.assertEqual(min_rx_seq, self.persisted_min_rx_seq + self.persisted_min_rx_seq_leap)
 
     def test_persist_sequence_number_small_leap(self):
         self.do_accept(self.packet_press, self.persisted_min_rx_seq + 50)
         parser = ConfigParser.RawConfigParser()
-        parser.read(self.config_file_path)
+        parser.read(self.sequence_number_container_file_path)
         min_rx_seq = int(parser.get(self.door_name, 'rx_sequence'))
         self.assertEqual(min_rx_seq, self.persisted_min_rx_seq + 50 + self.persisted_min_rx_seq_leap)
 
     def test_persist_sequence_number_large_leap(self):
         self.do_accept(self.packet_press, self.persisted_min_rx_seq + 2**17)
         parser = ConfigParser.RawConfigParser()
-        parser.read(self.config_file_path)
+        parser.read(self.sequence_number_container_file_path)
         min_rx_seq = int(parser.get(self.door_name, 'rx_sequence'))
         self.assertEqual(min_rx_seq, self.persisted_min_rx_seq + 2**17 + self.persisted_min_rx_seq_leap)
 
@@ -197,7 +196,7 @@ class DoorTest(unittest.TestCase):
         self.do_accept(self.packet_press, self.persisted_min_rx_seq)
         self.do_accept(self.packet_release, self.persisted_min_rx_seq + 1)
         parser = ConfigParser.RawConfigParser()
-        parser.read(self.config_file_path)
+        parser.read(self.sequence_number_container_file_path)
         min_rx_seq = int(parser.get(self.door_name, 'rx_sequence'))
         self.assertEqual(min_rx_seq, self.persisted_min_rx_seq + self.persisted_min_rx_seq_leap)
 
@@ -205,7 +204,7 @@ class DoorTest(unittest.TestCase):
         self.do_accept(self.packet_press, self.persisted_min_rx_seq + 50)
         self.do_accept(self.packet_release, self.persisted_min_rx_seq + 50 + 1)
         parser = ConfigParser.RawConfigParser()
-        parser.read(self.config_file_path)
+        parser.read(self.sequence_number_container_file_path)
         min_rx_seq = int(parser.get(self.door_name, 'rx_sequence'))
         self.assertEqual(min_rx_seq, self.persisted_min_rx_seq + 50 + self.persisted_min_rx_seq_leap)
 
@@ -213,7 +212,7 @@ class DoorTest(unittest.TestCase):
         self.do_accept(self.packet_press, self.persisted_min_rx_seq + 2**17)
         self.do_accept(self.packet_release, self.persisted_min_rx_seq + 2**17 + 1)
         parser = ConfigParser.RawConfigParser()
-        parser.read(self.config_file_path)
+        parser.read(self.sequence_number_container_file_path)
         min_rx_seq = int(parser.get(self.door_name, 'rx_sequence'))
         self.assertEqual(min_rx_seq, self.persisted_min_rx_seq + 2**17 + self.persisted_min_rx_seq_leap)
 
