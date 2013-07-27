@@ -38,6 +38,7 @@ class Door:
         self.tx_seq = 0
         self.min_rx_seq_leap = int(config.get(name, 'rx_sequence_leap'))
         self.address = config.get(name, 'address')
+        self.timeout = int(config.get(name, 'timeout'))
 
         if config.get(name, 'inital_unlock') == 'True':
             self.initial_unlock = True
@@ -66,6 +67,10 @@ class Door:
         self.input_queue = input_queue
         self._old_state = None
         self.buttons = buttons
+        self.timedout = True
+        self.status_update_timestamp = time.time()
+        self.bad_key = False
+        self.wrong_rx_seq = False
 
     def read_rx_sequence_number_from_container(self):
         config = None
@@ -121,8 +126,11 @@ class Door:
         
         if p == None:
             self.logger.debug("%s: Decoded packet was invalid" % self.name)
+            self._set_bad_key(True)
             return False
         
+        self._set_bad_key(False)
+
         if p.seq_sync:
             self.logger.debug("%s: Sync packet with seq: %d" % (self.name, p.seq))
             # This message contains a synchronization message for our
@@ -133,6 +141,8 @@ class Door:
         if not p.seq >= self.min_rx_seq:
             self.logger.debug("%s: Seq %d not ok. Sending seq update to %d." %
                     (self.name, p.seq, self.min_rx_seq))
+            self._set_wrong_rx_seq(True)
+
             # The door sent a sequence number which is too low.
             # Inform it about what we expect.
             p = Packet(seq=self.min_rx_seq, cmd=0, data='', seq_sync=True)
@@ -143,13 +153,17 @@ class Door:
             self.interface.writeMessage(self.address, msg)
             return False
         
+        self._set_wrong_rx_seq(False)
+
         if p.seq >= self.persisted_min_rx_seq:
             self.persisted_min_rx_seq = p.seq + self.min_rx_seq_leap
             self.write_rx_sequence_number_to_container(self.persisted_min_rx_seq)
 
         self.min_rx_seq  = p.seq + 1
 
+
         if p.cmd == ord('S'):
+            self.status_update_timestamp = time.time()
             self.supply_voltage = ord(p.data[3])*0.1
             
             pressed_buttons = ord(p.data[0])
@@ -199,6 +213,45 @@ class Door:
     def is_perm_unlocked(self):
         return self.perm_unlocked
 
+    def is_timedout(self):
+        return self.timedout
+
+    def is_bad_key(self):
+        return self.bad_key
+
+    def is_wrong_rx_seq(self):
+        return self.wrong_rx_seq
+
+    def _set_wrong_rx_seq(self, wrong_rx_seq):
+        notify_listeners = False
+        if not self.wrong_rx_seq == wrong_rx_seq:
+            notify_listeners = True
+
+        self.wrong_rx_seq = wrong_rx_seq
+        
+        if notify_listeners:
+            self.notify_state_listeners()
+
+    def _set_bad_key(self, bad_key):
+        notify_listeners = False
+        if not self.bad_key == bad_key:
+            notify_listeners = True
+
+        self.bad_key = bad_key
+        
+        if notify_listeners:
+            self.notify_state_listeners()
+
+    def _set_timedout(self, timedout):
+        notify_listeners = False
+        if not self.timedout == timedout:
+            notify_listeners = True
+
+        self.timedout = timedout
+        
+        if notify_listeners:
+            self.notify_state_listeners()
+
     def add_state_listener(self, listener):
         self.state_listeners.add(listener)
 
@@ -246,6 +299,11 @@ class Door:
         if time.time() > self.periodic_timeout:
             self.periodic_timeout = time.time() + 1/3.
             self._send_command(ord('D'), chr(self.desired_state))
+
+        if time.time() - self.status_update_timestamp >= self.timeout:
+            self._set_timedout(True)
+        else:
+            self._set_timedout(False)
  
     def _send_command(self, command, data):
         p = Packet(seq=self.tx_seq, cmd=command, data=data, seq_sync=False)

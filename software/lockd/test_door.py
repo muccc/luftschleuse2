@@ -53,6 +53,8 @@ class DoorTest(unittest.TestCase):
         self.door_name = 'Door1'
         self.persisted_min_rx_seq_leap = 2**15
         self.persisted_min_rx_seq = 128
+        self.key = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+        self.address = 'A'
 
         (sequence_number_container_file, self.sequence_number_container_file_path) = tempfile.mkstemp()
 
@@ -64,11 +66,10 @@ class DoorTest(unittest.TestCase):
         config.add_section(self.door_name)
         config.set("Door1", "rx_sequence_leap", self.persisted_min_rx_seq_leap)
         config.set("Door1", "inital_unlock", True)
-        config.set("Door1", "address", 'A')
-        config.set("Door1", "key", '0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0')
+        config.set("Door1", "address", self.address)
         config.set("Door1", "sequence_number_container_file", self.sequence_number_container_file_path)
-        self.key = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-
+        config.set("Door1", "key", ' '.join([str(x) for x in self.key]))
+        config.set("Door1", "timeout", '2')
 
         self.buttons = {1: 'Button0', 2: 'Button1'}
 
@@ -81,6 +82,9 @@ class DoorTest(unittest.TestCase):
 
         self.door = door.Door('Door1', config, self.interface, self.input_queue,
                                 self.buttons)
+        self.callback = mock.MagicMock()
+        self.door.add_state_listener(self.callback)
+
         #self.door.logger = MockLogger()
     def tearDown(self):
         os.remove(self.sequence_number_container_file_path)
@@ -288,10 +292,8 @@ class DoorTest(unittest.TestCase):
         self.interface.writeMessage.assert_called_with('A', query.toMessage(self.key))
        
     def test_status_callback(self):
-        callback = mock.MagicMock()
-        self.door.add_state_listener(callback)
         self.do_not_accept(self.packet_unlocking, self.persisted_min_rx_seq)
-        callback.assert_called_with(self.door)
+        self.callback.assert_called_with(self.door)
 
     def test_status_update_locked(self):
         self.do_not_accept(self.packet_locked, self.persisted_min_rx_seq)
@@ -300,8 +302,73 @@ class DoorTest(unittest.TestCase):
     def test_status_update_perm_unlocked(self):
         self.do_not_accept(self.packet_perm_unlocked, self.persisted_min_rx_seq)
         self.assertTrue(self.door.is_perm_unlocked())
-    
+   
+    @patch('time.time')
+    def test_no_timeout(self, time_mock):
+        time_mock.return_value = self.t0
+        self.do_accept(self.packet_press, self.persisted_min_rx_seq)
+        self.callback.call_count = 0
+        self.door.tick()
+        self.callback.assert_called_once_with(self.door)
+        
+        time_mock.return_value = self.t0 + 0.5
+        self.do_accept(self.packet_release, self.persisted_min_rx_seq + 1)
+        self.door.tick()
+        time_mock.return_value = self.t0 + 1.5
+        self.door.tick()
+        self.assertFalse(self.door.is_timedout())
+        
+    @patch('time.time')
+    def test_timeout(self, time_mock):
+        time_mock.return_value = self.t0
+        self.do_accept(self.packet_press, self.persisted_min_rx_seq)
+        self.door.tick()
+        self.assertFalse(self.door.is_timedout())
+        time_mock.return_value = self.t0 + 0.5
+        self.do_accept(self.packet_release, self.persisted_min_rx_seq + 1)
+        self.door.tick()
+        self.callback.call_count = 0
 
+        time_mock.return_value = self.t0 + 3
+        self.door.tick()
+        self.assertTrue(self.door.is_timedout())
+
+        self.callback.assert_called_once_with(self.door)
+
+    @patch('time.time')
+    def test_badkey(self, time_mock):
+        time_mock.return_value = self.t0
+        self.packet_press.seq = self.persisted_min_rx_seq
+        self.door.update(self.packet_press.toMessage(self.key))
+        self.door.tick()
+        self.assertFalse(self.door.is_bad_key())
+        self.callback.call_count = 0
+        
+        time_mock.return_value = self.t0 + 0.5
+        self.packet_release.seq = self.persisted_min_rx_seq+1
+        self.key[0] += 1
+        self.door.update(self.packet_release.toMessage(self.key)) 
+        self.door.tick()
+        self.assertTrue(self.door.is_bad_key())
+
+        self.callback.assert_called_once_with(self.door)
+
+    @patch('time.time')
+    def test_wrong_rx_seq(self, time_mock):
+        time_mock.return_value = self.t0
+        self.packet_press.seq = self.persisted_min_rx_seq
+        self.door.update(self.packet_press.toMessage(self.key))
+        self.door.tick()
+        self.assertFalse(self.door.is_wrong_rx_seq())
+        self.callback.call_count = 0
+
+        time_mock.return_value = self.t0 + 0.5
+        self.packet_release.seq = self.persisted_min_rx_seq
+        self.door.update(self.packet_release.toMessage(self.key)) 
+        self.door.tick()
+        self.assertTrue(self.door.is_wrong_rx_seq())
+
+        self.callback.assert_called_once_with(self.door)
 
 if __name__ == '__main__':
     unittest.main()
