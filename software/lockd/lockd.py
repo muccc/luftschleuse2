@@ -122,10 +122,10 @@ class Lockd:
         
         if display != None:
             self.display_controller = DisplayController(display)
-            display_logic = DisplayLogic(self.display_controller)
-            self.logic.add_state_listener(display_logic.update_state)
+            self.display_logic = DisplayLogic(self.display_controller)
+            self.logic.add_state_listener(self.display_logic.update_state)
             for door in self.doors.values():
-                display_logic.add_door(door)
+                self.display_logic.add_door(door)
 
         else:
             self.logger.warning('No display specified.')
@@ -162,7 +162,9 @@ class Lockd:
         self.announcer.tick()
         self.interface_logic.tick()
         self.logic.tick()
+
         if self.display_controller != None:
+            self.display_logic.tick()
             self.display_controller.tick()
         ''' 
         all_locked = True
@@ -199,7 +201,7 @@ if __name__ == '__main__':
     #    pass
     except Exception, e:
         #logging.exception(e)
-        self.logger.exception(e)
+        logger.exception(e)
         import traceback
         traceback.print_exc()
         sys.exit(1)

@@ -36,6 +36,7 @@ class DisplayController:
         self.clear()
         self.render_large((10,70/2-16), 'Booting...', 'white');
         self._update()
+        self._schedule_update = False
     
     def render_small(self, xy, text, color):
         self._draw.text((xy[0]+1, xy[1]), text, color, font=self._small_font)
@@ -58,6 +59,6 @@ class DisplayController:
         self._last_update_time = time.time()
 
     def tick(self):
-        if self._schedule_update and time.time() - self._last_update_time > 4:
+        if self._schedule_update and time.time() - self._last_update_time > 2:
             self._update()
             self._schedule_update = False
