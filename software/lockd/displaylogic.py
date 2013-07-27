@@ -41,8 +41,6 @@ class DisplayLogic():
         if self.blink_timestamp + self.blink_time < time.time():
             self.blink_timestamp = time.time()
             self.blink = not self.blink
-        print "tick"
-        
 
     def update_state(self, state):
         self.logger.debug('DisplayLogic: update_state().')

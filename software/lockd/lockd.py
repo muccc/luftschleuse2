@@ -94,6 +94,7 @@ class Lockd:
             
             elif section == 'Display':
                 display_type = config.get(section, 'display_type') 
+                max_update_rate = float(config.get(section, 'max_update_rate'))
                 if display_type == "Nokia_1600":
                     from display import Display
                     display = Display(self.serial_interface)
@@ -121,7 +122,7 @@ class Lockd:
         self.logic.add_state_listener(self.interface_logic.update_state)
         
         if display != None:
-            self.display_controller = DisplayController(display)
+            self.display_controller = DisplayController(display, max_update_rate)
             self.display_logic = DisplayLogic(self.display_controller)
             self.logic.add_state_listener(self.display_logic.update_state)
             for door in self.doors.values():
