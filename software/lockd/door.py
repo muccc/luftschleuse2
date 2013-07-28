@@ -71,6 +71,10 @@ class Door:
         self.status_update_timestamp = time.time()
         self.bad_key = False
         self.wrong_rx_seq = False
+        self.locking = False 
+        self.unlocking = False
+        self.handle_pressed = False
+
 
     def read_rx_sequence_number_from_container(self):
         config = None
@@ -256,6 +260,7 @@ class Door:
         self.state_listeners.add(listener)
 
     def notify_state_listeners(self):
+        self.logger.info('%s: Door state changed: %s'%(self.name, self.get_state()))
         for listener in self.state_listeners:
             listener(self)
 
@@ -275,6 +280,13 @@ class Door:
             state += ' HANDLE_PRESSED'
         if self.perm_unlocked:
             state += ' PERM_UNLOCKED'
+        if self.is_bad_key():
+            state += ' BAD KEY'
+        if self.is_wrong_rx_seq():
+            state += ' BAD RX SEQ'
+        if self.is_timedout():
+            state += 'TIMEOUT'
+
         state = state.strip()
         state = state + ' Voltage=%.1f V'%self.supply_voltage
         return state
