@@ -66,7 +66,6 @@ class SerialInterface:
         time.sleep(1)
 
       self.logger.info("Opened %s"%path2device)
-      print 'bar'
 
     def close(self):
         try:

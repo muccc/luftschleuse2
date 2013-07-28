@@ -114,18 +114,3 @@ class DisplayLogic():
             self.tick_timestamp = time.time() - (self.update_time - 0.3)
             self.changed = True
 
-        #self._update_display()
-
-        #state_changed = False
-        #door.is_locked()
-        #door.is_perm_unlocked()
-        #print 'bar'
-
-       
-
-
-
-
-
-
-
