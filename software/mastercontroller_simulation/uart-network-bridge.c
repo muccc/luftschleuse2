@@ -55,7 +55,6 @@ void uart_init(unsigned int baudrate)
     group_addr.sin_port = htons(MULTICAST_PORT);
     group_addr.sin_addr.s_addr = inet_addr(MULTICAST_GROUP);
 
-
     if (bind(uart_sockfd, (struct sockaddr *) &uart_addr, sizeof(uart_addr)) < 0) {        
         perror("bind uart");
         exit(1);
@@ -65,6 +64,8 @@ void uart_init(unsigned int baudrate)
     getsockname(uart_sockfd, (struct sockaddr *)&uart_addr, &uart_addrlen);
     //printf("local port = %d\n", ntohs(uart_addr.sin_port));
 
+    int so_reuseaddr = 1;
+    setsockopt(group_sockfd, SOL_SOCKET,SO_REUSEADDR, &so_reuseaddr, sizeof so_reuseaddr);
 
     if (bind(group_sockfd, (struct sockaddr *) &group_addr, sizeof(group_addr)) < 0) {        
         perror("bind group");
@@ -110,12 +111,12 @@ void uart_putc(unsigned char data)
 
 void uart_puts(const char *s )
 {
-    printf("uart_puts(%s)\n", s);
+    //printf("uart_puts(%s)\n", s);
 }
 
 void uart_puts_p(const char *progmem_s )
 {
-    printf("uart_puts_P(%s)\n", progmem_s);
+    //printf("uart_puts_P(%s)\n", progmem_s);
 }
 
 void uart1_init(unsigned int baudrate)
@@ -156,10 +157,10 @@ void uart1_putc(unsigned char data)
 
 void uart1_puts(const char *s )
 {
-    printf("uart1_puts(%s)\n", s);
+    //printf("uart1_puts(%s)\n", s);
 }
 
 void uart1_puts_p(const char *progmem_s )
 {
-    printf("uart1_puts_P(%s)\n", progmem_s);
+    //printf("uart1_puts_P(%s)\n", progmem_s);
 }
