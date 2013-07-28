@@ -2,6 +2,9 @@
 #define __PINUTILS_H_
 
 #include <avr/io.h>
+
+#ifndef NATIVE_TARGET
+
 #define _PORT_CHAR(character) PORT ## character
 #define PORT_CHAR(character) _PORT_CHAR(character)
 
@@ -24,4 +27,13 @@
 #define PIN_PULSE(pin) do { PORT_CHAR(pin ## _PORT) &= ~_BV(pin ## _PIN); \
                               PORT_CHAR(pin ## _PORT) ^= _BV(pin ## _PIN); } while(0)
 
+#else /* NATIVE_TARGET */
+#define DDR_CONFIG_IN(pin)
+#define DDR_CONFIG_OUT(pin)
+#define PIN_SET(pin)
+#define PIN_CLEAR(pin)
+#define PIN_TOGGLE(pin)
+#define PIN_PULSE(pin)
+#define PIN_HIGH(pin) 1
+#endif /* NATIVE_TARGET */
 #endif
