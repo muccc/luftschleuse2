@@ -1,0 +1,2 @@
+aes.o: ../lockcontroller_simulation/aes/aes.c \
+ ../lockcontroller_simulation/aes/aes.h
