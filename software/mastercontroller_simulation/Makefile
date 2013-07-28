@@ -1,7 +1,7 @@
 TARGET  := mastercontroller_simulator
 SRCS    := mastercontroller_simulator.c \
 			cli.c \
-			uart-mock.c \
+			uart-network-bridge.c \
 			adc-mock.c \
 			../mastercontroller/leds.c \
 			../mastercontroller/mastercontroller.c \
