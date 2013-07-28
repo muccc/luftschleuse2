@@ -25,7 +25,7 @@ from PIL import ImageFont
 
 
 class DisplayController:
-    def __init__(self, display):
+    def __init__(self, display, max_update_rate):
         self.logger = logging.getLogger('logger')
         self._display = display
         self._draw = ImageDraw.Draw(display)
@@ -36,6 +36,8 @@ class DisplayController:
         self.clear()
         self.render_large((10,70/2-16), 'Booting...', 'white');
         self._update()
+        self._schedule_update = False
+        self._min_update_time = 1 / max_update_rate
     
     def render_small(self, xy, text, color):
         self._draw.text((xy[0]+1, xy[1]), text, color, font=self._small_font)
@@ -58,6 +60,7 @@ class DisplayController:
         self._last_update_time = time.time()
 
     def tick(self):
-        if self._schedule_update and time.time() - self._last_update_time > 4:
+        if self._schedule_update and time.time() - \
+                self._last_update_time >= self._min_update_time:
             self._update()
             self._schedule_update = False
