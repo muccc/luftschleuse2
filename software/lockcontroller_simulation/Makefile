@@ -1,6 +1,7 @@
 TARGET  := lockcontroller_simulator
 SRCS    :=  ../lockcontroller_simulation/lockcontroller_simulator.c \
 			../lockcontroller_simulation/cli.c \
+			../lockcontroller_simulation/io-mock.c \
 			../mastercontroller_simulation/uart-network-bridge.c \
 			../lockcontroller_simulation/adc-mock.c \
 			../lockcontroller_simulation/aes/aes.c \

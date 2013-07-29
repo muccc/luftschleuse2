@@ -3,6 +3,7 @@ SRCS    := mastercontroller_simulator.c \
 			cli.c \
 			uart-network-bridge.c \
 			adc-mock.c \
+			io-mock.c \
 			../mastercontroller/leds.c \
 			../mastercontroller/mastercontroller.c \
 			../mastercontroller/bus_process.c \
