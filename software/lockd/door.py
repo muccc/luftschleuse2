@@ -175,13 +175,13 @@ class Door:
             for pin in self.buttons:
                 if pressed_buttons & pin and not self.pressed_buttons & pin:
                     self.pressed_buttons |= pin
-                    self.input_queue.put({'origin_name': 'Door1',
+                    self.input_queue.put({'origin_name': self.name,
                         'origin_type': DoorLogic.Origin.DOOR,
                         'input_name': self.buttons[pin],
                         'input_type': DoorLogic.Input.BUTTON,
                         'input_value': True})
                 elif not pressed_buttons & pin and self.pressed_buttons & pin:
-                    self.input_queue.put({'origin_name': 'Door1',
+                    self.input_queue.put({'origin_name': self.name,
                         'origin_type': DoorLogic.Origin.DOOR,
                         'input_name': self.buttons[pin],
                         'input_type': DoorLogic.Input.BUTTON,

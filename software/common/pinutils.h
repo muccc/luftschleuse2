@@ -2,6 +2,9 @@
 #define __PINUTILS_H_
 
 #include <avr/io.h>
+
+#ifndef NATIVE_TARGET
+
 #define _PORT_CHAR(character) PORT ## character
 #define PORT_CHAR(character) _PORT_CHAR(character)
 
@@ -24,4 +27,15 @@
 #define PIN_PULSE(pin) do { PORT_CHAR(pin ## _PORT) &= ~_BV(pin ## _PIN); \
                               PORT_CHAR(pin ## _PORT) ^= _BV(pin ## _PIN); } while(0)
 
+#else /* NATIVE_TARGET */
+#include "io-mock.h"
+
+#define DDR_CONFIG_IN(pin) io_ddr_config_in(#pin)
+#define DDR_CONFIG_OUT(pin) io_ddr_config_out(#pin)
+#define PIN_SET(pin) io_pin_set(#pin)
+#define PIN_CLEAR(pin) io_pin_clear(#pin)
+#define PIN_TOGGLE(pin) io_pin_toggle(#pin)
+#define PIN_PULSE(pin) io_pin_pulse(#pin)
+#define PIN_HIGH(pin) io_pin_high_(#pin)
+#endif /* NATIVE_TARGET */
 #endif

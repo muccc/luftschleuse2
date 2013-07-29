@@ -33,6 +33,21 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#if DEBUG
+#include <stdio.h>
+void print_packet(uint8_t *packet)
+{
+    uint8_t i = 0;
+    for(i = 0; i < 16; i++) {
+        printf("%02X ", packet[i]);
+    }
+    printf("\n");
+}
+#else
+#define printf(...)
+#define print_packet(x)
+#endif
+
 void bus_init(void)
 {
 }
@@ -49,10 +64,12 @@ void bus_process(void)
     if( channel == NODE_ADDRESS && len == 0 ){
         cmd_new(CMD_SEND_STATE, NULL);
     }else if( channel == NODE_ADDRESS && len == sizeof(packet_t) ){
+        printf("Got packet\n");
         // TODO: set a timeout to prevent us getting flooded with
         // messages. Also enforce this timeout at boot-up.
         uint8_t *msg = bus_getMessage();
         aes_decrypt(msg);
+        print_packet(msg);
         packet_t *packet = (packet_t *) msg;
 
         if( packet_check_magic(packet) ){
@@ -69,6 +86,8 @@ void bus_process(void)
             }
         }else if( packet_check_sync_magic(packet) ){
             sequence_numbers_set_tx(packet->seq);
+        }else{
+            printf("bad magic\n");
         }
     }
 }

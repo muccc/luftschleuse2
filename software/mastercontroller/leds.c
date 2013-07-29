@@ -24,17 +24,19 @@
 #include <stdint.h>
 
 static leds_state_t leds_state[LEDS_COUNT];
+static void leds_set_pin(leds_led_t led, bool on);
 
 void leds_init(void)
 {
     DDR_CONFIG_OUT(LED_0);
     PIN_CLEAR(LED_0);
+    leds_set_pin(LED_0, false);
 
     DDR_CONFIG_OUT(LED_1);
-    PIN_CLEAR(LED_1);
+    leds_set_pin(LED_1, false);
 
     DDR_CONFIG_OUT(LED_2);
-    PIN_CLEAR(LED_2);
+    leds_set_pin(LED_2, false);
 
     uint8_t i;
     for(i=0; i<LEDS_COUNT; i++){

@@ -21,8 +21,11 @@
 #ifndef SERIAL_PROCESS_H_
 #define SERIAL_PROCESS_H_
 
+#include "packet.h"
+
 void serial_init(void);
 void serial_tick(void);
 void serial_process(void);
+void serial_sendPacket(packet_t *p);
 
 #endif

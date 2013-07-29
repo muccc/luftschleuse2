@@ -63,7 +63,7 @@ static bool lcdinvert;
 
 void lcd_init(void)
 {
-    uint8_t id;
+    //uint8_t id;
 
     lcdhal_init();
 
@@ -193,6 +193,7 @@ static inline void _helper_pixel8(uint8_t color1)
     lcdhal_write(TYPE_DATA, color1);
 }
 
+#if 0
 static void _helper_pixel12(uint16_t color)
 {
     static uint8_t odd=0;
@@ -206,6 +207,7 @@ static void _helper_pixel12(uint16_t color)
     }
     odd=1-odd;
 }
+#endif
 
 static void _helper_pixel16(uint16_t color)
 {

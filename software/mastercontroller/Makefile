@@ -80,7 +80,8 @@ OBJDIR = .
 
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = $(TARGET).c \
+SRC = main.c \
+mastercontroller.c \
 serial_handler.c \
 serial_process.c \
 buttons.c \
@@ -183,6 +184,7 @@ CFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
 CFLAGS += $(CSTANDARD)
 CFLAGS += -ffunction-sections
 CFLAGS += -fno-strict-aliasing
+CFLAGS += -Werror
 
 #---------------- Compiler Options C++ ----------------
 #  -g*:          generate debugging information

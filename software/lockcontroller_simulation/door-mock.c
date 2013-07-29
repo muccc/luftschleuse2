@@ -19,42 +19,36 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "config.h"
-#include "serial_process.h"
-#include "command_process.h"
-#include "bus_handler.h"
-#include "bus_process.h"
-#include "aes.h"
-#include "buttons.h"
-#include "leds.h"
-#include "display_process.h"
+#include "door-config.h"
+#if DOOR_MODEL == DOOR_MODEL_MOCK
+#include "door-1.h"
+#include "cli.h"
 
-void mastercontroller_init(void)
+#include "pinutils.h"
+#include <stdbool.h>
+#include <stdint.h>
+
+void door_init(void)
 {
-    bus_handler_init();
-    serial_init();
-    bus_init();
-    cmd_init();
-    buttons_init();
-    leds_init();
-    display_init();
-    leds_set(0,LED_SHORT_FLASH);
-    leds_set(1,LED_BLINK_FAST);
-    leds_set(2,LED_BLINK_SLOW);
 }
 
-void mastercontroller_tick(void)
+void door_tick(void)
 {
-    bus_tick();
-    serial_tick();
-    buttons_tick();
-    leds_tick();
-    display_tick();
 }
 
-void mastercontroller_process(void)
+void door_process(void)
 {
-    bus_process();
-    serial_process();
-    display_process();
 }
 
+uint8_t door_getState(void)
+{
+    return cli_getState();
+}
+
+void door_setDesiredState(uint8_t desiredState)
+{
+    cli_updateDesiredState(desiredState);
+}
+
+#endif
+ 
