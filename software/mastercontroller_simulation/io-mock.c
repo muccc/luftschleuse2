@@ -47,7 +47,7 @@ uint8_t io_pin_high_(char *pin)
         return 1 - cli_get_button(pin);
     }
 
-    printf("io_pin_high(%s)\n", pin);
+    //printf("io_pin_high(%s)\n", pin);
     //perror(pin);
     return 1;
 }

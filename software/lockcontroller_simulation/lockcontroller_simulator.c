@@ -8,12 +8,10 @@
 
 int main()
 {	
-    //cli_init();
+    cli_init();
 
-    printf("Init..\n");
     lockcontroller_init();
 
-    printf("Main Loop...\n");
     uint8_t i = 0;
     while(1) {
         for(i = 0; i < 5; i++) { 
@@ -21,7 +19,8 @@ int main()
             usleep(200);
         }
         lockcontroller_tick();
+        cli_process();
     }
-    //cli_exit();
+    cli_exit();
 	return 0;
 }

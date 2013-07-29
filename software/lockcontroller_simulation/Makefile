@@ -13,6 +13,7 @@ SRCS    :=  ../lockcontroller_simulation/lockcontroller_simulator.c \
 			../lockcontroller/buttons.c \
 			../lockcontroller/door-2.c \
 			../lockcontroller/door-1.c \
+			../lockcontroller_simulation/door-mock.c \
 			../lockcontroller/bell_process.c \
 			../lockcontroller/sequence_numbers.c \
 			../common/packet.c \
@@ -50,6 +51,10 @@ ${DEPS}: %.dep: %.c Makefile
 	${CC} ${CFLAGS} -MM $< > $@ 
 
 clean:: 
-	-rm -f *~ *.o ${TARGET} ../lockcontroller/*.o ../lockcontroller/*.dep ../common/*.o ../common/*.dep *.dep 
+	-rm -f *~ *.o ${TARGET} *.dep 
+	-rm -f ../lockcontroller/*.o ../lockcontroller/*.dep
+	-rm -f ../common/*.o ../common/*.dep
+	-rm -f ../mastercontroller_simulation/*.o ../mastercontroller_simulation/*.dep
+	-rm -f ../lockcontroller_simulation/*.o ../lockcontroller_simulation/*.dep
 
 distclean:: clean

@@ -18,18 +18,37 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef DOOR_CONFIG_H
-#define DOOR_CONFIG_H
+#include "config.h"
+#include "door-config.h"
+#if DOOR_MODEL == DOOR_MODEL_MOCK
+#include "door-1.h"
+#include "cli.h"
 
-// Back door is DOOR_MODEL_1
-//#define DOOR_MODEL  DOOR_MODEL_1
-#define DOOR_MODEL  DOOR_MODEL_MOCK
+#include "pinutils.h"
+#include <stdbool.h>
+#include <stdint.h>
 
-// Back door has address 'B'
-#define NODE_ADDRESS    'B'
+void door_init(void)
+{
+}
 
-#define AES_KEY 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
+void door_tick(void)
+{
+}
 
-#define DOOR_NAME "Back Door"
+void door_process(void)
+{
+}
+
+uint8_t door_getState(void)
+{
+    return cli_getState();
+}
+
+void door_setDesiredState(uint8_t desiredState)
+{
+    cli_updateDesiredState(desiredState);
+}
+
 #endif
-
+ 

@@ -18,18 +18,31 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef DOOR_CONFIG_H
-#define DOOR_CONFIG_H
+#ifndef DOOR_H_
+#define DOOR_H_
+#include <stdbool.h>
+#include <stdint.h>
 
-// Back door is DOOR_MODEL_1
-//#define DOOR_MODEL  DOOR_MODEL_1
-#define DOOR_MODEL  DOOR_MODEL_MOCK
+#define DOOR_DOOR_CLOSED            (1<<0)
+#define DOOR_LOCK_LOCKED            (1<<1)
+#define DOOR_LOCK_UNLOCKED          (1<<2)
+#define DOOR_LOCK_LOCKING           (1<<3)
+#define DOOR_LOCK_UNLOCKING         (1<<4)
+#define DOOR_HANDLE_PRESSED         (1<<5)
+#define DOOR_LOCK_MANUAL_UNLOCKED   (1<<6)
 
-// Back door has address 'B'
-#define NODE_ADDRESS    'B'
+typedef enum {
+    DOOR_CMD_LOCK=0,
+    DOOR_CMD_UNLOCK=1,
+    DOOR_CMD_UNLOCK_PERM=2,
+    DOOR_CMD_NONE
+} door_cmd_t;
 
-#define AES_KEY 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
+void door_init(void);
+void door_tick(void);
+void door_process(void);
+uint8_t door_getState(void);
+void door_setDesiredState(uint8_t desiredState);
 
-#define DOOR_NAME "Back Door"
 #endif
 
