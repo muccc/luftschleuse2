@@ -4,6 +4,7 @@ SRCS    := mastercontroller_simulator.c \
 			uart-network-bridge.c \
 			adc-mock.c \
 			io-mock.c \
+			lcd-mock.c \
 			../mastercontroller/leds.c \
 			../mastercontroller/mastercontroller.c \
 			../mastercontroller/bus_process.c \
@@ -12,7 +13,6 @@ SRCS    := mastercontroller_simulator.c \
 			../mastercontroller/buttons.c \
 			../mastercontroller/display_process.c \
 			../mastercontroller/serial_handler.c \
-			../mastercontroller/lcd.c \
 			../mastercontroller/lcdhal.c \
 			../common/packet.c \
 			../common/bus_handler.c \
@@ -24,7 +24,7 @@ XDEPS   := $(wildcard ${DEPS})
 
 CFLAGS = -std=gnu99 -O2 -Wall -Werror -ggdb 
 LDFLAGS = 
-LIBS    = -lcurses 
+LIBS    = -lcurses -lSDL
 
 CFLAGS += -I../mastercontroller -I../common -I.
 CFLAGS += -DNATIVE_TARGET

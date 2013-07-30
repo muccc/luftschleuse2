@@ -17,6 +17,9 @@ struct sockaddr_in group_addr;
 
 struct sockaddr_in uart1_txaddr;
 static int uart1_sockfd;
+static uint8_t uart1_rx_buf[4096];
+static uint32_t uart1_rx_index;
+static uint32_t uart1_rx_len;
 
 #define MULTICAST_PORT 6000
 #define MULTICAST_GROUP "239.0.0.1"
@@ -135,17 +138,29 @@ void uart1_init(unsigned int baudrate)
     uart1_txaddr.sin_family = AF_INET;
     uart1_txaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
     uart1_txaddr.sin_port = htons(31000);
+
+    uart1_rx_len = 0;
+    uart1_rx_index = 0;
 }
 
 unsigned int uart1_getc(void)
 {
-    uint8_t msg[100];
-    int n = recv(uart1_sockfd,msg,1,MSG_DONTWAIT);
-    if(n > 0) {
-        //printf("%X := %c := uart1_getc()\n", msg[0], msg[0]);
-        return msg[0];
+    unsigned int ret = UART_NO_DATA;
+    if(uart1_rx_len == 0) {
+        int n = recv(uart1_sockfd, uart1_rx_buf, sizeof(uart1_rx_buf), MSG_DONTWAIT);
+        if(n > 0) {
+            uart1_rx_index = 0;
+            uart1_rx_len = n;
+        }
     }
-    return UART_NO_DATA;
+
+    if(uart1_rx_len && uart1_rx_len > uart1_rx_index) {
+        ret = uart1_rx_buf[uart1_rx_index++];
+        if(uart1_rx_index == uart1_rx_len) {
+            uart1_rx_len = 0;
+        }
+    }
+    return ret;
 }
 
 void uart1_putc(unsigned char data)

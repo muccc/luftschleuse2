@@ -87,8 +87,7 @@ class SerialInterface:
         #self.logger.debug('writing %s' % list(enc))
 
         if self.udp:
-            for c in enc:
-                self.sock.sendto(c, self.txtarget)
+            self.sock.sendto(enc, self.txtarget)
             return
 
         try:
