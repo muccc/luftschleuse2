@@ -32,23 +32,13 @@
 #include "bell_process.h"
 #include "sequence_numbers.h"
 
-#include <avr/wdt.h>
-#include <avr/interrupt.h>
 #include <stdbool.h>
 #include <string.h>
 #include <stdint.h>
 
-int main(void)
-{
-    wdt_disable();
-    /* Clear WDRF in MCUSR */
-    MCUSR &= ~(1<<WDRF);
-    /* Write logical one to WDCE and WDE */
-    /* Keep old prescaler setting to prevent unintentional time-out */
-    WDTCSR |= (1<<WDCE) | (1<<WDE);
-    /* Turn off WDT */
-    WDTCSR = 0x00;
 
+void lockcontroller_init(void)
+{
     leds_init();
     buttons_init();
     adc_init();
@@ -60,24 +50,23 @@ int main(void)
     bus_init();
     cmd_init();
     bell_init();
-    timer0_init();
-    sei();
-    
-    while( true ){
-        if( timer0_timebase ){
-            timer0_timebase--;
-            bus_tick();
-            door_tick();
-            power_tick();
-            cmd_tick();
-            buttons_tick();
-            leds_tick();
-            bell_tick();
-        }
-        bus_process();
-        door_process();
-        power_process();
-    }
+}
 
+void lockcontroller_tick(void)
+{
+    bus_tick();
+    door_tick();
+    power_tick();
+    cmd_tick();
+    buttons_tick();
+    leds_tick();
+    bell_tick();
+}
+
+void lockcontroller_process(void)
+{
+    bus_process();
+    door_process();
+    power_process();
 }
 

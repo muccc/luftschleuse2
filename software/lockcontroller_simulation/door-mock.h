@@ -18,43 +18,31 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "config.h"
-#include "serial_process.h"
-#include "command_process.h"
-#include "bus_handler.h"
-#include "bus_process.h"
-#include "aes.h"
-#include "buttons.h"
-#include "leds.h"
-#include "display_process.h"
+#ifndef DOOR_H_
+#define DOOR_H_
+#include <stdbool.h>
+#include <stdint.h>
 
-void mastercontroller_init(void)
-{
-    bus_handler_init();
-    serial_init();
-    bus_init();
-    cmd_init();
-    buttons_init();
-    leds_init();
-    display_init();
-    leds_set(0,LED_SHORT_FLASH);
-    leds_set(1,LED_BLINK_FAST);
-    leds_set(2,LED_BLINK_SLOW);
-}
+#define DOOR_DOOR_CLOSED            (1<<0)
+#define DOOR_LOCK_LOCKED            (1<<1)
+#define DOOR_LOCK_UNLOCKED          (1<<2)
+#define DOOR_LOCK_LOCKING           (1<<3)
+#define DOOR_LOCK_UNLOCKING         (1<<4)
+#define DOOR_HANDLE_PRESSED         (1<<5)
+#define DOOR_LOCK_MANUAL_UNLOCKED   (1<<6)
 
-void mastercontroller_tick(void)
-{
-    bus_tick();
-    serial_tick();
-    buttons_tick();
-    leds_tick();
-    display_tick();
-}
+typedef enum {
+    DOOR_CMD_LOCK=0,
+    DOOR_CMD_UNLOCK=1,
+    DOOR_CMD_UNLOCK_PERM=2,
+    DOOR_CMD_NONE
+} door_cmd_t;
 
-void mastercontroller_process(void)
-{
-    bus_process();
-    serial_process();
-    display_process();
-}
+void door_init(void);
+void door_tick(void);
+void door_process(void);
+uint8_t door_getState(void);
+void door_setDesiredState(uint8_t desiredState);
+
+#endif
 

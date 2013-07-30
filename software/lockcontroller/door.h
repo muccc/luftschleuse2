@@ -24,4 +24,6 @@
 #include "door-1.h"
 #elif DOOR_MODEL == DOOR_MODEL_2
 #include "door-2.h"
+#elif DOOR_MODEL == DOOR_MODEL_MOCK
+#include "door-mock.h"
 #endif

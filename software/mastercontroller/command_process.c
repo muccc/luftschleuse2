@@ -22,6 +22,8 @@
 #include "leds.h"
 #include "packet.h"
 #include "buttons.h"
+#include "power_process.h"
+#include "serial_process.h"
 
 #include <avr/io.h>
 #include <stdint.h>

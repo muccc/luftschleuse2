@@ -18,43 +18,18 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "config.h"
-#include "serial_process.h"
-#include "command_process.h"
-#include "bus_handler.h"
-#include "bus_process.h"
-#include "aes.h"
-#include "buttons.h"
-#include "leds.h"
-#include "display_process.h"
+#ifndef DOOR_CONFIG_H
+#define DOOR_CONFIG_H
 
-void mastercontroller_init(void)
-{
-    bus_handler_init();
-    serial_init();
-    bus_init();
-    cmd_init();
-    buttons_init();
-    leds_init();
-    display_init();
-    leds_set(0,LED_SHORT_FLASH);
-    leds_set(1,LED_BLINK_FAST);
-    leds_set(2,LED_BLINK_SLOW);
-}
+// Back door is DOOR_MODEL_1
+//#define DOOR_MODEL  DOOR_MODEL_1
+#define DOOR_MODEL  DOOR_MODEL_MOCK
 
-void mastercontroller_tick(void)
-{
-    bus_tick();
-    serial_tick();
-    buttons_tick();
-    leds_tick();
-    display_tick();
-}
+// Back door has address 'B'
+#define NODE_ADDRESS    'B'
 
-void mastercontroller_process(void)
-{
-    bus_process();
-    serial_process();
-    display_process();
-}
+#define AES_KEY 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
+
+#define DOOR_NAME "Back Door"
+#endif
 

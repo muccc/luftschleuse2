@@ -21,16 +21,30 @@ import string
 import sys
 import time
 import logging
+import socket
+import select
 
 class SerialInterface:
     def  __init__ ( self, path2device, baudrate, timeout=0):
       self.portopen = False
       self.dummy = False
+      self.udp = False
 
       if path2device == '/dev/null':
             self.dummy = True
             self.portopen = True
             self.timeout = timeout
+      
+      if path2device == 'udp': 
+            self.udp = True
+            self.portopen = True
+            self.timeout = timeout
+            self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            self.sock.bind(('0.0.0.0', 31000))
+            self.txtarget = ('127.0.0.1', 32000)
+            self.sock.setblocking(0)
+            
 
       self.logger = logging.getLogger('logger')
 
@@ -71,6 +85,12 @@ class SerialInterface:
         enc = "\\"+ command + message.replace('\\','\\\\') + "\\9";
         #print 'writing %s' % list(enc)
         #self.logger.debug('writing %s' % list(enc))
+
+        if self.udp:
+            for c in enc:
+                self.sock.sendto(c, self.txtarget)
+            return
+
         try:
             self.ser.write(enc)
             # Hack to avoid collisions, needs to be
@@ -97,15 +117,24 @@ class SerialInterface:
         start = False
         inframe = False
         command = ''
-
+        
+        #if self.udp:
+        #    time.sleep(self.timeout)
+        #    return (False, '')
         if self.dummy:
             time.sleep(self.timeout)
             return (False, '')
 
         while True:
             starttime = time.time()
+            c = []
             try:
-                c = self.ser.read(1)
+                if self.udp:
+                    ready = select.select([self.sock], [], [], self.timeout)
+                    if ready[0]:
+                        c = self.sock.recv(1)
+                else:
+                    c = self.ser.read(1)
                 #print list(c)
             except KeyboardInterrupt:
                 raise KeyboardInterrupt
