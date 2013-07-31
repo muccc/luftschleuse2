@@ -130,7 +130,7 @@ void uart1_init(unsigned int baudrate)
 
     bzero(&rxaddr, sizeof(rxaddr));
     rxaddr.sin_family = AF_INET;
-    rxaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    rxaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
     rxaddr.sin_port = htons(32000);
     bind(uart1_sockfd, (struct sockaddr *)&rxaddr, sizeof(rxaddr));
 

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #    This file is part of lockd, the daemon of the luftschleuse2 project.
 #
 #    See https://github.com/muccc/luftschleuse2 for more information.
@@ -16,9 +17,6 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-# Server program
-# UDP VERSION
-
 
 from socket import *
 
