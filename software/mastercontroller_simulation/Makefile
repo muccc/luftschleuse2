@@ -22,13 +22,19 @@ OBJS    := ${SRCS:.c=.o}
 DEPS    := ${SRCS:.c=.dep} 
 XDEPS   := $(wildcard ${DEPS}) 
 
-CFLAGS = -std=gnu99 -O2 -Wall -Werror -ggdb 
-LDFLAGS = 
-LIBS    = -lcurses -lSDL
+CFLAGS = -std=gnu99 -O2 -Wall -Werror -ggdb
+LDFLAGS =
+LIBS    = -lcurses
 
 CFLAGS += -I../mastercontroller -I../common -I.
 CFLAGS += -DNATIVE_TARGET
 CFLAGS += -DF_CPU=1000000
+
+SDL_CFLAGS := $(shell sdl-config --cflags)
+SDL_LDFLAGS := $(shell sdl-config --libs)
+
+CFLAGS += ${SDL_CFLAGS}
+LDFLAGS += ${SDL_LDFLAGS} 
 
 .PHONY: all clean distclean 
 all:: ${TARGET} 
@@ -38,7 +44,7 @@ include ${XDEPS}
 endif 
 
 ${TARGET}: ${OBJS} 
-	${CC} ${LDFLAGS} -o $@ $^ ${LIBS} 
+	${CC} -o $@ $^ ${LDFLAGS} ${LIBS} 
 
 ${OBJS}: %.o: %.c %.dep 
 	${CC} ${CFLAGS} -o $@ -c $< 
