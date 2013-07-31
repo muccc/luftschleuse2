@@ -13,6 +13,9 @@ static uint8_t buffer[WIDTH * HEIGHT * 3];
 static uint32_t i;
 static SDL_Surface * data_sf;
 
+/*
+ * Based on http://stackoverflow.com/questions/1391314
+ */
 #define mask32(BYTE) (*(uint32_t *)(uint8_t [4]){ [BYTE] = 0xff })
 
 static _Bool init_app(const char * name, SDL_Surface * icon, uint32_t flags)
