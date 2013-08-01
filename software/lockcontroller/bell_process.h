@@ -23,11 +23,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define BELL_PORT              D
-#define BELL_PIN               6
-
-//#define BELL_PORT              C
-//#define BELL_PIN               1
+#define BUTTON_BELL_PORT              D
+#define BUTTON_BELL_PIN               6
 
 void bell_init(void);
 void bell_tick(void);

@@ -35,6 +35,7 @@ static bool cli_device_reset;
 static bool cli_exit_simulation;
 
 #define DOOR_BUTTON     (1<<0)
+#define BELL_BUTTON     (1<<1)
 
 static void cli_update_screen(void);
 
@@ -58,11 +59,12 @@ void cli_init(void)
 
     row = 5;
     move(row + 0,15); printw("Press 'D' to toggle the open button.");
+    move(row + 1,15); printw("Press 'B' to ring the bell (Default: > 400 ms).");
 
-    row = 7;
+    row = 8;
     move(row + 0,0); printw("Desired State: ");
 
-    row = 9;
+    row = 10;
     move(row + 0,0); printw("Press C to toggle DOOR_DOOR_CLOSED: ");
     move(row + 1,0); printw("Press L to toggle DOOR_LOCK_LOCKED: ");
     move(row + 2,0); printw("Press U to toggle DOOR_LOCK_UNLOCKED: ");
@@ -105,8 +107,9 @@ static void cli_update_screen(void)
 
     row = 5;
     move(row + 0, 55); printw((pressed_buttons & DOOR_BUTTON) ? "<pressed>":"         ");
+    move(row + 1, 65); printw((pressed_buttons & BELL_BUTTON) ? "<pressed>":"         ");
 
-    row = 9;
+    row = 10;
     move(row + 0, 45); printw((door_state & DOOR_DOOR_CLOSED) ? "<active>":"         ");
     move(row + 1, 45); printw((door_state & DOOR_LOCK_LOCKED) ? "<active>":"         ");
     move(row + 2, 45); printw((door_state & DOOR_LOCK_UNLOCKED) ? "<active>":"         ");
@@ -177,6 +180,9 @@ void cli_process(void)
             case 'd':
                 pressed_buttons ^= DOOR_BUTTON;
             break;
+            case 'b':
+                pressed_buttons ^= BELL_BUTTON;
+            break;
             case 'c':
                 door_state ^= DOOR_DOOR_CLOSED;
             break;
@@ -231,7 +237,12 @@ uint8_t cli_get_button(char *name)
         if(pressed_buttons & DOOR_BUTTON) {
             return 1;
         }
+    }else if(strcmp(name, "BUTTON_BELL") == 0) {
+        if(pressed_buttons & BELL_BUTTON) {
+            return 1;
+        }
     }
+
     return 0;
 }
 
@@ -239,12 +250,12 @@ void cli_updateDesiredState(uint8_t desiredState)
 {
     if( desiredState == DOOR_LOCK_LOCKED ){
         attron(COLOR_PAIR(3));
-        move(7,15); printw("LOCKED  ");
+        move(8,15); printw("LOCKED  ");
         attroff(COLOR_PAIR(3));
     }
     if(desiredState == DOOR_LOCK_UNLOCKED ){
         attron(COLOR_PAIR(1));
-        move(7,15); printw("UNLOCKED");
+        move(8,15); printw("UNLOCKED");
         attroff(COLOR_PAIR(1));
     }
 }

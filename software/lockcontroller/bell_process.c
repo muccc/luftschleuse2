@@ -29,7 +29,8 @@
 #define MAX_BREAK   2500
 
 //static const int16_t times[] = {-200, -200, 500, -200, -200};
-static const int16_t times[] = {-400, -400, 800, -400, -400};
+//static const int16_t times[] = {-400, -400, 800, -400, -400};
+static const int16_t times[] = {400};
 static uint8_t step;
 static uint8_t debounce;
 static bool pressed;
@@ -40,8 +41,8 @@ static uint16_t c = 0;
 
 void bell_init(void)
 {
-    DDR_CONFIG_IN(BELL);
-    PIN_SET(BELL);
+    DDR_CONFIG_IN(BUTTON_BELL);
+    PIN_SET(BUTTON_BELL);
     step = 0;
     debounce = 0;
     pressed = false;
@@ -53,7 +54,7 @@ void bell_init(void)
 
 static inline bool isPressed(void)
 {
-    if( !PIN_HIGH(BELL) ){
+    if( !PIN_HIGH(BUTTON_BELL) ){
         return true;
 
     }
