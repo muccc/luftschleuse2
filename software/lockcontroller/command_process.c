@@ -51,9 +51,10 @@ void cmd_tick(void)
 
     door_setDesiredState(cmd_desiredDoorState);
 
-    if( door_getState() & DOOR_LOCK_LOCKED ){
+    if( (door_getState() & (DOOR_LOCK_LOCKED | DOOR_DOOR_CLOSED)) ==
+            (DOOR_LOCK_LOCKED | DOOR_DOOR_CLOSED) ){
         leds_set(LED_OPEN, LED_SHORT_FLASH);
-    }else if( door_getState() & DOOR_LOCK_UNLOCKED ){
+    }else{
         leds_set(LED_OPEN, LED_ON);
     }
 }
