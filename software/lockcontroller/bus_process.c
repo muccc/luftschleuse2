@@ -96,6 +96,7 @@ void bus_sendPacket(packet_t *p)
 {
     memcpy(p->magic, PACKET_MAGIC, sizeof(p->magic));
     p->seq = sequence_numbers_get_tx();
+    sequence_numbers_increment_tx();
     uint8_t *msg = (uint8_t *)p;
     aes_encrypt(msg);
     bus_sendFrame(NODE_ADDRESS, msg, sizeof(*p));

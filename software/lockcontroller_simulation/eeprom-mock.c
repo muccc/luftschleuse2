@@ -20,12 +20,20 @@
  */
 #include <stdint.h>
 
+static uint32_t eeprom_writes = 0;
+
 uint32_t eeprom_read_dword(void *ptr)
 {
-    return 0;
+    return *((uint32_t *)ptr);
 }
 
 void eeprom_write_dword(void *ptr, uint32_t v)
 {
+    *((uint32_t *)ptr) = v;
+    eeprom_writes++;
 }
 
+uint32_t eeprom_mock_get_write_counter(void)
+{
+    return eeprom_writes;
+}

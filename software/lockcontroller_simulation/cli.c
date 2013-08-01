@@ -20,21 +20,29 @@
  */
 #include "door-mock.h"
 #include "door-config.h"
+#include "sequence_numbers.h"
+#include "eeprom-mock.h"
 
 #include <ncurses.h>
 #include <string.h>
 #include <stdint.h>
 
-static uint8_t pressed_buttons;
+static uint32_t pressed_buttons;
 static uint8_t door_state;
+static bool leds[32]; 
+static bool cli_device_reset;
+static bool cli_exit_simulation;
 
 #define DOOR_BUTTON     (1<<0)
 
 static void cli_update_screen(void);
 
 void cli_init(void)
-{	
+{
+    uint32_t row;
 	initscr();			/* Start curses mode 		  */
+    erase();
+    clear();
     cbreak();
     noecho();
     nodelay(stdscr,TRUE);
@@ -44,33 +52,106 @@ void cli_init(void)
     init_pair(2, COLOR_BLACK, COLOR_GREEN);
     init_pair(3, COLOR_RED, COLOR_BLACK);
 
-    move(0,0); printw(DOOR_NAME);
-    move(1, 15); printw("Press 'D' to toggle the open button.");
-    move(3,0); printw("Desired State: ");
-    move(4,0); printw("Press C to toggle DOOR_DOOR_CLOSED: ");
-    move(5,0); printw("Press L to toggle DOOR_LOCK_LOCKED: ");
-    move(6,0); printw("Press U to toggle DOOR_LOCK_UNLOCKED: ");
-    move(7,0); printw("Press O to toggle DOOR_LOCK_LOCKING: ");
-    move(8,0); printw("Press N to toggle DOOR_LOCK_UNLOCKING: ");
-    move(9,0); printw("Press M to toggle DOOR_LOCK_MANUAL_UNLOCKED: ");
-    move(10,0); printw("Press H to toggle DOOR_HANDLE_PRESSED: ");
+    row = 0;
+    move(row + 0, 20); printw(DOOR_NAME);
+
+    row = 4;
+    move(row + 0,15); printw("Press 'D' to toggle the open button.");
+
+    row = 6;
+    move(row + 0,0); printw("Desired State: ");
+
+    row = 8;
+    move(row + 0,0); printw("Press C to toggle DOOR_DOOR_CLOSED: ");
+    move(row + 1,0); printw("Press L to toggle DOOR_LOCK_LOCKED: ");
+    move(row + 2,0); printw("Press U to toggle DOOR_LOCK_UNLOCKED: ");
+    move(row + 3,0); printw("Press O to toggle DOOR_LOCK_LOCKING: ");
+    move(row + 4,0); printw("Press N to toggle DOOR_LOCK_UNLOCKING: ");
+    move(row + 5,0); printw("Press M to toggle DOOR_LOCK_MANUAL_UNLOCKED: ");
+    move(row + 6,0); printw("Press H to toggle DOOR_HANDLE_PRESSED: ");
+    
+    move(row + 8,0); printw("Press R to reset the device");
 
     pressed_buttons = 0;
     door_state = DOOR_DOOR_CLOSED | DOOR_LOCK_LOCKED;
     cli_update_screen();
+    uint32_t led;
+    for(led = 0; led < 32; led++) {
+        leds[led] = false;
+    }
+
+    cli_device_reset = false;
+    cli_exit_simulation = false;
+}
+
+bool cli_get_device_reset(void)
+{
+    return cli_device_reset;
+}
+
+bool cli_get_exit_simulation(void)
+{
+    return cli_exit_simulation;
 }
 
 static void cli_update_screen(void)
 {
-    move(1, 55); printw((pressed_buttons & DOOR_BUTTON) ? "<pressed>":"         ");
-    move(4, 45); printw((door_state & DOOR_DOOR_CLOSED) ? "<active>":"         ");
-    move(5, 45); printw((door_state & DOOR_LOCK_LOCKED) ? "<active>":"         ");
-    move(6, 45); printw((door_state & DOOR_LOCK_UNLOCKED) ? "<active>":"         ");
-    move(7, 45); printw((door_state & DOOR_LOCK_LOCKING) ? "<active>":"         ");
-    move(8, 45); printw((door_state & DOOR_LOCK_UNLOCKING) ? "<active>":"         ");
-    move(9, 45); printw((door_state & DOOR_LOCK_MANUAL_UNLOCKED) ? "<active>":"         ");
-    move(10, 45); printw((door_state & DOOR_HANDLE_PRESSED) ? "<active>":"         ");
+    uint32_t row = 4;
+    move(row + 0, 55); printw((pressed_buttons & DOOR_BUTTON) ? "<pressed>":"         ");
 
+    row = 8;
+    move(row + 0, 45); printw((door_state & DOOR_DOOR_CLOSED) ? "<active>":"         ");
+    move(row + 1, 45); printw((door_state & DOOR_LOCK_LOCKED) ? "<active>":"         ");
+    move(row + 2, 45); printw((door_state & DOOR_LOCK_UNLOCKED) ? "<active>":"         ");
+    move(row + 3, 45); printw((door_state & DOOR_LOCK_LOCKING) ? "<active>":"         ");
+    move(row + 4, 45); printw((door_state & DOOR_LOCK_UNLOCKING) ? "<active>":"         ");
+    move(row + 5, 45); printw((door_state & DOOR_LOCK_MANUAL_UNLOCKED) ? "<active>":"         ");
+    move(row + 6, 45); printw((door_state & DOOR_HANDLE_PRESSED) ? "<active>":"         ");
+
+    uint32_t led;
+    for(led = 0; led < 1; led++){
+        switch(led) {
+            case 0:
+                move(4, 0);
+            break;
+            default:
+                continue;
+            break;
+        }
+
+        if(leds[led]) {
+            attron(COLOR_PAIR(2));
+        } else {
+            attron(COLOR_PAIR(1));
+        }
+        
+        //printw("%s",state ? "ON " : "OFF");
+        printw(" ");
+
+        if(leds[led]) {
+            attroff(COLOR_PAIR(2));
+        } else {
+            attroff(COLOR_PAIR(1));
+        }
+
+        switch(led) {
+            case 0:
+                printw(" Open LED");
+            break;
+        }
+    }
+
+    row = 1;
+    move(row + 0, 0);
+    printw("Expected RX seq: %6u  ",
+            sequence_numbers_get_expected_rx());
+    printw("Next TX seq: %6u  ", sequence_numbers_get_tx());
+    printw("Persisted RX seq: %6u  ",
+            sequence_numbers_get_persisted_rx());
+    
+    move(row + 1, 0);
+    printw("EEPROM write count: %6u  ",
+            eeprom_mock_get_write_counter());
     refresh();			/* Print it on to the real screen */
 }
 
@@ -106,6 +187,9 @@ void cli_process(void)
             case 'h':
                 door_state ^= DOOR_HANDLE_PRESSED;
             break;
+            case 'r':
+                cli_device_reset = true;
+            break;
             cli_update_screen();
         }
 
@@ -124,30 +208,9 @@ void cli_set_led(char *name, bool state)
         led = 0;
     }
    
-    if(led >= 0) {
-        move(led + 1, 0);
-        if(state) {
-            attron(COLOR_PAIR(2));
-        } else {
-            attron(COLOR_PAIR(1));
-        }
-        
-        //printw("%s",state ? "ON " : "OFF");
-        printw(" ");
-
-        if(state) {
-            attroff(COLOR_PAIR(2));
-        } else {
-            attroff(COLOR_PAIR(1));
-        }
-
-        switch(led) {
-            case 0:
-                printw(" Open LED");
-            break;
-        }
-
-        refresh();
+    if(led >= 0 && led < 32) {
+        leds[led] = state;
+        cli_update_screen();
     }
 }
 
@@ -165,12 +228,12 @@ void cli_updateDesiredState(uint8_t desiredState)
 {
     if( desiredState == DOOR_LOCK_LOCKED ){
         attron(COLOR_PAIR(3));
-        move(3,15); printw("LOCKED  ");
+        move(6,15); printw("LOCKED  ");
         attroff(COLOR_PAIR(3));
     }
     if(desiredState == DOOR_LOCK_UNLOCKED ){
         attron(COLOR_PAIR(1));
-        move(3,15); printw("UNLOCKED");
+        move(6,15); printw("UNLOCKED");
         attroff(COLOR_PAIR(1));
     }
 }

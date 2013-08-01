@@ -26,9 +26,11 @@
 
 void sequence_numbers_init(void);
 uint32_t sequence_numbers_get_tx(void);
+void sequence_numbers_increment_tx(void);
 void sequence_numbers_set_tx(uint32_t tx_seq);
 bool sequence_numbers_check_rx(uint32_t seq);
 uint32_t sequence_numbers_get_expected_rx(void);
+uint32_t sequence_numbers_get_persisted_rx(void);
 
 /* After n seq numbers a new entry gets written
  * to the eeprom.

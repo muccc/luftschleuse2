@@ -30,6 +30,8 @@ void cli_set_led(char *name, bool state);
 uint8_t cli_get_button(char *name);
 void cli_updateDesiredState(uint8_t desiredState);
 uint8_t cli_getState(void);
+bool cli_get_device_reset(void);
+bool cli_get_exit_simulation(void);
 
 #endif
 

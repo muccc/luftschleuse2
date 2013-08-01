@@ -46,8 +46,14 @@ void sequence_numbers_init(void)
 
 uint32_t sequence_numbers_get_tx(void)
 {
-    return sequence_numbers_tx++;
+    return sequence_numbers_tx;
 }
+
+void sequence_numbers_increment_tx(void)
+{
+    sequence_numbers_tx++;
+}
+
 
 void sequence_numbers_set_tx(uint32_t tx_seq)
 {
@@ -71,6 +77,11 @@ uint32_t sequence_numbers_get_expected_rx(void)
     return sequence_numbers_rx;
 }
 
+uint32_t sequence_numbers_get_persisted_rx(void)
+{
+    
+    return sequence_numbers_rx_persisted;
+}
 /*
  * \brief
  *      Checks if it is necessary to write a new

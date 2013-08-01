@@ -27,20 +27,20 @@
 #include <stdint.h>
 
 int main()
-{	
-    cli_init();
-
-    lockcontroller_init();
-
+{
     uint8_t i = 0;
-    while(1) {
-        for(i = 0; i < 5; i++) { 
-            lockcontroller_process();
-            usleep(200);
+    do {
+        cli_init();
+        lockcontroller_init();
+        while(!cli_get_device_reset() && !cli_get_exit_simulation()) {
+            for(i = 0; i < 5; i++) { 
+                lockcontroller_process();
+                usleep(200);
+            }
+            lockcontroller_tick();
+            cli_process();
         }
-        lockcontroller_tick();
-        cli_process();
-    }
+    } while(!cli_get_exit_simulation());
     cli_exit();
 	return 0;
 }
