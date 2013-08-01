@@ -17,10 +17,12 @@
     <node id="n0">
       <data key="d6">
         <y:ShapeNode>
-          <y:Geometry height="35.0" width="79.35546875" x="238.562265625" y="102.5"/>
+          <y:Geometry height="59.0" width="92.35546875" x="232.562265625" y="88.5"/>
           <y:Fill color="#FFCC00" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.96875" modelName="custom" textColor="#000000" visible="true" width="69.35546875" x="5.0" y="8.515625">Carambola<y:LabelModel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="45.90625" modelName="custom" textColor="#000000" visible="true" width="79.9140625" x="6.220703125" y="6.546875">Carambola
+or
+Raspberry Pi<y:LabelModel>
               <y:SmartNodeLabelModel distance="4.0"/>
             </y:LabelModel>
             <y:ModelParameter>
@@ -265,7 +267,7 @@ Buttons<y:LabelModel>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="standard" target="standard"/>
-          <y:EdgeLabel alignment="center" configuration="AutoFlippingLabel" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.96875" modelName="custom" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="36.66015625" x="-48.33006835937499" y="18.515625">UART<y:LabelModel>
+          <y:EdgeLabel alignment="center" configuration="AutoFlippingLabel" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.96875" modelName="custom" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="36.66015625" x="-48.45281126679507" y="13.515625">UART<y:LabelModel>
               <y:SmartEdgeLabelModel autoRotationEnabled="false" defaultAngle="0.0" defaultDistance="10.0"/>
             </y:LabelModel>
             <y:ModelParameter>
@@ -412,8 +414,8 @@ Sensorsignals<y:LabelModel>
     <edge id="e10" source="n12" target="n0">
       <data key="d10">
         <y:PolyLineEdge>
-          <y:Path sx="0.0" sy="0.0" tx="-25.42796800000002" ty="0.0">
-            <y:Point x="252.812032" y="66.47679836084203"/>
+          <y:Path sx="0.0" sy="0.0" tx="-29.5935735872016" ty="0.0">
+            <y:Point x="249.1464264127984" y="66.47679836084203"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
@@ -424,8 +426,8 @@ Sensorsignals<y:LabelModel>
     <edge id="e11" source="n11" target="n0">
       <data key="d10">
         <y:PolyLineEdge>
-          <y:Path sx="0.0" sy="0.0" tx="21.75999999999999" ty="0.0">
-            <y:Point x="300.0" y="12.95359672168405"/>
+          <y:Path sx="0.0" sy="0.0" tx="25.324719665271964" ty="0.0">
+            <y:Point x="304.064719665272" y="12.95359672168405"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
@@ -446,7 +448,7 @@ Sensorsignals<y:LabelModel>
     <edge id="e13" source="n2" target="n0">
       <data key="d10">
         <y:PolyLineEdge>
-          <y:Path sx="0.0" sy="0.0" tx="-8.240000000000009" ty="0.0"/>
+          <y:Path sx="0.0" sy="0.0" tx="-9.589875461481673" ty="0.0"/>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
           <y:BendStyle smoothed="false"/>
