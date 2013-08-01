@@ -1,3 +1,23 @@
+/*
+ *  This file is part of the luftschleuse2 project.
+ *
+ *  See https://github.com/muccc/luftschleuse2 for more information.
+ *
+ *  Copyright (C) 2013 Tobias Schneider <schneider@muc.ccc.de> 
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 #include "bus_process.h"
 #include "bus_handler.h"
 #include "command_process.h"
@@ -12,6 +32,21 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
+
+#if DEBUG
+#include <stdio.h>
+void print_packet(uint8_t *packet)
+{
+    uint8_t i = 0;
+    for(i = 0; i < 16; i++) {
+        printf("%02X ", packet[i]);
+    }
+    printf("\n");
+}
+#else
+#define printf(...)
+#define print_packet(x)
+#endif
 
 void bus_init(void)
 {
@@ -29,10 +64,12 @@ void bus_process(void)
     if( channel == NODE_ADDRESS && len == 0 ){
         cmd_new(CMD_SEND_STATE, NULL);
     }else if( channel == NODE_ADDRESS && len == sizeof(packet_t) ){
+        printf("Got packet\n");
         // TODO: set a timeout to prevent us getting flooded with
         // messages. Also enforce this timeout at boot-up.
         uint8_t *msg = bus_getMessage();
         aes_decrypt(msg);
+        print_packet(msg);
         packet_t *packet = (packet_t *) msg;
 
         if( packet_check_magic(packet) ){
@@ -49,6 +86,8 @@ void bus_process(void)
             }
         }else if( packet_check_sync_magic(packet) ){
             sequence_numbers_set_tx(packet->seq);
+        }else{
+            printf("bad magic\n");
         }
     }
 }

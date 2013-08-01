@@ -1,3 +1,23 @@
+/*
+ *  This file is part of the luftschleuse2 project.
+ *
+ *  See https://github.com/muccc/luftschleuse2 for more information.
+ *
+ *  Copyright (C) 2013 Tobias Schneider <schneider@muc.ccc.de> 
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 #include "lcd.h"
 #include "lcdhal.h"
 #include <string.h>
@@ -43,7 +63,7 @@ static bool lcdinvert;
 
 void lcd_init(void)
 {
-    uint8_t id;
+    //uint8_t id;
 
     lcdhal_init();
 
@@ -173,6 +193,7 @@ static inline void _helper_pixel8(uint8_t color1)
     lcdhal_write(TYPE_DATA, color1);
 }
 
+#if 0
 static void _helper_pixel12(uint16_t color)
 {
     static uint8_t odd=0;
@@ -186,6 +207,7 @@ static void _helper_pixel12(uint16_t color)
     }
     odd=1-odd;
 }
+#endif
 
 static void _helper_pixel16(uint16_t color)
 {

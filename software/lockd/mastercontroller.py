@@ -1,6 +1,24 @@
+#    This file is part of lockd, the daemon of the luftschleuse2 project.
+#
+#    See https://github.com/muccc/luftschleuse2 for more information.
+#
+#    Copyright (C) 2013 Tobias Schneider <schneider@muc.ccc.de> 
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from packet import Packet
+#import apptime as time
 import time
-#from aes import AES
 import logging
 from doorlogic import DoorLogic
 
@@ -12,19 +30,12 @@ class MasterController:
         BLINK_SLOW = 3
         FLASH = 4
 
-#    def __init__(self, address, txseq, rxseq, key, interface, input_queue, buttons, leds):
-    def __init__(self, address, interface, input_queue, buttons, leds):
-        self.address = address
-        #self.txseq = txseq
-        #self.rxseq = rxseq
-        
-        #self.key = [int(x) for x in key.split()]
-        #self.aes = AES()
+    def __init__(self, interface, input_queue, buttons, leds):
+        self.address = '0'
         
         self.interface = interface
         
         self.supply_voltage = 0
-        self.periodic = 10
         self.logger = logging.getLogger('logger')
         self.pressed_buttons = 0
 
@@ -32,19 +43,18 @@ class MasterController:
         self.leds = leds
         
         self.input_queue = input_queue
+        
+        self.timestamp = time.time()
 
     def update(self, message):
     	if len(message) != 16:
             self.logger.warning("The received message is not 16 bytes long")
     	    return
-        #message = self.aes.decrypt([ord(x) for x in message], self.key,
-        #            AES.keySize["SIZE_128"])
-        #message = ''.join([chr(x) for x in message])
 
         self.logger.debug("Decoded message: %s"%str(list(message)))
         
         p = Packet.fromMessage(message)
-        if p.cmd==83:
+        if p.cmd == ord('S'):
             self.supply_voltage = ord(p.data[3])*0.1
             
             pressed_buttons = ord(p.data[0])
@@ -74,29 +84,19 @@ class MasterController:
         return state
 
     def tick(self):
-        self.periodic-=1
         self.logger.debug('master: tick')
-        if self.periodic == 0:
-            self.periodic = 2
+        if time.time() - self.timestamp > .5:
             self._send_command(ord('S'), '')
-        
+            self.timestamp = time.time()
+
     def set_led(self, led_name, state):
         led = self.leds[led_name]
         self._send_command(ord('L'), '%c%c'%(led, state))
         
     def _send_command(self, command, data):
         p = Packet(seq=0, cmd=command, data=data, seq_sync=False)
-        self.logger.debug('Msg to mastercontroller: %s'%list(p.toMessage()))
-        
-        msg =  p.toMessage()
-        #msg = self.aes.encrypt([ord(x) for x in p.toMessage()], self.key,
-        #            AES.keySize["SIZE_128"])
-        #msg = ''.join([chr(x) for x in msg])
+        msg = p.toMessage()
+
+        self.logger.debug('Msg to mastercontroller: %s'%list(msg))
         self.interface.writeMessage(self.address, msg)
 
-    def announce_open(self):
-        self._send_command(ord('L'), '\x02\x04')
-
-    def announce_closed(self):
-        self._send_command(ord('L'), '\x02\x01')
-    

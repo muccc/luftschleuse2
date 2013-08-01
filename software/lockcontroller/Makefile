@@ -85,6 +85,7 @@ OBJDIR = .
 
 # List C source files here. (C dependencies are automatically generated.)
 SRC = ../lockcontroller/$(TARGET).c \
+../lockcontroller/main.c \
 ../common/aes.c \
 ../common/timer0.c \
 ../lockcontroller/command_process.c \

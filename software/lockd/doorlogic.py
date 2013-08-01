@@ -1,3 +1,21 @@
+#    This file is part of lockd, the daemon of the luftschleuse2 project.
+#
+#    See https://github.com/muccc/luftschleuse2 for more information.
+#
+#    Copyright (C) 2013 Tobias Schneider <schneider@muc.ccc.de> 
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import logging
 import time
 
@@ -20,6 +38,7 @@ class DoorLogic():
         MEMBER         =   3
         OPEN            =   4
         PUBLIC          =   5
+        UNKNOWN         =   6
 
     def __init__(self):
         self.logger = logging.getLogger('logger')
@@ -27,7 +46,7 @@ class DoorLogic():
         self.timers = []
         self.doors = {}
         self.state_listeners = []
-        self.state = None
+        self.state = self.State.UNKNOWN
         self.all_doors_locked = False
         self.all_doors_perm_unlocked = False
 
@@ -175,12 +194,14 @@ class DoorLogic():
     def get_state_as_string(self):
         if self.state == self.State.DOWN:
             return 'down'
-        if self.state == self.State.CLOSED:
+        elif self.state == self.State.CLOSED:
             return 'closed'
-        if self.state == self.State.MEMBER:
+        elif self.state == self.State.MEMBER:
             return 'member'
-        if self.state == self.State.PUBLIC:
+        elif self.state == self.State.PUBLIC:
             return 'public'
+        elif self.state == self.State.UNKNOWN:
+            return 'unknown'
     
     # Returns true if a door is in a state not in
     # sync with the global system state.

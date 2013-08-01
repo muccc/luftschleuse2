@@ -1,18 +1,50 @@
+#    This file is part of lockd, the daemon of the luftschleuse2 project.
+#
+#    See https://github.com/muccc/luftschleuse2 for more information.
+#
+#    Copyright (C) 2013 Tobias Schneider <schneider@muc.ccc.de> 
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import serial
 import string
 import sys
 import time
 import logging
+import socket
+import select
 
 class SerialInterface:
     def  __init__ ( self, path2device, baudrate, timeout=0):
       self.portopen = False
       self.dummy = False
+      self.udp = False
 
       if path2device == '/dev/null':
             self.dummy = True
             self.portopen = True
             self.timeout = timeout
+      
+      if path2device == 'udp': 
+            self.udp = True
+            self.portopen = True
+            self.timeout = timeout
+            self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            self.sock.bind(('127.0.0.1', 31000))
+            self.txtarget = ('127.0.0.1', 32000)
+            self.sock.setblocking(0)
+            
 
       self.logger = logging.getLogger('logger')
 
@@ -53,6 +85,11 @@ class SerialInterface:
         enc = "\\"+ command + message.replace('\\','\\\\') + "\\9";
         #print 'writing %s' % list(enc)
         #self.logger.debug('writing %s' % list(enc))
+
+        if self.udp:
+            self.sock.sendto(enc, self.txtarget)
+            return
+
         try:
             self.ser.write(enc)
             # Hack to avoid collisions, needs to be
@@ -79,15 +116,24 @@ class SerialInterface:
         start = False
         inframe = False
         command = ''
-
+        
+        #if self.udp:
+        #    time.sleep(self.timeout)
+        #    return (False, '')
         if self.dummy:
             time.sleep(self.timeout)
             return (False, '')
 
         while True:
             starttime = time.time()
+            c = []
             try:
-                c = self.ser.read(1)
+                if self.udp:
+                    ready = select.select([self.sock], [], [], self.timeout)
+                    if ready[0]:
+                        c = self.sock.recv(1)
+                else:
+                    c = self.ser.read(1)
                 #print list(c)
             except KeyboardInterrupt:
                 raise KeyboardInterrupt

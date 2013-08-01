@@ -1,3 +1,21 @@
+#    This file is part of lockd, the daemon of the luftschleuse2 project.
+#
+#    See https://github.com/muccc/luftschleuse2 for more information.
+#
+#    Copyright (C) 2013 Tobias Schneider <schneider@muc.ccc.de> 
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import display
 import logging
 import time
@@ -7,7 +25,7 @@ from PIL import ImageFont
 
 
 class DisplayController:
-    def __init__(self, display):
+    def __init__(self, display, max_update_rate):
         self.logger = logging.getLogger('logger')
         self._display = display
         self._draw = ImageDraw.Draw(display)
@@ -18,6 +36,8 @@ class DisplayController:
         self.clear()
         self.render_large((10,70/2-16), 'Booting...', 'white');
         self._update()
+        self._schedule_update = False
+        self._min_update_time = 1 / max_update_rate
     
     def render_small(self, xy, text, color):
         self._draw.text((xy[0]+1, xy[1]), text, color, font=self._small_font)
@@ -40,6 +60,7 @@ class DisplayController:
         self._last_update_time = time.time()
 
     def tick(self):
-        if self._schedule_update and time.time() - self._last_update_time > 4:
+        if self._schedule_update and time.time() - \
+                self._last_update_time >= self._min_update_time:
             self._update()
             self._schedule_update = False
