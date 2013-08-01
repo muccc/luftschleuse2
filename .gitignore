@@ -68,3 +68,5 @@ nosetests.xml
 
 *.b#*
 *.s#*
+
+*.dep
