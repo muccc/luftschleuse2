@@ -19,6 +19,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from socket import *
+import time
 
 # Set the socket parameters
 host = "localhost"
@@ -39,7 +40,7 @@ while 1:
                 print "Client has exited!"
                 break
             else:
-                print data
+                print time.time(), time.ctime(), data
 
         # Close socket
         UDPSock.close()
