@@ -77,8 +77,7 @@ class DoorLogic():
                         self.unlock(origin_name)
                     else:
                             self.lock(origin_name)
-            elif input_type == self.Input.SENSOR:
-                if input_name == 'bell_code':
+                elif input_name == 'bell_code':
                     if self.state == self.State.MEMBER and \
                             self.is_locked(origin_name):
                         self.temp_unlock(origin_name)
@@ -149,6 +148,7 @@ class DoorLogic():
     # Opens a specific door for a short amount of time to
     # allow someone to enter and operate the system from the inside
     def temp_unlock(self, door_name):
+        self.logger.debug("temp_unlock(%s)", door_name)
         self.unlock(door_name)
         self.add_timer(5, self.lock, (door_name,))
 

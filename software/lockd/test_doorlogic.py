@@ -113,6 +113,23 @@ class DoorLogicTest(unittest.TestCase):
                                 True)
         self.assertEqual(self.doorlogic.get_state_as_string(), 'member')
 
+    def test_bell_code_opens_door(self):
+        door = mock.MagicMock()
+        door.name = 'Door'
+        self.doorlogic.add_door(door)
+
+        self.press_button('member')
+
+        self.doorlogic.temp_unlock = mock.MagicMock()
+        self.doorlogic.policy("Door",
+                                doorlogic.DoorLogic.Origin.DOOR,
+                                'bell_code',
+                                doorlogic.DoorLogic.Input.BUTTON,
+                                True)
+
+        self.doorlogic.temp_unlock.assert_called_once_with("Door")
+
+
     def test_leave_public_to_other_mode(self):
         self.press_button('public')
         self.enter_state('down')
