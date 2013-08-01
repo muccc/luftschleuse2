@@ -54,7 +54,6 @@ void sequence_numbers_increment_tx(void)
     sequence_numbers_tx++;
 }
 
-
 void sequence_numbers_set_tx(uint32_t tx_seq)
 {
     sequence_numbers_tx = tx_seq;
@@ -98,6 +97,8 @@ static void sequence_numbers_check_next(uint32_t *array_ee,
     if( next >= sequence_numbers_rx_persisted ){
         sequence_numbers_write_next(array_ee,
                 next + SEQUENCE_NUMBERS_LEAP);
+        sequence_numbers_rx_persisted =
+            sequence_numbers_get_max(sequence_numbers_rx_ee);
     }
 }
 
