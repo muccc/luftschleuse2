@@ -29,7 +29,7 @@ class Door:
     LOCK_LOCKING       = (1<<3)
     LOCK_UNLOCKING     = (1<<4)
     HANDLE_PRESSED     = (1<<5)
-    LOCK_PERM_UNLOCKED = (1<<6)
+    LOCK_MANUAL_UNLOCKED = (1<<6)
     
     def __init__(self, name, config, interface, input_queue, buttons):
         self.name = name
@@ -63,7 +63,7 @@ class Door:
         self.pressed_buttons = 0
         self.periodic_timeout = time.time() + 1;
         self.state_listeners = set()
-        self.perm_unlocked = False
+        self.manual_unlocked = False
         self.input_queue = input_queue
         self._old_state = None
         self.buttons = buttons
@@ -201,8 +201,8 @@ class Door:
                             == Door.LOCK_UNLOCKING
             self.handle_pressed = doorstate & Door.HANDLE_PRESSED \
                             == Door.HANDLE_PRESSED
-            self.perm_unlocked = doorstate & Door.LOCK_PERM_UNLOCKED \
-                            == Door.LOCK_PERM_UNLOCKED
+            self.manual_unlocked = doorstate & Door.LOCK_MANUAL_UNLOCKED \
+                            == Door.LOCK_MANUAL_UNLOCKED
             self.logger.info('%s: Door state: %s'%(self.name, self.get_state()))
             self.logger.info('%s: Desired door state: %s'%(self.name, self.get_desired_state()))
             
@@ -214,8 +214,8 @@ class Door:
     def is_locked(self):
         return self.locked
 
-    def is_perm_unlocked(self):
-        return self.perm_unlocked
+    def is_manual_unlocked(self):
+        return self.manual_unlocked
 
     def is_timedout(self):
         return self.timedout
@@ -278,8 +278,8 @@ class Door:
             state += ' UNLOCKING'
         if self.handle_pressed:
             state += ' HANDLE_PRESSED'
-        if self.perm_unlocked:
-            state += ' PERM_UNLOCKED'
+        if self.manual_unlocked:
+            state += ' MANUAL_UNLOCKED'
         if self.is_bad_key():
             state += ' BAD KEY'
         if self.is_wrong_rx_seq():

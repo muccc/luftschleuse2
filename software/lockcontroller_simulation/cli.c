@@ -150,18 +150,18 @@ static void cli_update_screen(void)
 
     row = 1;
     move(row + 0, 0);
-    printw("Expected RX sequence:\t%06u\t",
+    printw("Expected RX sequence:\t%08u\t",
             sequence_numbers_get_expected_rx());
-    printw("Persisted RX sequence:\t%06u",
+    printw("Persisted RX sequence:\t%08u",
             sequence_numbers_get_persisted_rx());
     
     move(row + 1, 0);
-    printw("EEPROM write count:\t%06u\t",
+    printw("EEPROM write count:\t%08u\t",
             eeprom_mock_get_write_counter());
-    printw("Next TX sequence:\t%06u\t", sequence_numbers_get_tx());
+    printw("Next TX sequence:\t%08u\t", sequence_numbers_get_tx());
     move(row + 2, 0);
-    printw("Accepted packets:\t%06u\t", bus_get_accepted_packets());
-    printw("Rejected packets:\t%06u", bus_get_rejected_packets());
+    printw("Accepted packets:\t%08u\t", bus_get_accepted_packets());
+    printw("Rejected packets:\t%08u", bus_get_rejected_packets());
 
     refresh();			/* Print it on to the real screen */
 }

@@ -76,7 +76,7 @@ class DoorTest(unittest.TestCase):
         self.packet_press   = packet.Packet(0, ord('S'), '\x01\x00\x00\x00\x00', False)
         self.packet_release = packet.Packet(0, ord('S'), '\x00\x00\x00\x00\x00', False)
         self.packet_unlocking = packet.Packet(0, ord('S'), '\x00\x10\x00\x00\x00', False)
-        self.packet_perm_unlocked = packet.Packet(0, ord('S'), '\x00\x40\x00\x00\x00', False)
+        self.packet_manual_unlocked = packet.Packet(0, ord('S'), '\x00\x40\x00\x00\x00', False)
         self.packet_locked = packet.Packet(0, ord('S'), '\x00\x02\x00\x00\x00', False)
 
 
@@ -299,9 +299,9 @@ class DoorTest(unittest.TestCase):
         self.do_not_accept(self.packet_locked, self.persisted_min_rx_seq)
         self.assertTrue(self.door.is_locked())
 
-    def test_status_update_perm_unlocked(self):
-        self.do_not_accept(self.packet_perm_unlocked, self.persisted_min_rx_seq)
-        self.assertTrue(self.door.is_perm_unlocked())
+    def test_status_update_manual_unlocked(self):
+        self.do_not_accept(self.packet_manual_unlocked, self.persisted_min_rx_seq)
+        self.assertTrue(self.door.is_manual_unlocked())
    
     @patch('time.time')
     def test_no_timeout(self, time_mock):

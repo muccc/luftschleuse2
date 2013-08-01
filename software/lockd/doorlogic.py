@@ -48,7 +48,7 @@ class DoorLogic():
         self.state_listeners = []
         self.state = self.State.UNKNOWN
         self.all_doors_locked = False
-        self.all_doors_perm_unlocked = False
+        self.all_doors_unlocked = False
 
     '''
     Accepts an input from a device. Checks if the action is valid and allowed.
@@ -70,24 +70,17 @@ class DoorLogic():
         if origin_type == self.Origin.DOOR:
             if input_type == self.Input.BUTTON:
                 if input_name == 'manual_control':
-                    if not self.is_perm_unlocked(origin_name):
+                    if self.state == self.State.PUBLIC:
+                        self.lock('all')
+                        self.set_state(self.State.MEMBER)
+                    elif self.is_locked(origin_name):
                         self.unlock(origin_name)
                     else:
-                        if self.state == self.State.DOWN:
-                            self.lock(origin_name)
-                        elif self.state == self.State.CLOSED:
-                            self.lock(origin_name)
-                        elif self.state == self.State.MEMBER:
-                            self.lock(origin_name)
-                        elif self.state == self.State.PUBLIC:
-                            self.lock('all')
-                            self.set_state(self.State.MEMBER)
-                        else:
                             self.lock(origin_name)
             elif input_type == self.Input.SENSOR:
                 if input_name == 'bell_code':
                     if self.state == self.State.MEMBER and \
-                            not self.is_perm_unlocked(origin_name):
+                            self.is_locked(origin_name):
                         self.temp_unlock(origin_name)
 
         if origin_type == self.Origin.CONTROL_PANNEL:
@@ -134,13 +127,13 @@ class DoorLogic():
         state_changed = False
 
         all_doors_locked = all([d.is_locked() for d in self.doors.values()])
-        all_doors_perm_unlocked = all([d.is_perm_unlocked() for d in self.doors.values()])
+        all_doors_unlocked = all([not d.is_locked() for d in self.doors.values()])
         
-        if self.all_doors_locked != all_doors_locked or self.all_doors_perm_unlocked != all_doors_perm_unlocked:
+        if self.all_doors_locked != all_doors_locked or self.all_doors_unlocked != all_doors_unlocked:
             state_changed = True
 
         self.all_doors_locked = all_doors_locked
-        self.all_doors_perm_unlocked = all_doors_perm_unlocked
+        self.all_doors_unlocked = all_doors_unlocked
 
         if state_changed:
             self.notify_state_listeners()
@@ -167,10 +160,16 @@ class DoorLogic():
         else:
             self.doors[door_name].unlock()
 
-    # returns true if a specific door is permanently unlocked
-    def is_perm_unlocked(self, door_name):
+    # returns true if a specific door is manually unlocked
+    def is_manual_unlocked(self, door_name):
         #if door_name in doors:
-        return self.doors[door_name].is_perm_unlocked();
+        return self.doors[door_name].is_manual_unlocked();
+        #return False
+    
+    # returns true if a specific door is locked
+    def is_locked(self, door_name):
+        #if door_name in doors:
+        return self.doors[door_name].is_locked();
         #return False
    
     def add_timer(self, timeout, function, arguments):
@@ -207,7 +206,7 @@ class DoorLogic():
     # sync with the global system state.
     def is_state_tainted(self):
         if self.state == self.State.PUBLIC and \
-                not self.all_doors_perm_unlocked:
+                not self.all_doors_unlocked:
             return True
         
         if self.state != self.State.PUBLIC and \

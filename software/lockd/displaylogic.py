@@ -80,7 +80,7 @@ class DisplayLogic():
             door_state = ('Unknown', 'yellow')
             if door.is_locked():
                 door_state = ('Locked', 'green')
-            if door.is_perm_unlocked():
+            if not door.is_locked():
                 door_state = ('Unlocked', 'green')
             if door.is_timedout():
                 door_state = ('TIMEOUT', 'red')
