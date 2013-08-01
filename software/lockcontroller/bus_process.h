@@ -30,4 +30,6 @@ void bus_tick(void);
 void bus_process(void);
 void bus_sendAck(bool success);
 void bus_sendPacket(packet_t *p);
+uint32_t bus_get_accepted_packets(void);
+uint32_t bus_get_rejected_packets(void);
 #endif

@@ -48,12 +48,29 @@ void print_packet(uint8_t *packet)
 #define print_packet(x)
 #endif
 
+#define BUS_LEAKY_BUCKET_MAX        10
+#define BUS_LEAKY_BUCKET_PERIOD_MS     250
+
+static uint16_t bus_leaky_bucket;
+static uint32_t bus_accepted_packets;
+static uint32_t bus_rejected_packets;
+
 void bus_init(void)
 {
+    bus_leaky_bucket = 0;
+    bus_accepted_packets = 0;
+    bus_rejected_packets = 0;
 }
 
 void bus_tick(void)
 {
+    static uint16_t leaky_bucket_timer = 0;
+    if(leaky_bucket_timer-- == 0) {
+        leaky_bucket_timer = BUS_LEAKY_BUCKET_PERIOD_MS;
+        if(bus_leaky_bucket) {
+            bus_leaky_bucket--;
+        }
+    }
 }
 
 void bus_process(void)
@@ -61,18 +78,26 @@ void bus_process(void)
     uint8_t channel = bus_readFrame();
     uint8_t len = bus_getMessageLen();
 
-    if( channel == NODE_ADDRESS && len == 0 ){
-        cmd_new(CMD_SEND_STATE, NULL);
-    }else if( channel == NODE_ADDRESS && len == sizeof(packet_t) ){
+
+    if( channel == NODE_ADDRESS && len == sizeof(packet_t) ){
+        if(bus_leaky_bucket > BUS_LEAKY_BUCKET_MAX) {
+            bus_rejected_packets++;
+            return;
+        }
+
         printf("Got packet\n");
-        // TODO: set a timeout to prevent us getting flooded with
-        // messages. Also enforce this timeout at boot-up.
+        
         uint8_t *msg = bus_getMessage();
         aes_decrypt(msg);
         print_packet(msg);
         packet_t *packet = (packet_t *) msg;
 
         if( packet_check_magic(packet) ){
+            /*
+             * Do not allow more than one packet every 250 ms
+             */
+            bus_leaky_bucket++;;
+            bus_accepted_packets++;
             if( sequence_numbers_check_rx(packet->seq) ){
                 cmd_new(packet->cmd, packet->data);
             }else{
@@ -116,4 +141,15 @@ void bus_sendAck(bool success)
 
     bus_sendPacket(&p);
 }
+
+uint32_t bus_get_accepted_packets(void)
+{
+    return bus_accepted_packets;
+}
+
+uint32_t bus_get_rejected_packets(void)
+{
+    return bus_rejected_packets;
+}
+
 

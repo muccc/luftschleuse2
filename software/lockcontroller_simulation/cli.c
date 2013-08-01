@@ -22,6 +22,7 @@
 #include "door-config.h"
 #include "sequence_numbers.h"
 #include "eeprom-mock.h"
+#include "bus_process.h"
 
 #include <ncurses.h>
 #include <string.h>
@@ -55,13 +56,13 @@ void cli_init(void)
     row = 0;
     move(row + 0, 20); printw(DOOR_NAME);
 
-    row = 4;
+    row = 5;
     move(row + 0,15); printw("Press 'D' to toggle the open button.");
 
-    row = 6;
+    row = 7;
     move(row + 0,0); printw("Desired State: ");
 
-    row = 8;
+    row = 9;
     move(row + 0,0); printw("Press C to toggle DOOR_DOOR_CLOSED: ");
     move(row + 1,0); printw("Press L to toggle DOOR_LOCK_LOCKED: ");
     move(row + 2,0); printw("Press U to toggle DOOR_LOCK_UNLOCKED: ");
@@ -96,10 +97,16 @@ bool cli_get_exit_simulation(void)
 
 static void cli_update_screen(void)
 {
-    uint32_t row = 4;
+    uint32_t row;
+    
+    //for(row = 0; row < 20; row++) {
+    //    move(row,80); printw("X");
+    //}
+
+    row = 5;
     move(row + 0, 55); printw((pressed_buttons & DOOR_BUTTON) ? "<pressed>":"         ");
 
-    row = 8;
+    row = 9;
     move(row + 0, 45); printw((door_state & DOOR_DOOR_CLOSED) ? "<active>":"         ");
     move(row + 1, 45); printw((door_state & DOOR_LOCK_LOCKED) ? "<active>":"         ");
     move(row + 2, 45); printw((door_state & DOOR_LOCK_UNLOCKED) ? "<active>":"         ");
@@ -112,7 +119,7 @@ static void cli_update_screen(void)
     for(led = 0; led < 1; led++){
         switch(led) {
             case 0:
-                move(4, 0);
+                move(5, 0);
             break;
             default:
                 continue;
@@ -143,15 +150,19 @@ static void cli_update_screen(void)
 
     row = 1;
     move(row + 0, 0);
-    printw("Expected RX seq: %6u  ",
+    printw("Expected RX sequence:\t%06u\t",
             sequence_numbers_get_expected_rx());
-    printw("Next TX seq: %6u  ", sequence_numbers_get_tx());
-    printw("Persisted RX seq: %6u  ",
+    printw("Persisted RX sequence:\t%06u",
             sequence_numbers_get_persisted_rx());
     
     move(row + 1, 0);
-    printw("EEPROM write count: %6u  ",
+    printw("EEPROM write count:\t%06u\t",
             eeprom_mock_get_write_counter());
+    printw("Next TX sequence:\t%06u\t", sequence_numbers_get_tx());
+    move(row + 2, 0);
+    printw("Accepted packets:\t%06u\t", bus_get_accepted_packets());
+    printw("Rejected packets:\t%06u", bus_get_rejected_packets());
+
     refresh();			/* Print it on to the real screen */
 }
 
@@ -228,12 +239,12 @@ void cli_updateDesiredState(uint8_t desiredState)
 {
     if( desiredState == DOOR_LOCK_LOCKED ){
         attron(COLOR_PAIR(3));
-        move(6,15); printw("LOCKED  ");
+        move(7,15); printw("LOCKED  ");
         attroff(COLOR_PAIR(3));
     }
     if(desiredState == DOOR_LOCK_UNLOCKED ){
         attron(COLOR_PAIR(1));
-        move(6,15); printw("UNLOCKED");
+        move(7,15); printw("UNLOCKED");
         attroff(COLOR_PAIR(1));
     }
 }

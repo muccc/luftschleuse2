@@ -32,6 +32,7 @@
 #include "bell_process.h"
 #include "sequence_numbers.h"
 
+#include <util/delay.h>
 #include <stdbool.h>
 #include <string.h>
 #include <stdint.h>
@@ -39,6 +40,11 @@
 
 void lockcontroller_init(void)
 {
+    uint16_t i;
+    for(i=0; i < 2000; i++) {
+        _delay_ms(1);
+    }
+
     leds_init();
     buttons_init();
     adc_init();
