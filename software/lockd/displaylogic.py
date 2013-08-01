@@ -78,10 +78,15 @@ class DisplayLogic():
         i = 20
         for door in self._doors.values():
             door_state = ('Unknown', 'yellow')
-            if door.is_locked():
+            # TODO: change colors based on the desired state
+            # of the door.
+            if not door.is_closed():
+                door_state = ('Open', 'green')
+            elif door.is_locked():
                 door_state = ('Locked', 'green')
-            if not door.is_locked():
+            elif not door.is_locked():
                 door_state = ('Unlocked', 'green')
+
             if door.is_timedout():
                 door_state = ('TIMEOUT', 'red')
                 self.attention = True

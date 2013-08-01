@@ -214,6 +214,9 @@ class Door:
     def is_locked(self):
         return self.locked
 
+    def is_closed(self):
+        return self.closed
+
     def is_manual_unlocked(self):
         return self.manual_unlocked
 
