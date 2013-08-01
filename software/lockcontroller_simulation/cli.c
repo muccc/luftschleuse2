@@ -30,6 +30,8 @@ static uint8_t door_state;
 
 #define DOOR_BUTTON     (1<<0)
 
+static void cli_update_screen(void);
+
 void cli_init(void)
 {	
 	initscr();			/* Start curses mode 		  */
@@ -54,7 +56,22 @@ void cli_init(void)
     move(10,0); printw("Press H to toggle DOOR_HANDLE_PRESSED: ");
 
     pressed_buttons = 0;
-    door_state = 0;
+    door_state = DOOR_DOOR_CLOSED | DOOR_LOCK_LOCKED;
+    cli_update_screen();
+}
+
+static void cli_update_screen(void)
+{
+    move(1, 55); printw((pressed_buttons & DOOR_BUTTON) ? "<pressed>":"         ");
+    move(4, 45); printw((door_state & DOOR_DOOR_CLOSED) ? "<active>":"         ");
+    move(5, 45); printw((door_state & DOOR_LOCK_LOCKED) ? "<active>":"         ");
+    move(6, 45); printw((door_state & DOOR_LOCK_UNLOCKED) ? "<active>":"         ");
+    move(7, 45); printw((door_state & DOOR_LOCK_LOCKING) ? "<active>":"         ");
+    move(8, 45); printw((door_state & DOOR_LOCK_UNLOCKING) ? "<active>":"         ");
+    move(9, 45); printw((door_state & DOOR_LOCK_MANUAL_UNLOCKED) ? "<active>":"         ");
+    move(10, 45); printw((door_state & DOOR_HANDLE_PRESSED) ? "<active>":"         ");
+
+    refresh();			/* Print it on to the real screen */
 }
 
 void cli_process(void)
@@ -89,19 +106,9 @@ void cli_process(void)
             case 'h':
                 door_state ^= DOOR_HANDLE_PRESSED;
             break;
-
+            cli_update_screen();
         }
 
-        move(1, 55); printw((pressed_buttons & DOOR_BUTTON) ? "<pressed>":"         ");
-        move(4, 45); printw((door_state & DOOR_DOOR_CLOSED) ? "<active>":"         ");
-        move(5, 45); printw((door_state & DOOR_LOCK_LOCKED) ? "<active>":"         ");
-        move(6, 45); printw((door_state & DOOR_LOCK_UNLOCKED) ? "<active>":"         ");
-        move(7, 45); printw((door_state & DOOR_LOCK_LOCKING) ? "<active>":"         ");
-        move(8, 45); printw((door_state & DOOR_LOCK_UNLOCKING) ? "<active>":"         ");
-        move(9, 45); printw((door_state & DOOR_LOCK_MANUAL_UNLOCKED) ? "<active>":"         ");
-        move(10, 45); printw((door_state & DOOR_HANDLE_PRESSED) ? "<active>":"         ");
-
-        refresh();			/* Print it on to the real screen */
     }
 }
 
