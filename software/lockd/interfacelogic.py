@@ -17,15 +17,22 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import logging
+import time
 
 class InterfaceLogic():
     def __init__(self, led_controller):
         self.led_controller = led_controller
+        self.t0 = time.time()
+        self.state_cache = None
 
     def tick(self):
-        pass
+        if time.time() - self.t0 > 5:
+            if self.state_cache:
+                self.update_state(self.state_cache)
+            self.t0 = time.time()
 
     def update_state(self, state):
+        self.state_cache = state
         tainted = state.is_state_tainted()
 
         if state.state == state.State.DOWN:
