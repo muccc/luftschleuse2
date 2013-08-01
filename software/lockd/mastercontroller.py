@@ -51,7 +51,7 @@ class MasterController:
             self.logger.warning("The received message is not 16 bytes long")
     	    return
 
-        self.logger.debug("Decoded message: %s"%str(list(message)))
+        #self.logger.debug("Decoded message: %s"%str(list(message)))
         
         p = Packet.fromMessage(message)
         if p.cmd == ord('S'):
@@ -84,7 +84,7 @@ class MasterController:
         return state
 
     def tick(self):
-        self.logger.debug('master: tick')
+        #self.logger.debug('master: tick')
         if time.time() - self.timestamp > .5:
             self._send_command(ord('S'), '')
             self.timestamp = time.time()
