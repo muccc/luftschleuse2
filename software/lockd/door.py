@@ -52,22 +52,24 @@ class Door:
         self.config_file = config.get(name, 'sequence_number_container_file')
 
         self.interface = interface
+        
         self.persisted_min_rx_seq = self.read_rx_sequence_number_from_container()
-
         self.min_rx_seq = self.persisted_min_rx_seq
+        
+        self.buttons = buttons
+
+        self.input_queue = input_queue
+        
         self.closed = False
         self.locked = False
         self.unlocked = False
+        self.manual_unlocked = False
         self.supply_voltage = 0
-        self.relock_time = 0
         self.desired_state = Door.LOCK_LOCKED
         self.pressed_buttons = 0
         self.periodic_timeout = time.time() + 1;
         self.state_listeners = set()
-        self.manual_unlocked = False
-        self.input_queue = input_queue
         self._old_state = None
-        self.buttons = buttons
         self.timedout = True
         self.status_update_timestamp = time.time()
         self.bad_key = False
