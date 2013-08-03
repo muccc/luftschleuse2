@@ -17,8 +17,8 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from struct import pack, unpack
-from aes import AES
 import logging
+from Crypto.Cipher import AES
 
 class Packet:
     '''
@@ -39,15 +39,13 @@ class Packet:
         self.cmd = cmd
         self.data = data
         self.seq_sync = seq_sync
-        self.aes = AES()
     
     @classmethod
     def fromMessage(cls, message, key = None):
         if key:
-            aes = AES()
-            message = aes.decrypt([ord(x) for x in message], key,
-                    AES.keySize["SIZE_128"])
-            message = ''.join([chr(x) for x in message])
+            key = ''.join([chr(k) for k in key])
+            aes = AES.new(key, AES.MODE_ECB)
+            message = aes.decrypt(message)
             logging.getLogger('logger').debug("Decoded message: %s"%str(list(message)))
            
         seq, cmd, data, magic = unpack(cls.msgformat, message[0:16])
@@ -67,9 +65,9 @@ class Packet:
             magic = self.magic
         message = pack(self.msgformat, self.seq, self.cmd, self.data, magic)
         if key:
-            message = self.aes.encrypt([ord(x) for x in message], key,
-                    AES.keySize["SIZE_128"])
-            message = ''.join([chr(x) for x in message])
+            key = ''.join([chr(k) for k in key])
+            aes = AES.new(key, AES.MODE_ECB)
+            message = aes.encrypt(message)
 
         return message
 
