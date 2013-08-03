@@ -70,3 +70,6 @@ nosetests.xml
 *.s#*
 
 *.dep
+lockcontroller_simulator
+lockcontroller_simulator
+
