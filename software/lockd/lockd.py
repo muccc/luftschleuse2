@@ -19,8 +19,6 @@
 import ConfigParser
 import serialinterface
 import sys
-import time
-import packet
 from door import Door
 from mastercontroller import MasterController
 from command import UDPCommand
@@ -167,16 +165,6 @@ class Lockd:
         if self.display_controller != None:
             self.display_logic.tick()
             self.display_controller.tick()
-        ''' 
-        all_locked = True
-        for d in self.doors:
-            if not self.doors[d].locked:
-                all_locked = False
-        if all_locked:
-            self.logger.debug("All doors locked")
-        else:
-            self.logger.debug("NOT all doors locked")
-        '''
 
 if __name__ == '__main__':
     config = ConfigParser.RawConfigParser()
@@ -184,7 +172,20 @@ if __name__ == '__main__':
     config.read(config_file)
 
     logger = logging.getLogger('logger')
-    logger.setLevel(logging.DEBUG)
+
+    logger_level = config.get('Logging', 'level')
+    if logger_level == 'debug':
+        logger.setLevel(logging.DEBUG)
+    elif logger_level == 'info':
+        logger.setLevel(logging.INFO)
+    elif logger_level == 'warning':
+        logger.setLevel(logging.WARNING)
+    elif logger_level == 'error':
+        logger.setLevel(logging.ERROR)
+    elif logger_level == 'fatal':
+        logger.setLevel(logging.FATAL)
+    else:
+        logger.setLevel(logging.ERROR)
 
     logger_host = config.get('Logging', 'host')
     logger_port = int(config.get('Logging', 'port'))
