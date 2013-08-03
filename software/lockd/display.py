@@ -92,12 +92,6 @@ class Display:
         msg += ''.join([chr(x) for x in data])
         self._interface.writeMessage(self.priority, chr(0xFE), msg, self.tx_msg_queue)
 
-    def _count_pixels(self, pixel_data):
-        pixels = 0
-        for i in range(0, len(pixel_data), 2):
-            pixels += ord(pixel_data[i])>>4
-        return pixels
-
     def _start_stream(self):
         self._command(0x01)
         
@@ -105,8 +99,6 @@ class Display:
         multi = 16
         for i in range(0, len(pixel_data), multi):
             self._interface.writeMessage(self.priority, chr(0xFF), pixel_data[i:i+multi], self.tx_msg_queue)
-            time.sleep(self._count_pixels(pixel_data[i:i+multi])*3.5e-5)
-            pass
 
     def _stream_raw(self, raw_data):
         for i in range(0, len(raw_data), 120):
