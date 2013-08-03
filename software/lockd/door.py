@@ -113,12 +113,8 @@ class Door:
 
         self.logger.debug("%s: Done" % (self.name))
 
-    def unlock(self, relock_timeout=0):
+    def unlock(self):
         self.desired_state = Door.LOCK_UNLOCKED
-        if relock_timeout:
-            self.relock_time = int(time.time() + relock_timeout)
-        else:
-            self.relock_time = 0
 
     def lock(self):
         self.desired_state = Door.LOCK_LOCKED
@@ -307,12 +303,6 @@ class Door:
         return state
 
     def tick(self):
-        if self.relock_time:
-            if time.time() > self.relock_time:
-                self.logger.info("%s: relock time is over, locking the door again"%self.name)
-                self.desired_state = Door.LOCK_LOCKED
-                self.relock_time = 0
-
         if time.time() > self.periodic_timeout:
             self.periodic_timeout = time.time() + 1/3.
             self._send_command(ord('D'), chr(self.desired_state))

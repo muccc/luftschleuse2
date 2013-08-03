@@ -275,23 +275,6 @@ class DoorTest(unittest.TestCase):
         query = packet.Packet(1, ord('D'), '\x02\x00\x00\x00\x00', False)
         self.interface.writeMessage.assert_called_with(self.door.priority, 'A', query.toMessage(self.key), self.door.tx_msg_queue)
  
-    @patch('time.time')
-    def test_timed_relock(self, time_mock):
-        time_mock.return_value = self.t0
-        self.door.unlock(20)
-
-        time_mock.return_value = self.t0 + 10
-        self.door.tick()
-        # 0x04 is UNLOCKED
-        query = packet.Packet(0, ord('D'), '\x04\x00\x00\x00\x00', False)
-        self.interface.writeMessage.assert_called_with(self.door.priority, 'A', query.toMessage(self.key), self.door.tx_msg_queue)
-        
-        time_mock.return_value = self.t0 + 21
-        self.door.tick()
-        # 0x02 is LOCKED
-        query = packet.Packet(1, ord('D'), '\x02\x00\x00\x00\x00', False)
-        self.interface.writeMessage.assert_called_with(self.door.priority, 'A', query.toMessage(self.key), self.door.tx_msg_queue)
-       
     def test_status_callback(self):
         self.do_not_accept(self.packet_unlocking, self.persisted_min_rx_seq)
         self.callback.assert_called_with(self.door)
