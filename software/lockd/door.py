@@ -21,6 +21,7 @@ import time
 import logging
 from doorlogic import DoorLogic
 import ConfigParser
+import Queue
 
 class Door:
     DOOR_CLOSED        = (1<<0)
@@ -74,6 +75,8 @@ class Door:
         self.locking = False 
         self.unlocking = False
         self.handle_pressed = False
+        self.priority = 10
+        self.tx_msg_queue = Queue.Queue()
 
 
     def read_rx_sequence_number_from_container(self):
@@ -153,7 +156,7 @@ class Door:
 
             self.logger.debug('%s: Msg to door: %s' %
                     (self.name, list(p.toMessage())))
-            self.interface.writeMessage(self.address, msg)
+            self.interface.writeMessage(self.priority, self.address, msg, self.tx_msg_queue)
             return False
         
         self._set_wrong_rx_seq(False)
@@ -324,6 +327,6 @@ class Door:
         msg = p.toMessage(key = self.key)
 
         self.logger.debug('%s Msg to door: %s'%(self.name, list(p.toMessage())))
-        self.interface.writeMessage(self.address, msg)
+        self.interface.writeMessage(self.priority, self.address, msg, self.tx_msg_queue)
         self.tx_seq += 1
 

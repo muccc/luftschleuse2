@@ -23,9 +23,14 @@ import time
 import logging
 import socket
 import select
+import threading
+import Queue
 
-class SerialInterface:
+class SerialInterface(threading.Thread):
     def  __init__ ( self, path2device, baudrate, timeout=0):
+      threading.Thread.__init__(self)    
+      self.logger = logging.getLogger('logger')
+
       self.portopen = False
       self.dummy = False
       self.udp = False
@@ -44,9 +49,6 @@ class SerialInterface:
             self.sock.bind(('127.0.0.1', 31000))
             self.txtarget = ('127.0.0.1', 32000)
             self.sock.setblocking(0)
-            
-
-      self.logger = logging.getLogger('logger')
 
       while not self.portopen:
         try:
@@ -67,12 +69,44 @@ class SerialInterface:
 
       self.logger.info("Opened %s"%path2device)
 
+      self.input_queue = Queue.PriorityQueue()
+
+      self.setDaemon(True)
+      self.start()
+
+    def run(self):
+        while True:
+            (priority, queue) = self.input_queue.get()
+            if queue.empty():
+                continue
+
+            msg = queue.get()
+            #print 'writing %s' % list(msg)
+            #self.logger.debug('writing %s' % list(msg))
+
+            if self.udp:
+                self.sock.sendto(msg, self.txtarget)
+                continue
+
+            if self.dummy:
+                continue
+
+            try:
+                self.ser.write(msg)
+                # Hack to avoid collisions, needs to be
+                # convertet to some sort of queue management
+                #time.sleep(.05)
+            except :
+                pass
+                #self.reinit()
+ 
     def close(self):
         try:
             self.portopen = False
             self.ser.close()
         except serial.SerialException:
             pass
+
     def reinit(self):
         self.close()
         self.logger.warning("reopening")
@@ -81,33 +115,13 @@ class SerialInterface:
             time.sleep(1)
         self.logger.debug("done")
 
-    def writeMessage(self,command,message):
+    def writeMessage(self, priority, command, message, queue):
         enc = "\\"+ command + message.replace('\\','\\\\') + "\\9";
-        #print 'writing %s' % list(enc)
-        #self.logger.debug('writing %s' % list(enc))
+        self.write(priority, enc, queue)
 
-        if self.udp:
-            self.sock.sendto(enc, self.txtarget)
-            return
-
-        try:
-            self.ser.write(enc)
-            # Hack to avoid collisions, needs to be
-            # convertet to some sort of queue management
-            #time.sleep(.05)
-        except :
-            pass
-            #self.reinit()
-
-
-    def write(self,message):
-        self.logger.debug('writing %s'%list(message))
-        if self.dummy:
-            return
-        try:
-            self.ser.write(message)
-        except :
-            self.reinit()
+    def write(self, priority, data, queue):
+        queue.put(data)
+        self.input_queue.put((priority, queue))
 
     def readMessage(self):
         data = ""

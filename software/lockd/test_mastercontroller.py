@@ -75,15 +75,15 @@ class MasterControllerTest(unittest.TestCase):
     def test_leds(self):
         self.master.set_led('LED0', self.master.LedState.OFF)
         p = packet.Packet(0, ord('L'), '\x00\x01\x00\x00\x00', False)
-        self.interface.writeMessage.assert_called_with('0', p.toMessage())
+        self.interface.writeMessage.assert_called_with(self.master.priority, '0', p.toMessage(), self.master.tx_msg_queue)
 
         self.master.set_led('LED1', self.master.LedState.OFF)
         p = packet.Packet(0, ord('L'), '\x01\x01\x00\x00\x00', False)
-        self.interface.writeMessage.assert_called_with('0', p.toMessage())
+        self.interface.writeMessage.assert_called_with(self.master.priority, '0', p.toMessage(), self.master.tx_msg_queue)
 
         self.master.set_led('LED1', self.master.LedState.ON)
         p = packet.Packet(0, ord('L'), '\x01\x00\x00\x00\x00', False)
-        self.interface.writeMessage.assert_called_with('0', p.toMessage())
+        self.interface.writeMessage.assert_called_with(self.master.priority, '0', p.toMessage(), self.master.tx_msg_queue)
     
     @patch('time.time')
     def test_tick(self, time_mock):
@@ -95,10 +95,10 @@ class MasterControllerTest(unittest.TestCase):
         self.interface.writeMessage.assert_not_called()
         time_mock.return_value = self.t0 + .6
         self.master.tick()
-        self.interface.writeMessage.assert_called_once_with('0', query.toMessage())
+        self.interface.writeMessage.assert_called_once_with(self.master.priority, '0', query.toMessage(), self.master.tx_msg_queue)
         time_mock.return_value = self.t0 + .9
         self.master.tick()
-        self.interface.writeMessage.assert_called_once_with('0', query.toMessage())
+        self.interface.writeMessage.assert_called_once_with(self.master.priority, '0', query.toMessage(), self.master.tx_msg_queue)
         time_mock.return_value = self.t0 + 1.3
         self.master.tick()
         self.assertEqual(self.interface.writeMessage.call_count, 2)

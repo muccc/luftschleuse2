@@ -19,6 +19,7 @@
 import time
 import logging
 from PIL import Image
+import Queue
 
 class Display:
     def __init__(self, interface, x=98, y=70):
@@ -28,8 +29,13 @@ class Display:
         self.Y = y
     
         self._image = Image.new("RGB", (x,y), (0,0,0))
+        
+        self.priority = 100
+
+        self.tx_msg_queue = Queue.Queue()
 
         self.reset()
+        
     
     def __getattr__(self, name):
         return getattr(self._image, name)
@@ -84,7 +90,7 @@ class Display:
     def _command(self, cmd, data = []):
         msg = "%c"%chr(cmd)
         msg += ''.join([chr(x) for x in data])
-        self._interface.writeMessage(chr(0xFE), msg)
+        self._interface.writeMessage(self.priority, chr(0xFE), msg, self.tx_msg_queue)
 
     def _count_pixels(self, pixel_data):
         pixels = 0
@@ -98,13 +104,13 @@ class Display:
     def _stream(self, pixel_data):
         multi = 16
         for i in range(0, len(pixel_data), multi):
-            self._interface.writeMessage(chr(0xFF), pixel_data[i:i+multi])
+            self._interface.writeMessage(self.priority, chr(0xFF), pixel_data[i:i+multi], self.tx_msg_queue)
             time.sleep(self._count_pixels(pixel_data[i:i+multi])*3.5e-5)
             pass
 
     def _stream_raw(self, raw_data):
         for i in range(0, len(raw_data), 120):
-            self._interface.writeMessage(chr(0xFD), raw_data[i:i+120])
+            self._interface.writeMessage(self.priority, chr(0xFD), raw_data[i:i+120], self.tx_msg_queue)
 
     def _stop_stream(self):
         self._command(0x02)

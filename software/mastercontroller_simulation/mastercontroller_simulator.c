@@ -36,6 +36,10 @@ int main()
     while(1) {
         for(i = 0; i < 5; i++) { 
             mastercontroller_process();
+            mastercontroller_process();
+            mastercontroller_process();
+            mastercontroller_process();
+            mastercontroller_process();
             usleep(200);
         }
         mastercontroller_tick();

@@ -179,21 +179,21 @@ class Lockd:
         '''
 
 if __name__ == '__main__':
+    config = ConfigParser.RawConfigParser()
+    config_file = sys.argv[1]
+    config.read(config_file)
+
+    logger = logging.getLogger('logger')
+    logger.setLevel(logging.DEBUG)
+
+    logger_host = config.get('Logging', 'host')
+    logger_port = int(config.get('Logging', 'port'))
+
+    handler = logging.handlers.SysLogHandler(address = (logger_host, logger_port), facility=19)
+
+    logger.addHandler(handler)
+
     try:
-        config = ConfigParser.RawConfigParser()
-        config_file = sys.argv[1]
-        config.read(config_file)
-
-        logger = logging.getLogger('logger')
-        logger.setLevel(logging.DEBUG)
-
-        logger_host = config.get('Logging', 'host')
-        logger_port = int(config.get('Logging', 'port'))
-
-        handler = logging.handlers.SysLogHandler(address = (logger_host, logger_port), facility=19)
-
-        logger.addHandler(handler)
-
         lockd = Lockd(config)
 
         while True:

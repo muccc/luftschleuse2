@@ -21,6 +21,7 @@ from packet import Packet
 import time
 import logging
 from doorlogic import DoorLogic
+import Queue
 
 class MasterController:
     class LedState:
@@ -45,6 +46,10 @@ class MasterController:
         self.input_queue = input_queue
         
         self.timestamp = time.time()
+
+        self.priority = 50
+        
+        self.tx_msg_queue = Queue.Queue()
 
     def update(self, message):
     	if len(message) != 16:
@@ -98,5 +103,5 @@ class MasterController:
         msg = p.toMessage()
 
         self.logger.debug('Msg to mastercontroller: %s'%list(msg))
-        self.interface.writeMessage(self.address, msg)
+        self.interface.writeMessage(self.priority, self.address, msg, self.tx_msg_queue)
 
