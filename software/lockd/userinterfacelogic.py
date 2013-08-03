@@ -19,7 +19,7 @@
 import logging
 import time
 
-class InterfaceLogic():
+class UserInterfaceLogic():
     def __init__(self, led_controller):
         self.led_controller = led_controller
         self.t0 = time.time()

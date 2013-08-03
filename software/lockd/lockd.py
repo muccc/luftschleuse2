@@ -27,7 +27,7 @@ import logging
 import logging.handlers
 import traceback
 from doorlogic import DoorLogic
-from interfacelogic import InterfaceLogic
+from userinterfacelogic import UserInterfaceLogic
 from announce import Announcer
 from display_controller import DisplayController
 from displaylogic import DisplayLogic
@@ -116,7 +116,7 @@ class Lockd:
             self.logger.error('Please specify a self.master controller')
             sys.exit(1)
 
-        self.interface_logic = InterfaceLogic(self.master)
+        self.interface_logic = UserInterfaceLogic(self.master)
         self.logic.add_state_listener(self.interface_logic.update_state)
         
         if display != None:
