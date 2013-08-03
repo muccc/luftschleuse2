@@ -98,18 +98,17 @@ class Door:
         return 0
            
     def write_rx_sequence_number_to_container(self, min_rx_seq):
-        config = ConfigParser.RawConfigParser()
-        config.read(self.config_file)
-        
         self.logger.debug("%s: Writing sequence number: %d" % (self.name, min_rx_seq))
+        config = ConfigParser.RawConfigParser()
 
-        if config.has_section(self.name):
-            if config.has_option(self.name, "rx_sequence"):
-                config.set(self.name, "rx_sequence", min_rx_seq)
-                f = open(self.config_file,'w');
-                config.write(f)
-                f.close()
-                self.logger.debug("%s: Done" % (self.name))
+        config.add_section(self.name)
+        config.set(self.name, "rx_sequence", min_rx_seq)
+
+        f = open(self.config_file,'w');
+        config.write(f)
+        f.close()
+
+        self.logger.debug("%s: Done" % (self.name))
 
     def unlock(self, relock_timeout=0):
         self.desired_state = Door.LOCK_UNLOCKED
