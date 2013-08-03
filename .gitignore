@@ -71,5 +71,7 @@ nosetests.xml
 
 *.dep
 lockcontroller_simulator
-lockcontroller_simulator
+mastercontroller_simulator
+.noseids
+archive
 
