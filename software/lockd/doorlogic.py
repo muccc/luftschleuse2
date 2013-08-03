@@ -68,7 +68,7 @@ class DoorLogic():
                     self.set_state(self.State.DOWN)
 
         if origin_type == self.Origin.DOOR:
-            if input_type == self.Input.BUTTON:
+            if input_type == self.Input.BUTTON and input_value == True:
                 if input_name == 'manual_control':
                     if self.state == self.State.PUBLIC:
                         self.lock('all')

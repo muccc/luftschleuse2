@@ -113,6 +113,32 @@ class DoorLogicTest(unittest.TestCase):
                                 True)
         self.assertEqual(self.doorlogic.get_state_as_string(), 'member')
 
+    def test_manual_open(self):
+        door = mock.MagicMock()
+        door.is_locked = mock.MagicMock(return_value = True)
+        door.name = 'Door'
+        self.doorlogic.add_door(door)
+
+        self.press_button('down')
+        self.assertEquals(door.lock.call_count, 1)
+        
+        self.doorlogic.policy("Door",
+                                doorlogic.DoorLogic.Origin.DOOR,
+                                'manual_control',
+                                doorlogic.DoorLogic.Input.BUTTON,
+                                True)
+        
+        door.is_locked = mock.MagicMock(return_value = False)
+        self.doorlogic.policy("Door",
+                                doorlogic.DoorLogic.Origin.DOOR,
+                                'manual_control',
+                                doorlogic.DoorLogic.Input.BUTTON,
+                                False)
+
+        door.unlock.assert_called_once()
+        self.assertEquals(door.lock.call_count, 1)
+
+
     def test_bell_code_opens_door(self):
         door = mock.MagicMock()
         door.name = 'Door'
