@@ -130,7 +130,6 @@ bool bell_isAccepted(void)
 
   --beeps;
 
-  printf("Found %d beeps.\n",beeps);
   if(beeps != strlen(code))
     return(false);
 
@@ -144,7 +143,6 @@ bool bell_isAccepted(void)
     int16_t slong = 0;
     int16_t sslong = 0;
 
-    printf("Trying %dth boundary %d\n",boundary, times[boundary]);
     for(beep = 0; beep < beeps; beep++){
       if(times[beep] <= times[boundary]){
 	++nshort;
@@ -176,20 +174,12 @@ bool bell_isAccepted(void)
   
   for(beep=0; beep < beeps; beep++){
     if(times[beep] <= best_boundary){
-      if(code[beep] != '.'){
+      if(code[beep] != '.')
 	matches = false;
-	printf(". does not match code!\n");
-      }
-      else
-	printf(". matches code\n");
     }
     else{
-      if(code[beep] != '-'){
+      if(code[beep] != '-')
 	matches = false;
-	printf("- does not match code!\n");
-      }
-      else
-	printf("- matches code\n");
     } 
   }
   
