@@ -47,7 +47,6 @@ enum {
 
 static void door_startLock(void)
 {
-    //PIN_SET(R1);
     PIN_SET(DOOR_HBRIDGE_IN1);
     PIN_SET(DOOR_HBRIDGE_ENABLE);
 }
@@ -90,9 +89,6 @@ void door_init(void)
     DDR_CONFIG_IN(DOOR_LOCK_CONTACT);
     PIN_SET(DOOR_LOCK_CONTACT);
     
-    //PIN_CLEAR(R1);
-    //DDR_CONFIG_OUT(R1);
-
     door_desiredState = DOOR_LOCK_LOCKED;
     door_barState = BAR_UNKNOWN;
     door_state = DOOR_LOCK;

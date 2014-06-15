@@ -61,9 +61,6 @@
 #define DOOR_LOCK_CONTACT_PORT              B
 #define DOOR_LOCK_CONTACT_PIN               3
 
-#define R1_PORT C
-#define R1_PIN  7
-
 typedef enum {
     DOOR_CMD_LOCK=0,
     DOOR_CMD_UNLOCK=1,
