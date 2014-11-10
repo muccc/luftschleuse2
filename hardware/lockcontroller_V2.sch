@@ -17980,26 +17980,26 @@ Source: http://catalog.osram-os.com .. LG_LS_LY_T679_OBS.pdf</description>
 <part name="K1" library="relay" deviceset="G2R" device=""/>
 <part name="IC1" library="atmel" deviceset="ATMEGA644" device="A"/>
 <part name="IC4" library="maxim" deviceset="MAX705CSA" device=""/>
-<part name="Q1" library="crystal" deviceset="CRYSTAL" device="HC49S"/>
-<part name="C1" library="rcl" deviceset="C-EU" device="C0603"/>
-<part name="C2" library="rcl" deviceset="C-EU" device="C0603"/>
-<part name="C3" library="rcl" deviceset="C-EU" device="C0603"/>
-<part name="C4" library="rcl" deviceset="C-EU" device="C0603"/>
-<part name="C5" library="rcl" deviceset="C-EU" device="C0603"/>
-<part name="C6" library="rcl" deviceset="C-EU" device="C0603"/>
-<part name="C7" library="rcl" deviceset="C-EU" device="C0603"/>
-<part name="C8" library="rcl" deviceset="C-EU" device="C0603"/>
-<part name="C9" library="rcl" deviceset="C-EU" device="C0603"/>
-<part name="C10" library="rcl" deviceset="C-EU" device="C0603"/>
-<part name="C11" library="rcl" deviceset="C-EU" device="C0603"/>
-<part name="C12" library="rcl" deviceset="C-EU" device="C0603"/>
+<part name="Q1" library="crystal" deviceset="CRYSTAL" device="HC49S" value="16MHz"/>
+<part name="C1" library="rcl" deviceset="C-EU" device="C0603" value="22p"/>
+<part name="C2" library="rcl" deviceset="C-EU" device="C0603" value="22p"/>
+<part name="C3" library="rcl" deviceset="C-EU" device="C0603" value="100n"/>
+<part name="C4" library="rcl" deviceset="C-EU" device="C0603" value="100n"/>
+<part name="C5" library="rcl" deviceset="C-EU" device="C0603" value="100n"/>
+<part name="C6" library="rcl" deviceset="C-EU" device="C0603" value="100n"/>
+<part name="C7" library="rcl" deviceset="C-EU" device="C0603" value="100p"/>
+<part name="C8" library="rcl" deviceset="C-EU" device="C0603" value="100p"/>
+<part name="C9" library="rcl" deviceset="C-EU" device="C0603" value="100p"/>
+<part name="C10" library="rcl" deviceset="C-EU" device="C0603" value="100p"/>
+<part name="C11" library="rcl" deviceset="C-EU" device="C0603" value="100p"/>
+<part name="C12" library="rcl" deviceset="C-EU" device="C0603" value="100p"/>
 <part name="R1" library="rcl" deviceset="R-EU_" device="R0603" value="1K"/>
-<part name="R2" library="rcl" deviceset="R-EU_" device="R0603"/>
-<part name="R3" library="rcl" deviceset="R-EU_" device="R0603"/>
+<part name="R2" library="rcl" deviceset="R-EU_" device="R0603" value="nf"/>
+<part name="R3" library="rcl" deviceset="R-EU_" device="R0603" value="nf"/>
 <part name="R4" library="rcl" deviceset="R-EU_" device="R0603" value="150R"/>
 <part name="R5" library="rcl" deviceset="R-EU_" device="R0603" value="1K"/>
-<part name="R6" library="rcl" deviceset="R-EU_" device="R0603"/>
-<part name="R7" library="rcl" deviceset="R-EU_" device="R0603"/>
+<part name="R6" library="rcl" deviceset="R-EU_" device="R0603" value="4K7"/>
+<part name="R7" library="rcl" deviceset="R-EU_" device="R0603" value="4K7"/>
 <part name="R8" library="rcl" deviceset="R-EU_" device="R0603" value="1K"/>
 <part name="SUPPLY1" library="supply2" deviceset="+5V" device=""/>
 <part name="SUPPLY2" library="supply2" deviceset="+5V" device=""/>
@@ -18029,28 +18029,28 @@ Source: http://catalog.osram-os.com .. LG_LS_LY_T679_OBS.pdf</description>
 <part name="SUPPLY28" library="supply2" deviceset="GND" device=""/>
 <part name="SUPPLY29" library="supply2" deviceset="GND" device=""/>
 <part name="SUPPLY30" library="supply2" deviceset="GND" device=""/>
-<part name="L1" library="rcl" deviceset="L-US" device="0603"/>
-<part name="L2" library="rcl" deviceset="L-US" device="0603"/>
-<part name="L3" library="rcl" deviceset="L-US" device="0603"/>
-<part name="L4" library="rcl" deviceset="L-US" device="0603"/>
-<part name="L5" library="rcl" deviceset="L-US" device="0603"/>
-<part name="L6" library="rcl" deviceset="L-US" device="0603"/>
-<part name="L7" library="rcl" deviceset="L-US" device="0603"/>
-<part name="L8" library="rcl" deviceset="L-US" device="0603"/>
-<part name="C13" library="rcl" deviceset="C-EU" device="C0603"/>
-<part name="C14" library="rcl" deviceset="C-EU" device="C0603"/>
+<part name="L1" library="rcl" deviceset="L-US" device="0603" value="100R"/>
+<part name="L2" library="rcl" deviceset="L-US" device="0603" value="100R"/>
+<part name="L3" library="rcl" deviceset="L-US" device="0603" value="100R"/>
+<part name="L4" library="rcl" deviceset="L-US" device="0603" value="100R"/>
+<part name="L5" library="rcl" deviceset="L-US" device="0603" value="100R"/>
+<part name="L6" library="rcl" deviceset="L-US" device="0603" value="100R"/>
+<part name="L7" library="rcl" deviceset="L-US" device="0603" value="100R"/>
+<part name="L8" library="rcl" deviceset="L-US" device="0603" value="100R"/>
+<part name="C13" library="rcl" deviceset="C-EU" device="C0603" value="100p"/>
+<part name="C14" library="rcl" deviceset="C-EU" device="C0603" value="100p"/>
 <part name="SUPPLY31" library="supply2" deviceset="GND" device=""/>
-<part name="L9" library="rcl" deviceset="L-US" device="0603"/>
-<part name="L10" library="rcl" deviceset="L-US" device="0603"/>
-<part name="C15" library="rcl" deviceset="C-EU" device="C0603"/>
-<part name="C16" library="rcl" deviceset="C-EU" device="C0603"/>
+<part name="L9" library="rcl" deviceset="L-US" device="0603" value="100R"/>
+<part name="L10" library="rcl" deviceset="L-US" device="0603" value="100R"/>
+<part name="C15" library="rcl" deviceset="C-EU" device="C0603" value="100p"/>
+<part name="C16" library="rcl" deviceset="C-EU" device="C0603" value="100p"/>
 <part name="SUPPLY32" library="supply2" deviceset="GND" device=""/>
 <part name="SUPPLY33" library="supply2" deviceset="GND" device=""/>
 <part name="K2" library="relay" deviceset="G2R" device=""/>
 <part name="X3" library="con-phoenix-508" deviceset="MKDSN1,5/3-5,08" device="" value=""/>
 <part name="C17" library="rcl" deviceset="C-EU" device="C1206" value="10n"/>
 <part name="C18" library="rcl" deviceset="C-EU" device="C1206" value="10n"/>
-<part name="C19" library="rcl" deviceset="C-EU" device="C0603"/>
+<part name="C19" library="rcl" deviceset="C-EU" device="C0603" value="100n"/>
 <part name="SUPPLY34" library="supply2" deviceset="GND" device=""/>
 <part name="SUPPLY35" library="supply2" deviceset="GND" device=""/>
 <part name="SUPPLY36" library="supply2" deviceset="GND" device=""/>
@@ -18061,8 +18061,8 @@ Source: http://catalog.osram-os.com .. LG_LS_LY_T679_OBS.pdf</description>
 <part name="SUPPLY41" library="supply2" deviceset="GND" device=""/>
 <part name="C20" library="rcl" deviceset="C-EU" device="C1206" value="22n"/>
 <part name="R9" library="rcl" deviceset="R-EU_" device="R1206" value="10R"/>
-<part name="Q2" library="semicon-smd-ipc" deviceset="NPN-TRANSISTOR_" device="SOT23"/>
-<part name="Q3" library="semicon-smd-ipc" deviceset="NPN-TRANSISTOR_" device="SOT23"/>
+<part name="Q2" library="semicon-smd-ipc" deviceset="NPN-TRANSISTOR_" device="SOT23" value="BC847"/>
+<part name="Q3" library="semicon-smd-ipc" deviceset="NPN-TRANSISTOR_" device="SOT23" value="BC847"/>
 <part name="SUPPLY42" library="supply2" deviceset="GND" device=""/>
 <part name="SUPPLY43" library="supply2" deviceset="GND" device=""/>
 <part name="SUPPLY44" library="supply2" deviceset="+12V" device=""/>
@@ -18073,8 +18073,8 @@ Source: http://catalog.osram-os.com .. LG_LS_LY_T679_OBS.pdf</description>
 <part name="IC5" library="microchip" deviceset="MC15*" device="TT" technology="25" value="REF3040"/>
 <part name="SUPPLY49" library="supply2" deviceset="GND" device=""/>
 <part name="SUPPLY50" library="supply2" deviceset="GND" device=""/>
-<part name="C21" library="rcl" deviceset="C-EU" device="C0603"/>
-<part name="C22" library="rcl" deviceset="C-EU" device="C0603"/>
+<part name="C21" library="rcl" deviceset="C-EU" device="C0603" value="100n"/>
+<part name="C22" library="rcl" deviceset="C-EU" device="C0603" value="100n"/>
 <part name="SUPPLY51" library="supply2" deviceset="GND" device=""/>
 <part name="IC6" library="national-semiconductor" deviceset="LM2594" device=""/>
 <part name="C23" library="rcl" deviceset="C-EU" device="C1210" value="10u"/>
@@ -18105,16 +18105,16 @@ Source: http://catalog.osram-os.com .. LG_LS_LY_T679_OBS.pdf</description>
 <part name="R13" library="rcl" deviceset="R-EU_" device="R0603" value="4K7"/>
 <part name="SUPPLY68" library="supply2" deviceset="+5V" device=""/>
 <part name="SUPPLY69" library="supply2" deviceset="+5V" device=""/>
-<part name="R14" library="rcl" deviceset="R-EU_" device="R0603"/>
-<part name="R15" library="rcl" deviceset="R-EU_" device="R0603"/>
-<part name="D4" library="semicon-smd-ipc" deviceset="D-" device="MLL-34"/>
-<part name="D5" library="semicon-smd-ipc" deviceset="D-" device="MLL-34"/>
+<part name="R14" library="rcl" deviceset="R-EU_" device="R0603" value="1K"/>
+<part name="R15" library="rcl" deviceset="R-EU_" device="R0603" value="1K"/>
+<part name="D4" library="semicon-smd-ipc" deviceset="D-" device="MLL-34" value="LL4148"/>
+<part name="D5" library="semicon-smd-ipc" deviceset="D-" device="MLL-34" value="LL4148"/>
 <part name="SUPPLY70" library="supply2" deviceset="+5V" device=""/>
 <part name="FRAME1" library="frames" deviceset="A3L-LOC" device=""/>
-<part name="F1" library="fuse" deviceset="SHK20L" device=""/>
-<part name="D6" library="semicon-smd-ipc" deviceset="DIODE_CA-AC_" device="_"/>
-<part name="D7" library="semicon-smd-ipc" deviceset="DIODE_CA-AC_" device="_"/>
-<part name="D8" library="semicon-smd-ipc" deviceset="DIODE_CA-AC_" device="_"/>
+<part name="F1" library="fuse" deviceset="SHK20L" device="" value="T1A"/>
+<part name="D6" library="semicon-smd-ipc" deviceset="DIODE_CA-AC_" device="_" value="GSOT15C"/>
+<part name="D7" library="semicon-smd-ipc" deviceset="DIODE_CA-AC_" device="_" value="GSOT15C"/>
+<part name="D8" library="semicon-smd-ipc" deviceset="DIODE_CA-AC_" device="_" value="GSOT15C"/>
 <part name="SUPPLY71" library="supply2" deviceset="V+" device=""/>
 <part name="SUPPLY72" library="supply2" deviceset="V+" device=""/>
 <part name="SUPPLY73" library="supply2" deviceset="V+" device=""/>
@@ -18123,8 +18123,8 @@ Source: http://catalog.osram-os.com .. LG_LS_LY_T679_OBS.pdf</description>
 <part name="R16" library="rcl" deviceset="R-EU_" device="R0603" value="100"/>
 <part name="R17" library="rcl" deviceset="R-EU_" device="R0603" value="100"/>
 <part name="SUPPLY74" library="supply2" deviceset="GND" device=""/>
-<part name="D9" library="semicon-smd-ipc" deviceset="D-" device="MLL-34"/>
-<part name="D10" library="semicon-smd-ipc" deviceset="D-" device="MLL-34"/>
+<part name="D9" library="semicon-smd-ipc" deviceset="D-" device="MLL-34" value="LL4148"/>
+<part name="D10" library="semicon-smd-ipc" deviceset="D-" device="MLL-34" value="LL4148"/>
 <part name="SUPPLY75" library="supply2" deviceset="GND" device=""/>
 <part name="SUPPLY76" library="supply2" deviceset="+5V" device=""/>
 <part name="X6" library="con-wago255" deviceset="233-512" device=""/>
@@ -18132,45 +18132,45 @@ Source: http://catalog.osram-os.com .. LG_LS_LY_T679_OBS.pdf</description>
 <part name="X5" library="con-wago255" deviceset="233-506" device=""/>
 <part name="X1" library="con-wago255" deviceset="233-502" device=""/>
 <part name="SUPPLY77" library="supply2" deviceset="+5V" device=""/>
-<part name="C27" library="rcl" deviceset="C-EU" device="C0603"/>
+<part name="C27" library="rcl" deviceset="C-EU" device="C0603" value="100n"/>
 <part name="DISPLAY" library="con-lstb" deviceset="MA05-2" device=""/>
 <part name="J3" library="con-amp" deviceset="520250-3" device=""/>
 <part name="X4" library="con-wago" deviceset="233-506" device=""/>
 <part name="X8" library="con-wago" deviceset="233-504" device=""/>
 <part name="SUPPLY78" library="supply2" deviceset="GND" device=""/>
 <part name="X9" library="con-phoenix-508" deviceset="MKDSN1,5/4-5,08" device=""/>
-<part name="F2" library="fuse" deviceset="SHK20L" device=""/>
+<part name="F2" library="fuse" deviceset="SHK20L" device="" value="T1A"/>
 <part name="SUPPLY79" library="supply2" deviceset="GND" device=""/>
-<part name="D2" library="diode" deviceset="SUPPRESSOR-" device="SMBG"/>
-<part name="D1" library="diode" deviceset="SUPPRESSOR-" device="SMBG"/>
+<part name="D2" library="diode" deviceset="SUPPRESSOR-" device="SMBG" value="SS24"/>
+<part name="D1" library="diode" deviceset="SUPPRESSOR-" device="SMBG" value="SS24"/>
 <part name="SUPPLY80" library="supply2" deviceset="GND" device=""/>
 <part name="SUPPLY81" library="supply2" deviceset="+12V" device=""/>
 <part name="SUPPLY61" library="supply2" deviceset="+12V" device=""/>
 <part name="SUPPLY62" library="supply2" deviceset="GND" device=""/>
 <part name="R18" library="rcl" deviceset="R-EU_" device="R0603" value="10K"/>
 <part name="SUPPLY82" library="supply2" deviceset="+5V" device=""/>
-<part name="C28" library="rcl" deviceset="C-EU" device="C0603"/>
+<part name="C28" library="rcl" deviceset="C-EU" device="C0603" value="100n"/>
 <part name="SUPPLY83" library="supply2" deviceset="GND" device=""/>
 <part name="IC7" library="v-reg-micrel" deviceset="MIC5219XX" device=""/>
-<part name="C29" library="rcl" deviceset="C-EU" device="C0603"/>
+<part name="C29" library="rcl" deviceset="C-EU" device="C0603" value="100n"/>
 <part name="R19" library="rcl" deviceset="R-EU_" device="R0603" value="2K2"/>
 <part name="R20" library="rcl" deviceset="R-EU_" device="R0603" value="1K37"/>
-<part name="C30" library="rcl" deviceset="C-EU" device="C0603"/>
+<part name="C30" library="rcl" deviceset="C-EU" device="C0603" value="100n"/>
 <part name="SUPPLY84" library="supply2" deviceset="GND" device=""/>
 <part name="SUPPLY85" library="supply2" deviceset="GND" device=""/>
 <part name="SUPPLY86" library="supply2" deviceset="GND" device=""/>
 <part name="SUPPLY87" library="supply2" deviceset="GND" device=""/>
 <part name="SUPPLY88" library="supply2" deviceset="+5V" device=""/>
-<part name="R21" library="rcl" deviceset="R-EU_" device="R0603"/>
-<part name="R22" library="rcl" deviceset="R-EU_" device="R0603"/>
-<part name="R23" library="rcl" deviceset="R-EU_" device="R0603"/>
-<part name="R24" library="rcl" deviceset="R-EU_" device="R0603"/>
+<part name="R21" library="rcl" deviceset="R-EU_" device="R0603" value="nf"/>
+<part name="R22" library="rcl" deviceset="R-EU_" device="R0603" value="nf"/>
+<part name="R23" library="rcl" deviceset="R-EU_" device="R0603" value="nf"/>
+<part name="R24" library="rcl" deviceset="R-EU_" device="R0603" value="nf"/>
 <part name="SUPPLY89" library="supply2" deviceset="GND" device=""/>
 <part name="SUPPLY90" library="supply2" deviceset="GND" device=""/>
 <part name="SUPPLY91" library="supply2" deviceset="+12V" device=""/>
 <part name="SUPPLY92" library="supply2" deviceset="+5V" device=""/>
 <part name="LED1" library="led" deviceset="*_T679-?-1" device="E1F1" technology="LG"/>
-<part name="R25" library="rcl" deviceset="R-EU_" device="R0603"/>
+<part name="R25" library="rcl" deviceset="R-EU_" device="R0603" value="330R"/>
 <part name="SUPPLY93" library="supply2" deviceset="+5V" device=""/>
 </parts>
 <sheets>
@@ -18201,26 +18201,68 @@ Source: http://catalog.osram-os.com .. LG_LS_LY_T679_OBS.pdf</description>
 <instance part="K1" gate="2" x="53.34" y="218.44" rot="R270"/>
 <instance part="IC1" gate="G$1" x="254" y="99.06" rot="MR0"/>
 <instance part="IC4" gate="G$1" x="327.66" y="132.08" rot="MR0"/>
-<instance part="Q1" gate="G$1" x="292.1" y="124.46" rot="R90"/>
-<instance part="C1" gate="G$1" x="297.18" y="127" rot="R90"/>
-<instance part="C2" gate="G$1" x="297.18" y="121.92" rot="R90"/>
-<instance part="C3" gate="G$1" x="289.56" y="142.24"/>
-<instance part="C4" gate="G$1" x="294.64" y="142.24"/>
-<instance part="C5" gate="G$1" x="299.72" y="142.24"/>
+<instance part="Q1" gate="G$1" x="292.1" y="124.46" smashed="yes" rot="R90">
+<attribute name="NAME" x="289.56" y="125.984" size="1.778" layer="95" rot="R180"/>
+<attribute name="VALUE" x="284.48" y="119.38" size="1.778" layer="96"/>
+</instance>
+<instance part="C1" gate="G$1" x="297.18" y="127" smashed="yes" rot="R90">
+<attribute name="NAME" x="296.799" y="123.444" size="1.778" layer="95" rot="R90"/>
+<attribute name="VALUE" x="301.879" y="123.444" size="1.778" layer="96" rot="R90"/>
+</instance>
+<instance part="C2" gate="G$1" x="297.18" y="121.92" smashed="yes" rot="R90">
+<attribute name="NAME" x="293.624" y="117.221" size="1.778" layer="95"/>
+<attribute name="VALUE" x="298.704" y="117.221" size="1.778" layer="96"/>
+</instance>
+<instance part="C3" gate="G$1" x="289.56" y="142.24" smashed="yes">
+<attribute name="NAME" x="291.084" y="147.701" size="1.778" layer="95"/>
+<attribute name="VALUE" x="291.084" y="145.161" size="1.778" layer="96"/>
+</instance>
+<instance part="C4" gate="G$1" x="294.64" y="142.24" smashed="yes">
+<attribute name="NAME" x="298.704" y="147.701" size="1.778" layer="95"/>
+<attribute name="VALUE" x="298.704" y="145.161" size="1.778" layer="96"/>
+</instance>
+<instance part="C5" gate="G$1" x="299.72" y="142.24" smashed="yes">
+<attribute name="NAME" x="303.784" y="140.081" size="1.778" layer="95"/>
+<attribute name="VALUE" x="303.784" y="137.541" size="1.778" layer="96"/>
+</instance>
 <instance part="C6" gate="G$1" x="312.42" y="154.94"/>
-<instance part="C7" gate="G$1" x="17.78" y="149.86"/>
-<instance part="C8" gate="G$1" x="22.86" y="149.86"/>
-<instance part="C9" gate="G$1" x="27.94" y="149.86"/>
-<instance part="C10" gate="G$1" x="33.02" y="149.86"/>
-<instance part="C11" gate="G$1" x="38.1" y="149.86"/>
-<instance part="C12" gate="G$1" x="43.18" y="149.86"/>
+<instance part="C7" gate="G$1" x="17.78" y="149.86" smashed="yes">
+<attribute name="NAME" x="14.224" y="145.161" size="1.778" layer="95"/>
+<attribute name="VALUE" x="19.939" y="151.384" size="1.778" layer="96" rot="R90"/>
+</instance>
+<instance part="C8" gate="G$1" x="22.86" y="149.86" smashed="yes">
+<attribute name="NAME" x="19.304" y="145.161" size="1.778" layer="95"/>
+<attribute name="VALUE" x="25.019" y="151.384" size="1.778" layer="96" rot="R90"/>
+</instance>
+<instance part="C9" gate="G$1" x="27.94" y="149.86" smashed="yes">
+<attribute name="NAME" x="24.384" y="145.161" size="1.778" layer="95"/>
+<attribute name="VALUE" x="30.099" y="151.384" size="1.778" layer="96" rot="R90"/>
+</instance>
+<instance part="C10" gate="G$1" x="33.02" y="149.86" smashed="yes">
+<attribute name="NAME" x="32.639" y="143.764" size="1.778" layer="95" rot="R90"/>
+<attribute name="VALUE" x="35.179" y="151.384" size="1.778" layer="96" rot="R90"/>
+</instance>
+<instance part="C11" gate="G$1" x="38.1" y="149.86" smashed="yes">
+<attribute name="NAME" x="37.719" y="143.764" size="1.778" layer="95" rot="R90"/>
+<attribute name="VALUE" x="40.259" y="151.384" size="1.778" layer="96" rot="R90"/>
+</instance>
+<instance part="C12" gate="G$1" x="43.18" y="149.86" smashed="yes">
+<attribute name="NAME" x="42.799" y="143.764" size="1.778" layer="95" rot="R90"/>
+<attribute name="VALUE" x="45.339" y="151.384" size="1.778" layer="96" rot="R90"/>
+</instance>
 <instance part="R1" gate="G$1" x="35.56" y="55.88"/>
 <instance part="R2" gate="G$1" x="48.26" y="55.88"/>
 <instance part="R3" gate="G$1" x="345.44" y="111.76" rot="R270"/>
 <instance part="R4" gate="G$1" x="233.68" y="215.9" rot="R270"/>
 <instance part="R5" gate="G$1" x="233.68" y="180.34" rot="R270"/>
-<instance part="R6" gate="G$1" x="119.38" y="165.1"/>
-<instance part="R7" gate="G$1" x="121.92" y="182.88"/>
+<instance part="R6" gate="G$1" x="119.38" y="165.1" smashed="yes">
+<attribute name="NAME" x="120.65" y="166.5986" size="1.778" layer="95"/>
+<attribute name="VALUE" x="118.11" y="161.798" size="1.778" layer="96"/>
+</instance>
+<instance part="R7" gate="G$1" x="121.92" y="182.88" smashed="yes">
+<attribute name="NAME" x="123.19" y="184.3786" size="1.778" layer="95"/>
+<attribute name="VALUE" x="120.65" y="179.578" size="1.778" layer="96"/>
+</instance>
 <instance part="R8" gate="G$1" x="187.96" y="198.12" rot="R270"/>
 <instance part="SUPPLY1" gate="+5V" x="10.16" y="167.64" rot="R270"/>
 <instance part="SUPPLY2" gate="+5V" x="213.36" y="223.52"/>
@@ -18250,21 +18292,63 @@ Source: http://catalog.osram-os.com .. LG_LS_LY_T679_OBS.pdf</description>
 <instance part="SUPPLY28" gate="GND" x="299.72" y="134.62"/>
 <instance part="SUPPLY29" gate="GND" x="20.32" y="88.9"/>
 <instance part="SUPPLY30" gate="GND" x="20.32" y="55.88"/>
-<instance part="L1" gate="G$1" x="73.66" y="205.74" rot="R90"/>
-<instance part="L2" gate="G$1" x="73.66" y="200.66" rot="R90"/>
-<instance part="L3" gate="G$1" x="73.66" y="195.58" rot="R90"/>
-<instance part="L4" gate="G$1" x="73.66" y="190.5" rot="R90"/>
-<instance part="L5" gate="G$1" x="73.66" y="185.42" rot="R90"/>
-<instance part="L6" gate="G$1" x="73.66" y="180.34" rot="R90"/>
-<instance part="L7" gate="G$1" x="73.66" y="175.26" rot="R90"/>
-<instance part="L8" gate="G$1" x="73.66" y="170.18" rot="R90"/>
-<instance part="C13" gate="G$1" x="48.26" y="149.86"/>
-<instance part="C14" gate="G$1" x="53.34" y="149.86"/>
+<instance part="L1" gate="G$1" x="73.66" y="205.74" smashed="yes" rot="R90">
+<attribute name="NAME" x="71.12" y="204.47" size="1.778" layer="95" rot="R180"/>
+<attribute name="VALUE" x="78.74" y="204.47" size="1.778" layer="96" rot="R180"/>
+</instance>
+<instance part="L2" gate="G$1" x="73.66" y="200.66" smashed="yes" rot="R90">
+<attribute name="NAME" x="71.12" y="199.39" size="1.778" layer="95" rot="R180"/>
+<attribute name="VALUE" x="78.74" y="199.39" size="1.778" layer="96" rot="R180"/>
+</instance>
+<instance part="L3" gate="G$1" x="73.66" y="195.58" smashed="yes" rot="R90">
+<attribute name="NAME" x="71.12" y="194.31" size="1.778" layer="95" rot="R180"/>
+<attribute name="VALUE" x="78.74" y="194.31" size="1.778" layer="96" rot="R180"/>
+</instance>
+<instance part="L4" gate="G$1" x="73.66" y="190.5" smashed="yes" rot="R90">
+<attribute name="NAME" x="71.12" y="189.23" size="1.778" layer="95" rot="R180"/>
+<attribute name="VALUE" x="78.74" y="189.23" size="1.778" layer="96" rot="R180"/>
+</instance>
+<instance part="L5" gate="G$1" x="73.66" y="185.42" smashed="yes" rot="R90">
+<attribute name="NAME" x="71.12" y="184.15" size="1.778" layer="95" rot="R180"/>
+<attribute name="VALUE" x="78.74" y="184.15" size="1.778" layer="96" rot="R180"/>
+</instance>
+<instance part="L6" gate="G$1" x="73.66" y="180.34" smashed="yes" rot="R90">
+<attribute name="NAME" x="71.12" y="179.07" size="1.778" layer="95" rot="R180"/>
+<attribute name="VALUE" x="78.74" y="179.07" size="1.778" layer="96" rot="R180"/>
+</instance>
+<instance part="L7" gate="G$1" x="73.66" y="175.26" smashed="yes" rot="R90">
+<attribute name="NAME" x="71.12" y="173.99" size="1.778" layer="95" rot="R180"/>
+<attribute name="VALUE" x="78.74" y="173.99" size="1.778" layer="96" rot="R180"/>
+</instance>
+<instance part="L8" gate="G$1" x="73.66" y="170.18" smashed="yes" rot="R90">
+<attribute name="NAME" x="71.12" y="168.91" size="1.778" layer="95" rot="R180"/>
+<attribute name="VALUE" x="78.74" y="168.91" size="1.778" layer="96" rot="R180"/>
+</instance>
+<instance part="C13" gate="G$1" x="48.26" y="149.86" smashed="yes">
+<attribute name="NAME" x="47.879" y="143.764" size="1.778" layer="95" rot="R90"/>
+<attribute name="VALUE" x="50.419" y="151.384" size="1.778" layer="96" rot="R90"/>
+</instance>
+<instance part="C14" gate="G$1" x="53.34" y="149.86" smashed="yes">
+<attribute name="NAME" x="52.959" y="143.764" size="1.778" layer="95" rot="R90"/>
+<attribute name="VALUE" x="55.499" y="151.384" size="1.778" layer="96" rot="R90"/>
+</instance>
 <instance part="SUPPLY31" gate="GND" x="53.34" y="142.24"/>
-<instance part="L9" gate="G$1" x="73.66" y="165.1" rot="R90"/>
-<instance part="L10" gate="G$1" x="73.66" y="160.02" rot="R90"/>
-<instance part="C15" gate="G$1" x="58.42" y="149.86"/>
-<instance part="C16" gate="G$1" x="63.5" y="149.86"/>
+<instance part="L9" gate="G$1" x="73.66" y="165.1" smashed="yes" rot="R90">
+<attribute name="NAME" x="71.12" y="163.83" size="1.778" layer="95" rot="R180"/>
+<attribute name="VALUE" x="78.74" y="163.83" size="1.778" layer="96" rot="R180"/>
+</instance>
+<instance part="L10" gate="G$1" x="73.66" y="160.02" smashed="yes" rot="R90">
+<attribute name="NAME" x="71.12" y="158.75" size="1.778" layer="95" rot="R180"/>
+<attribute name="VALUE" x="78.74" y="158.75" size="1.778" layer="96" rot="R180"/>
+</instance>
+<instance part="C15" gate="G$1" x="58.42" y="149.86" smashed="yes">
+<attribute name="NAME" x="58.039" y="143.764" size="1.778" layer="95" rot="R90"/>
+<attribute name="VALUE" x="60.579" y="151.384" size="1.778" layer="96" rot="R90"/>
+</instance>
+<instance part="C16" gate="G$1" x="63.5" y="149.86" smashed="yes">
+<attribute name="NAME" x="63.119" y="143.764" size="1.778" layer="95" rot="R90"/>
+<attribute name="VALUE" x="65.659" y="151.384" size="1.778" layer="96" rot="R90"/>
+</instance>
 <instance part="SUPPLY32" gate="GND" x="58.42" y="142.24"/>
 <instance part="SUPPLY33" gate="GND" x="63.5" y="142.24"/>
 <instance part="K2" gate="1" x="83.82" y="233.68"/>
@@ -18285,8 +18369,14 @@ Source: http://catalog.osram-os.com .. LG_LS_LY_T679_OBS.pdf</description>
 <instance part="SUPPLY41" gate="GND" x="233.68" y="172.72"/>
 <instance part="C20" gate="G$1" x="287.02" y="200.66"/>
 <instance part="R9" gate="G$1" x="287.02" y="185.42" rot="R90"/>
-<instance part="Q2" gate="G$1" x="111.76" y="165.1" rot="MR0"/>
-<instance part="Q3" gate="G$1" x="111.76" y="182.88" rot="MR0"/>
+<instance part="Q2" gate="G$1" x="111.76" y="165.1" smashed="yes" rot="MR0">
+<attribute name="NAME" x="116.84" y="170.18" size="1.778" layer="95" rot="MR0"/>
+<attribute name="VALUE" x="114.3" y="162.56" size="1.778" layer="96" rot="MR270"/>
+</instance>
+<instance part="Q3" gate="G$1" x="111.76" y="182.88" smashed="yes" rot="MR0">
+<attribute name="NAME" x="116.84" y="187.96" size="1.778" layer="95" rot="MR0"/>
+<attribute name="VALUE" x="114.3" y="180.34" size="1.778" layer="96" rot="MR270"/>
+</instance>
 <instance part="SUPPLY42" gate="GND" x="109.22" y="157.48"/>
 <instance part="SUPPLY43" gate="GND" x="109.22" y="175.26"/>
 <instance part="SUPPLY44" gate="+12V" x="91.44" y="238.76"/>
@@ -18304,7 +18394,10 @@ Source: http://catalog.osram-os.com .. LG_LS_LY_T679_OBS.pdf</description>
 <instance part="C23" gate="G$1" x="142.24" y="203.2"/>
 <instance part="C24" gate="G$1" x="149.86" y="203.2"/>
 <instance part="C25" gate="G$1" x="213.36" y="203.2"/>
-<instance part="L11" gate="G$1" x="203.2" y="208.28"/>
+<instance part="L11" gate="G$1" x="203.2" y="208.28" smashed="yes">
+<attribute name="NAME" x="196.85" y="204.6986" size="1.778" layer="95"/>
+<attribute name="VALUE" x="201.93" y="204.978" size="1.778" layer="96"/>
+</instance>
 <instance part="SUPPLY52" gate="GND" x="142.24" y="195.58"/>
 <instance part="SUPPLY53" gate="GND" x="149.86" y="195.58"/>
 <instance part="SUPPLY54" gate="GND" x="157.48" y="195.58"/>
@@ -18330,23 +18423,50 @@ Source: http://catalog.osram-os.com .. LG_LS_LY_T679_OBS.pdf</description>
 <instance part="R13" gate="G$1" x="93.98" y="40.64" rot="R90"/>
 <instance part="SUPPLY68" gate="+5V" x="86.36" y="48.26"/>
 <instance part="SUPPLY69" gate="+5V" x="93.98" y="48.26"/>
-<instance part="R14" gate="G$1" x="53.34" y="35.56" rot="R180"/>
-<instance part="R15" gate="G$1" x="53.34" y="20.32" rot="R180"/>
-<instance part="D4" gate="G$1" x="60.96" y="17.78" rot="R90"/>
-<instance part="D5" gate="G$1" x="60.96" y="33.02" rot="R90"/>
+<instance part="R14" gate="G$1" x="53.34" y="35.56" smashed="yes" rot="R180">
+<attribute name="NAME" x="52.07" y="39.1414" size="1.778" layer="95" rot="R180"/>
+<attribute name="VALUE" x="52.07" y="33.782" size="1.778" layer="96" rot="R180"/>
+</instance>
+<instance part="R15" gate="G$1" x="53.34" y="20.32" smashed="yes" rot="R180">
+<attribute name="NAME" x="52.07" y="23.9014" size="1.778" layer="95" rot="R180"/>
+<attribute name="VALUE" x="52.07" y="18.542" size="1.778" layer="96" rot="R180"/>
+</instance>
+<instance part="D4" gate="G$1" x="60.96" y="17.78" smashed="yes" rot="R90">
+<attribute name="NAME" x="60.96" y="22.098" size="1.778" layer="95"/>
+<attribute name="VALUE" x="55.88" y="11.557" size="1.778" layer="96"/>
+</instance>
+<instance part="D5" gate="G$1" x="60.96" y="33.02" smashed="yes" rot="R90">
+<attribute name="NAME" x="60.96" y="37.338" size="1.778" layer="95"/>
+<attribute name="VALUE" x="55.88" y="26.797" size="1.778" layer="96"/>
+</instance>
 <instance part="SUPPLY70" gate="+5V" x="149.86" y="114.3"/>
 <instance part="FRAME1" gate="G$1" x="-7.62" y="-7.62"/>
 <instance part="F1" gate="G$1" x="127" y="210.82"/>
-<instance part="D6" gate="G$1" x="119.38" y="200.66" rot="R180"/>
-<instance part="D7" gate="G$1" x="132.08" y="200.66" rot="R180"/>
-<instance part="D8" gate="G$1" x="48.26" y="73.66" rot="R180"/>
+<instance part="D6" gate="G$1" x="119.38" y="200.66" smashed="yes" rot="R180">
+<attribute name="NAME" x="118.618" y="203.962" size="1.778" layer="95" rot="R180"/>
+<attribute name="VALUE" x="110.744" y="205.74" size="1.778" layer="96" rot="R270"/>
+</instance>
+<instance part="D7" gate="G$1" x="132.08" y="200.66" smashed="yes" rot="R180">
+<attribute name="NAME" x="131.318" y="203.962" size="1.778" layer="95" rot="R180"/>
+<attribute name="VALUE" x="125.984" y="198.12" size="1.778" layer="96" rot="R270"/>
+</instance>
+<instance part="D8" gate="G$1" x="48.26" y="73.66" smashed="yes" rot="R180">
+<attribute name="NAME" x="44.958" y="71.882" size="1.778" layer="95" rot="R180"/>
+<attribute name="VALUE" x="50.8" y="67.564" size="1.778" layer="96"/>
+</instance>
 <instance part="SUPPLY71" gate="1" x="40.64" y="137.16"/>
 <instance part="SUPPLY72" gate="1" x="25.4" y="83.82"/>
 <instance part="SUPPLY73" gate="1" x="114.3" y="215.9"/>
 <instance part="SUPPLY6" gate="GND" x="132.08" y="195.58"/>
 <instance part="SUPPLY7" gate="GND" x="119.38" y="195.58"/>
-<instance part="R16" gate="G$1" x="43.18" y="88.9"/>
-<instance part="R17" gate="G$1" x="43.18" y="83.82"/>
+<instance part="R16" gate="G$1" x="43.18" y="88.9" smashed="yes">
+<attribute name="NAME" x="39.37" y="90.3986" size="1.778" layer="95"/>
+<attribute name="VALUE" x="44.45" y="90.678" size="1.778" layer="96"/>
+</instance>
+<instance part="R17" gate="G$1" x="43.18" y="83.82" smashed="yes">
+<attribute name="NAME" x="39.37" y="85.3186" size="1.778" layer="95"/>
+<attribute name="VALUE" x="44.45" y="85.598" size="1.778" layer="96"/>
+</instance>
 <instance part="SUPPLY74" gate="GND" x="48.26" y="68.58"/>
 <instance part="D9" gate="G$1" x="91.44" y="231.14" rot="R90"/>
 <instance part="D10" gate="G$1" x="63.5" y="233.68" rot="R90"/>
@@ -18380,8 +18500,14 @@ Source: http://catalog.osram-os.com .. LG_LS_LY_T679_OBS.pdf</description>
 <instance part="C28" gate="G$1" x="320.04" y="226.06"/>
 <instance part="SUPPLY83" gate="GND" x="320.04" y="215.9"/>
 <instance part="IC7" gate="G1" x="149.86" y="167.64"/>
-<instance part="C29" gate="G$1" x="132.08" y="157.48"/>
-<instance part="R19" gate="G$1" x="137.16" y="157.48" rot="R90"/>
+<instance part="C29" gate="G$1" x="132.08" y="157.48" smashed="yes">
+<attribute name="NAME" x="129.159" y="151.384" size="1.778" layer="95" rot="R90"/>
+<attribute name="VALUE" x="129.159" y="156.464" size="1.778" layer="96" rot="R90"/>
+</instance>
+<instance part="R19" gate="G$1" x="137.16" y="157.48" smashed="yes" rot="R90">
+<attribute name="NAME" x="140.7414" y="151.13" size="1.778" layer="95" rot="R90"/>
+<attribute name="VALUE" x="140.462" y="156.21" size="1.778" layer="96" rot="R90"/>
+</instance>
 <instance part="R20" gate="G$1" x="149.86" y="185.42" rot="R180"/>
 <instance part="C30" gate="G$1" x="162.56" y="157.48"/>
 <instance part="SUPPLY84" gate="GND" x="137.16" y="149.86"/>
