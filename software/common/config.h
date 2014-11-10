@@ -36,7 +36,8 @@
 
 #define DOOR_MODEL_1      0
 #define DOOR_MODEL_2      1
-#define DOOR_MODEL_MOCK   2
+#define DOOR_MODEL_3      2
+#define DOOR_MODEL_MOCK   3
 
 #endif
 
