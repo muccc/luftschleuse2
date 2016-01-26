@@ -1,0 +1,20 @@
+#!/bin/sh
+
+rm /tmp/syste_state_cache
+touch /tmp/syste_state_cache
+
+while true
+do
+
+#cmp /tmp/system_state /tmp/syste_state_cache > /dev/null 2>&1
+cmp /tmp/system_state /tmp/syste_state_cache
+if [ $? != 0 ]
+then
+    echo "new state" `cat /tmp/system_state`
+    sed -i "/^ssid=/c\ssid=luftschleuse-`cat /tmp/system_state`" /var/run/hostapd-phy0.conf
+    killall -SIGHUP hostapd
+    cp /tmp/system_state /tmp/syste_state_cache
+fi
+
+sleep 10
+done
