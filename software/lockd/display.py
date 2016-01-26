@@ -34,8 +34,14 @@ class Display:
 
         self.tx_msg_queue = Queue.Queue()
 
+        self.d = {}
+        self.c = {}
+
+        for x in range(0, 256):
+            self.d[chr(x)] = x
+            self.c[x] = chr(x)
+
         self.reset()
-        
     
     def __getattr__(self, name):
         return getattr(self._image, name)
@@ -60,11 +66,10 @@ class Display:
         pixel_data = ''
         
         def pack_pixel(count, pixel):
-            r = ord(pixel[0])
-            g = ord(pixel[1])
-            b = ord(pixel[2])
-            return '%c%c'%((count<<4)|(r>>4),(g&0xF0)|(b>>4))
-            
+            r = self.d[pixel[0]]
+            g = self.d[pixel[1]]
+            b = self.d[pixel[2]]
+            return self.c[(count<<4)|(r>>4)] + self.c[(g&0xF0)|(b>>4)]
 
         for pixel in chain:
             if pixel == prev:
@@ -78,9 +83,9 @@ class Display:
                     pixel_data += pack_pixel(count, prev)
                 prev = pixel
                 count = 0
-        
+
         pixel_data += pack_pixel(count, prev)
-        
+
         self.logger.debug('Display: prep %f'%(time.time()-t))
         t = time.time()
         self._stream(pixel_data)
@@ -97,7 +102,7 @@ class Display:
         
     def _stream(self, pixel_data):
         multi = 16
-        for i in range(0, len(pixel_data), multi):
+        for i in xrange(0, len(pixel_data), multi):
             self._interface.writeMessage(self.priority, chr(0xFF), pixel_data[i:i+multi], self.tx_msg_queue)
 
     def _stream_raw(self, raw_data):
