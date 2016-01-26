@@ -37,4 +37,7 @@ class Announcer:
 
     def update_state(self, state):
         self.message = state.get_state_as_string()
+        f = open("/tmp/system_state", "w")
+        f.write(state.get_state_as_string() + "\n")
+        f.close()
 
