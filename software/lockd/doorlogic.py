@@ -66,6 +66,8 @@ class DoorLogic():
                 if input_value == 'lock':
                     self.lock('all')
                     self.set_state(self.State.DOWN)
+                if input_value == 'unlockfront':
+                    self.temp_unlock('Front Door')
 
         if origin_type == self.Origin.DOOR:
             if input_type == self.Input.BUTTON and input_value == True:
