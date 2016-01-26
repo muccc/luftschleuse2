@@ -80,7 +80,7 @@ class DoorLogic():
                     else:
                             self.lock(origin_name)
                 elif input_name == 'bell_code':
-                    if self.state == self.State.MEMBER and \
+                    if (self.state == self.State.MEMBER or self.state == self.State.PUBLIC) and \
                             self.is_locked(origin_name):
                         self.temp_unlock(origin_name)
 
@@ -96,7 +96,7 @@ class DoorLogic():
                     self.lock('all')
                     self.set_state(self.State.MEMBER)
                 elif input_name == 'public':
-                    self.unlock('all')
+                    self.unlock('Front Door')
                     self.set_state(self.State.PUBLIC)
             elif input_type == self.Input.BUTTON and input_value == False:
                 if input_name == 'public':
