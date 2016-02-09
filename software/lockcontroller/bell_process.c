@@ -19,18 +19,21 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "bell_process.h"
-#include "pinutils.h"
+#include "../common/pinutils.h"
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
+#include <math.h>
 
 #define MIN_PRESS   50
 #define MAX_PRESS   2500
 #define MIN_BREAK   50
 #define MAX_BREAK   2500
+#define MAX_BEEPS   20
 
-//static const int16_t times[] = {-200, -200, 500, -200, -200};
-//static const int16_t times[] = {-400, -400, 800, -400, -400};
-static const int16_t times[] = {400};
+
+static char *code = ".--.---";
+static int16_t times[MAX_BEEPS + 1];
 static uint8_t step;
 static uint8_t debounce;
 static bool pressed;
@@ -94,32 +97,15 @@ void bell_tick(void)
 
  
     if( !pressed && press_timer > 0 ){
-        if( times[step] > 0 ){
-            if( press_timer > MIN_PRESS &&
-                press_timer > times[step] ){
-                step++;
-            }else{
-                step = 0;
-            }
-        }else{
-            if( press_timer > MIN_PRESS &&
-                press_timer < -times[step] ){
-                step++;
-            }else{
-                step = 0;
-            }
-        }
-        press_timer = -1;
-
-        if( step * sizeof(times[0]) == sizeof(times) ){
-            accepted = true;
+      if ( press_timer > MIN_PRESS && press_timer < MAX_PRESS && step < MAX_BEEPS){
+	times[step + 1] = 0;
+	times[step++] = press_timer;
+      }
+      else{
+	step = 0;
+	press_timer = -1;
             c = 2000;
         }
-    }
-
-    if( press_timer > MAX_PRESS ){
-        press_timer = -1;
-        step = 0;
     }
 
     if( break_timer > MAX_BREAK ){
@@ -131,7 +117,77 @@ void bell_tick(void)
 
 bool bell_isAccepted(void)
 {
-    return accepted;
+  int beeps = 0;
+  int boundary;
+  double best_badness = 10000000.0;
+  int16_t best_boundary = 0;
+  double badness;
+  int beep;
+  bool matches = true;
+
+  while(times[beeps++])
+    ;
+
+  --beeps;
+
+  if(beeps != strlen(code))
+    return(false);
+
+
+  for(boundary = 0; boundary <= beeps; boundary++){
+    
+    int nshort = 0;
+    int nlong = 0 ;
+    int16_t sshort = 0;
+    int16_t ssshort = 0;
+    int16_t slong = 0;
+    int16_t sslong = 0;
+
+    for(beep = 0; beep < beeps; beep++){
+      if(times[beep] <= times[boundary]){
+	++nshort;
+	sshort += times[beep];
+	ssshort += times[beep] * times[beep];
+      }
+      else{
+	++nlong;
+	slong += times[beep];
+	sslong += times[beep] * times[beep];
+      }
+    }
+    
+    if(nshort){
+      badness = sqrt((double) ssshort * nshort / (double) sshort / (double) sshort - 1.0);
+    }
+    else{
+      badness = 0.0;
+    }
+    if(nlong){
+      badness += sqrt((double) sslong * nlong / (double) slong / (double) slong - 1.0);
+    }
+    
+    if(badness < best_badness){
+      best_badness = badness;
+      best_boundary = times[boundary];
+    }
+  }
+  
+  for(beep=0; beep < beeps; beep++){
+    if(times[beep] <= best_boundary){
+      if(code[beep] != '.')
+	matches = false;
+    }
+    else{
+      if(code[beep] != '-')
+	matches = false;
+    } 
+  }
+  
+  if(matches)
+    c = 2000;
+  
+  return matches;
+
 }
 
 void bell_process(void)
