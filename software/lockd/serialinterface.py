@@ -174,18 +174,18 @@ class SerialInterface(threading.Thread):
                     #print 'TIMEOUT'
                     return (False, '')
             if escaped:
-                if c == '\\':
-                    d = '\\'
-                elif c == '9':
+                if c == b'\\':
+                    d = b'\\'
+                elif c == b'9':
                     stop = True
                     inframe = False
                 else:
                     start = True
                     inframe = True
                     command = c
-                    data = ""
+                    data = b""
                 escaped = False
-            elif c == '\\':
+            elif c == b'\\':
                 escaped = 1
             else:
                 d = c
@@ -200,5 +200,5 @@ class SerialInterface(threading.Thread):
                 #print (command, data)
                 return (command, data)
             elif escaped == False and inframe:
-                data += str(d)
+                data += d
 
