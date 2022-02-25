@@ -20,8 +20,8 @@ from packet import Packet
 import time
 import logging
 from doorlogic import DoorLogic
-import ConfigParser
-import Queue
+import configparser
+import queue
 
 class Door:
     DOOR_CLOSED        = (1<<0)
@@ -47,7 +47,7 @@ class Door:
             self.initial_unlock = False
 
         key = config.get(name, 'key')
-        self.key = [int(x) for x in key.split()]
+        self.key = [int(x) for x in key.split()] if key is not None else None
 
         self.config_file = config.get(name, 'sequence_number_container_file')
 
@@ -78,14 +78,14 @@ class Door:
         self.unlocking = False
         self.handle_pressed = False
         self.priority = 10
-        self.tx_msg_queue = Queue.Queue()
+        self.tx_msg_queue = queue.Queue()
 
 
     def read_rx_sequence_number_from_container(self):
         config = None
         
         try:
-            config = ConfigParser.RawConfigParser()
+            config = configparser.RawConfigParser()
             config.read(self.config_file)
         except:
             self.logger.error("%s: Could not open rx sequence number \
@@ -95,7 +95,7 @@ class Door:
             if config.has_section(self.name):
                 if config.has_option(self.name, "rx_sequence"):
                     return int(config.get(self.name, "rx_sequence"))
-        
+
             self.logger.error("%s: Could not read rx sequence number \
                             from container at %s"%(self.name, self.config_file))
         
@@ -104,14 +104,13 @@ class Door:
            
     def write_rx_sequence_number_to_container(self, min_rx_seq):
         self.logger.debug("%s: Writing sequence number: %d" % (self.name, min_rx_seq))
-        config = ConfigParser.RawConfigParser()
+        config = configparser.RawConfigParser()
 
         config.add_section(self.name)
         config.set(self.name, "rx_sequence", min_rx_seq)
 
-        f = open(self.config_file,'w');
-        config.write(f)
-        f.close()
+        with open(self.config_file,'w') as f:
+            config.write(f)
 
         self.logger.debug("%s: Done" % (self.name))
 
@@ -122,9 +121,9 @@ class Door:
         self.desired_state = Door.LOCK_LOCKED
 
     def update(self, message):
-    	if len(message) != 16:
+        if len(message) != 16:
             self.logger.warning("%s: The received message is not 16 bytes long"%(self.name))
-    	    return False
+            return False
         
         p = Packet.fromMessage(message, key = self.key)
         
@@ -149,12 +148,12 @@ class Door:
 
             # The door sent a sequence number which is too low.
             # Inform it about what we expect.
-            p = Packet(seq=self.min_rx_seq, cmd=0, data='', seq_sync=True)
+            p = Packet(seq=self.min_rx_seq, cmd=0, data=b'', seq_sync=True)
             msg = p.toMessage(key = self.key)
 
             self.logger.debug('%s: Msg to door: %s' %
                     (self.name, list(p.toMessage())))
-            self.interface.writeMessage(self.priority, self.address, msg, self.tx_msg_queue)
+            self.interface.writeMessage(self.priority, bytes(self.address, encoding='ascii'), msg, self.tx_msg_queue)
             return False
         
         self._set_wrong_rx_seq(False)
@@ -168,9 +167,9 @@ class Door:
 
         if p.cmd == ord('S'):
             self.status_update_timestamp = time.time()
-            self.supply_voltage = ord(p.data[3])*0.1
+            self.supply_voltage = p.data[3]*0.1
             
-            pressed_buttons = ord(p.data[0])
+            pressed_buttons = p.data[0]
             self.logger.debug('master: pressed_buttons = %d' % pressed_buttons)
             for pin in self.buttons:
                 if pressed_buttons & pin and not self.pressed_buttons & pin:
@@ -188,15 +187,15 @@ class Door:
                         'input_value': False})
                     self.pressed_buttons &= ~pin
            
-            doorstate = ord(p.data[1])
+            doorstate = p.data[1]
             self.closed = doorstate & Door.DOOR_CLOSED \
                             == Door.DOOR_CLOSED
             self.locked = doorstate & Door.LOCK_LOCKED \
                             == Door.LOCK_LOCKED 
-            self.unlocked = doorstate & Door.LOCK_UNLOCKED \
-                            == Door.LOCK_UNLOCKED
             self.locking = doorstate & Door.LOCK_LOCKING \
                             == Door.LOCK_LOCKING
+            self.unlocked = doorstate & Door.LOCK_UNLOCKED \
+                            == Door.LOCK_UNLOCKED
             self.unlocking = doorstate & Door.LOCK_UNLOCKING \
                             == Door.LOCK_UNLOCKING
             self.handle_pressed = doorstate & Door.HANDLE_PRESSED \
@@ -295,19 +294,19 @@ class Door:
         return state
 
     def get_desired_state(self):
-        state = ''
+        states = []
         if self.desired_state & Door.LOCK_LOCKED:
-            state += ' LOCKED'
+            states.append('LOCKED')
         if self.desired_state & Door.LOCK_UNLOCKED:
-            state += ' UNLOCKED'
+            states.append('UNLOCKED')
         
-        state = state.strip()
+        state = ' '.join(states)
         return state
 
     def tick(self):
         if time.time() > self.periodic_timeout:
             self.periodic_timeout = time.time() + 1/3.
-            self._send_command(ord('D'), chr(self.desired_state))
+            self._send_command(ord('D'), bytes([self.desired_state]))
 
         if time.time() - self.status_update_timestamp >= self.timeout:
             self._set_timedout(True)
@@ -319,6 +318,6 @@ class Door:
         msg = p.toMessage(key = self.key)
 
         self.logger.debug('%s Msg to door: %s'%(self.name, list(p.toMessage())))
-        self.interface.writeMessage(self.priority, self.address, msg, self.tx_msg_queue)
+        self.interface.writeMessage(self.priority, bytes(self.address, encoding='ascii'), msg, self.tx_msg_queue)
         self.tx_seq += 1
 

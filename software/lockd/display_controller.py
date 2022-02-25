@@ -48,7 +48,7 @@ class DisplayController:
         pass
 
     def clear(self):
-        self._display.paste((0,0,0))
+        self._display.paste((0,0,0), box=(0,0,98,70))
         pass
 
     def update(self):

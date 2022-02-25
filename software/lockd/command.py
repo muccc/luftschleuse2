@@ -48,7 +48,7 @@ class UDPCommand(threading.Thread):
     def run(self):
         while True:
             data, addr = self.sock.recvfrom(1024) # buffer size is 1024 bytes
-            print "received message:", data
+            print("received message:", data)
             self.input_queue.put({'origin_name': 'udp',
                      'origin_type': DoorLogic.Origin.NETWORK,
                      'input_name': '',

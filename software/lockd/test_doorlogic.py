@@ -46,6 +46,11 @@ class DoorLogicTest(unittest.TestCase):
                                 doorlogic.DoorLogic.Input.COMMAND,
                                 'down')
         self.doorlogic.add_state_listener(self.state_listener)
+
+        front_door = mock.MagicMock()
+        front_door.name = 'Front Door'
+        self.doorlogic.add_door(front_door)
+
         #self.doorlogic.logger = MockLogger()
                                 
 
@@ -120,7 +125,7 @@ class DoorLogicTest(unittest.TestCase):
         self.doorlogic.add_door(door)
 
         self.press_button('down')
-        self.assertEquals(door.lock.call_count, 1)
+        self.assertEqual(door.lock.call_count, 1)
         
         self.doorlogic.policy("Door",
                                 doorlogic.DoorLogic.Origin.DOOR,
@@ -136,7 +141,7 @@ class DoorLogicTest(unittest.TestCase):
                                 False)
 
         door.unlock.assert_called_once()
-        self.assertEquals(door.lock.call_count, 1)
+        self.assertEqual(door.lock.call_count, 1)
 
 
     def test_bell_code_opens_door(self):

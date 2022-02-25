@@ -16,13 +16,13 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-import ConfigParser
+import configparser
 import serialinterface
 import sys
 from door import Door
 from mastercontroller import MasterController
 from command import UDPCommand
-import Queue
+import queue
 import logging
 import logging.handlers
 import traceback
@@ -44,7 +44,7 @@ class Lockd:
 
         self.serial_interface = serialinterface.SerialInterface(serialdevice, baudrate, timeout=.1)
 
-        self.input_queue = Queue.Queue()
+        self.input_queue = queue.Queue()
 
         udpcommand = UDPCommand('127.0.0.1', 2323, self.input_queue)
 
@@ -167,7 +167,7 @@ class Lockd:
             self.display_controller.tick()
 
 if __name__ == '__main__':
-    config = ConfigParser.RawConfigParser()
+    config = configparser.RawConfigParser()
     config_file = sys.argv[1]
     config.read(config_file)
 
@@ -201,7 +201,7 @@ if __name__ == '__main__':
             lockd.process();
     #try:
     #    pass
-    except Exception, e:
+    except Exception as e:
         #logging.exception(e)
         logger.exception(e)
         import traceback

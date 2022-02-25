@@ -31,8 +31,8 @@ class Packet:
     '''
     # The AVR is a little endian device
     msgformat = "<IB5s6s"
-    magic = 'SESAME'
-    sync_magic = 'SYNCME'
+    magic = b'SESAME'
+    sync_magic = b'SYNCME'
 
     def __init__(self, seq, cmd, data, seq_sync):
         self.seq = seq
@@ -42,18 +42,17 @@ class Packet:
     
     @classmethod
     def fromMessage(cls, message, key = None):
-        if key:
-            key = ''.join([chr(k) for k in key])
-            aes = AES.new(key, AES.MODE_ECB)
+        if key is not None:
+            aes = AES.new(bytes(key), AES.MODE_ECB)
             message = aes.decrypt(message)
             logging.getLogger('logger').debug("Decoded message: %s"%str(list(message)))
            
         seq, cmd, data, magic = unpack(cls.msgformat, message[0:16])
         if len(message) > 16:
-            print 'Warning: Discarded %d bytes of data'%(len(message)-16)
-        if magic == 'SESAME':
+            print('Warning: Discarded %d bytes of data' % len(message)-16)
+        if magic == b'SESAME':
             return cls(seq, cmd, data, False)
-        if magic == 'SYNCME':
+        if magic == b'SYNCME':
             return cls(seq, cmd, data, True)
         else:
             return None
@@ -64,9 +63,8 @@ class Packet:
         else:
             magic = self.magic
         message = pack(self.msgformat, self.seq, self.cmd, self.data, magic)
-        if key:
-            key = ''.join([chr(k) for k in key])
-            aes = AES.new(key, AES.MODE_ECB)
+        if key is not None:
+            aes = AES.new(bytes(key), AES.MODE_ECB)
             message = aes.encrypt(message)
 
         return message

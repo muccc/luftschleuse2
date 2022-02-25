@@ -24,7 +24,16 @@ import logging
 import socket
 import select
 import threading
-import Queue
+import queue
+
+
+from dataclasses import dataclass, field
+
+@dataclass(order=True)
+class PrioQueueItem:
+    priority: int
+    item: queue.Queue=field(compare=False)
+
 
 class SerialInterface(threading.Thread):
     def  __init__ ( self, path2device, baudrate, timeout=0):
@@ -69,14 +78,15 @@ class SerialInterface(threading.Thread):
 
       self.logger.info("Opened %s"%path2device)
 
-      self.input_queue = Queue.PriorityQueue()
+      self.input_queue = queue.PriorityQueue()
 
       self.setDaemon(True)
       self.start()
 
     def run(self):
         while True:
-            (priority, queue) = self.input_queue.get()
+            pqitem = self.input_queue.get()
+            (priority, queue) = (pqitem.priority, pqitem.item)
             if queue.empty():
                 continue
 
@@ -116,12 +126,12 @@ class SerialInterface(threading.Thread):
         self.logger.debug("done")
 
     def writeMessage(self, priority, command, message, queue):
-        enc = "\\"+ command + message.replace('\\','\\\\') + "\\9";
+        enc = b"\\" + command + bytes([b if b != b'\\' else b'\\\\' for b in message]) + b"\\9";
         self.write(priority, enc, queue)
 
     def write(self, priority, data, queue):
         queue.put(data)
-        self.input_queue.put((priority, queue))
+        self.input_queue.put(PrioQueueItem(priority=priority, item=queue))
 
     def readMessage(self):
         data = ""
@@ -129,7 +139,7 @@ class SerialInterface(threading.Thread):
         stop = False
         start = False
         inframe = False
-        command = ''
+        command = b''
         
         #if self.udp:
         #    time.sleep(self.timeout)
@@ -151,7 +161,7 @@ class SerialInterface(threading.Thread):
                 #print list(c)
             except KeyboardInterrupt:
                 raise KeyboardInterrupt
-            except Exception, e:
+            except Exception as e:
                 self.logger.warning("port broken 2")
                 self.reinit()
                 return (False, '')

@@ -33,7 +33,7 @@ class Announcer:
             self.timestamp = time.time()
 
     def announce(self):
-        self.sock.sendto(self.message, self.target)
+        self.sock.sendto(bytes(self.message, encoding="ascii"), self.target)
 
     def update_state(self, state):
         self.message = state.get_state_as_string()

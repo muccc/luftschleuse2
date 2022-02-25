@@ -19,7 +19,7 @@
 import time
 import logging
 from PIL import Image
-import Queue
+import queue
 
 class Display:
     def __init__(self, interface, x=98, y=70):
@@ -32,14 +32,7 @@ class Display:
         
         self.priority = 100
 
-        self.tx_msg_queue = Queue.Queue()
-
-        self.d = {}
-        self.c = {}
-
-        for x in range(0, 256):
-            self.d[chr(x)] = x
-            self.c[x] = chr(x)
+        self.tx_msg_queue = queue.Queue()
 
         self.reset()
     
@@ -57,19 +50,19 @@ class Display:
         t = time.time();
         self._start_stream()
 
-        chain = self._image.tostring()
+        chain = self._image.tobytes()
         chain = [chain[i:i+3] for i in range(0, len(chain), 3)]
 
         prev = None
         count = 0
         
-        pixel_data = ''
+        pixel_data = b''
         
         def pack_pixel(count, pixel):
-            r = self.d[pixel[0]]
-            g = self.d[pixel[1]]
-            b = self.d[pixel[2]]
-            return self.c[(count<<4)|(r>>4)] + self.c[(g&0xF0)|(b>>4)]
+            r = pixel[0]
+            g = pixel[1]
+            b = pixel[2]
+            return bytes([(count<<4)|(r>>4), (g&0xF0)|(b>>4)])
 
         for pixel in chain:
             if pixel == prev:
@@ -93,21 +86,20 @@ class Display:
         self.logger.debug('Display: disp %f'%(time.time()-t))
 
     def _command(self, cmd, data = []):
-        msg = "%c"%chr(cmd)
-        msg += ''.join([chr(x) for x in data])
-        self._interface.writeMessage(self.priority, chr(0xFE), msg, self.tx_msg_queue)
+        msg = bytes([cmd] + data)
+        self._interface.writeMessage(self.priority, bytes([0xFE]), msg, self.tx_msg_queue)
 
     def _start_stream(self):
         self._command(0x01)
         
     def _stream(self, pixel_data):
         multi = 16
-        for i in xrange(0, len(pixel_data), multi):
-            self._interface.writeMessage(self.priority, chr(0xFF), pixel_data[i:i+multi], self.tx_msg_queue)
+        for i in range(0, len(pixel_data), multi):
+            self._interface.writeMessage(self.priority, bytes([0xFF]), pixel_data[i:i+multi], self.tx_msg_queue)
 
     def _stream_raw(self, raw_data):
         for i in range(0, len(raw_data), 120):
-            self._interface.writeMessage(self.priority, chr(0xFD), raw_data[i:i+120], self.tx_msg_queue)
+            self._interface.writeMessage(self.priority, bytes([0xFD]), raw_data[i:i+120], self.tx_msg_queue)
 
     def _stop_stream(self):
         self._command(0x02)

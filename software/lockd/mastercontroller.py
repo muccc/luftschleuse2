@@ -21,7 +21,7 @@ from packet import Packet
 import time
 import logging
 from doorlogic import DoorLogic
-import Queue
+import queue
 
 class MasterController:
     class LedState:
@@ -32,52 +32,52 @@ class MasterController:
         FLASH = 4
 
     def __init__(self, interface, input_queue, buttons, leds):
-        self.address = '0'
-        
+        self.address = b'0'
+
         self.interface = interface
-        
+
         self.supply_voltage = 0
         self.logger = logging.getLogger('logger')
         self.pressed_buttons = 0
 
         self.buttons = buttons
         self.leds = leds
-        
+
         self.input_queue = input_queue
-        
+
         self.timestamp = time.time()
 
         self.priority = 50
-        
-        self.tx_msg_queue = Queue.Queue()
+
+        self.tx_msg_queue = queue.Queue()
 
     def update(self, message):
-    	if len(message) != 16:
+        if len(message) != 16:
             self.logger.warning("The received message is not 16 bytes long")
-    	    return
+            return
 
         #self.logger.debug("Decoded message: %s"%str(list(message)))
-        
+
         p = Packet.fromMessage(message)
         if p.cmd == ord('S'):
-            self.supply_voltage = ord(p.data[3])*0.1
-            
-            pressed_buttons = ord(p.data[0])
+            self.supply_voltage = p.data[3]*0.1
+
+            pressed_buttons = p.data[0]
             self.logger.debug('master: pressed_buttons = %d', pressed_buttons)
             for pin in self.buttons:
                 if pressed_buttons & pin and not self.pressed_buttons & pin:
                     self.pressed_buttons |= pin
                     self.input_queue.put({'origin_name': 'master',
-                        'origin_type': DoorLogic.Origin.CONTROL_PANNEL,
-                        'input_name': self.buttons[pin],
-                        'input_type': DoorLogic.Input.BUTTON,
-                        'input_value': True})
+                                          'origin_type': DoorLogic.Origin.CONTROL_PANNEL,
+                                          'input_name': self.buttons[pin],
+                                          'input_type': DoorLogic.Input.BUTTON,
+                                          'input_value': True})
                 elif not pressed_buttons & pin and self.pressed_buttons & pin:
                     self.input_queue.put({'origin_name': 'master',
-                        'origin_type': DoorLogic.Origin.CONTROL_PANNEL,
-                        'input_name': self.buttons[pin],
-                        'input_type': DoorLogic.Input.BUTTON,
-                        'input_value': False})
+                                          'origin_type': DoorLogic.Origin.CONTROL_PANNEL,
+                                          'input_name': self.buttons[pin],
+                                          'input_type': DoorLogic.Input.BUTTON,
+                                          'input_value': False})
                     self.pressed_buttons &= ~pin
 
             self.logger.info('Master state: %s'%self.get_state())
@@ -91,13 +91,13 @@ class MasterController:
     def tick(self):
         #self.logger.debug('master: tick')
         if time.time() - self.timestamp > .5:
-            self._send_command(ord('S'), '')
+            self._send_command(ord('S'), b'')
             self.timestamp = time.time()
 
     def set_led(self, led_name, state):
         led = self.leds[led_name]
-        self._send_command(ord('L'), '%c%c'%(led, state))
-        
+        self._send_command(ord('L'), b'%c%c'%(led, state))
+
     def _send_command(self, command, data):
         p = Packet(seq=0, cmd=command, data=data, seq_sync=False)
         msg = p.toMessage()

@@ -37,14 +37,13 @@ while 1:
         while 1:
             data,addr = UDPSock.recvfrom(buf)
             if not data:
-                print "Client has exited!"
+                print("Client has exited!")
                 break
             else:
-                print time.time(), time.ctime(), data
+                print(time.time(), time.ctime(), data)
 
         # Close socket
         UDPSock.close()
-    except Exception,e:
-        print e
-    import time
+    except Exception as e:
+        print(e)
     time.sleep(1)

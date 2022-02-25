@@ -3,7 +3,7 @@ type = door
 address = A
 key = 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 inital_unlock = False
-sequence_number_container_file = /path/to/front_door_rx_seq.cfg
+sequence_number_container_file = /tmp/front_door_rx_seq.log
 rx_sequence_leap = 32768
 timeout = 2
 
@@ -12,17 +12,17 @@ type = door
 address = B
 key = 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 inital_unlock = True
-sequence_number_container_file = /path/to/back_door_rx_seq.cfg
+sequence_number_container_file = /tmp/back_door_rx_seq.log
 rx_sequence_leap = 32768
 timeout = 2
 
 [Master Controller]
-serialdevice = /dev/ttyUSB0
+serialdevice = /dev/null
 baudrate = 115200
 
 [Master Controller Buttons]
-down = 1
-closed = 2
+down = 2
+closed = 1
 member = 4
 public = 8
 
@@ -37,11 +37,10 @@ port = 23514
 level = debug
 
 [Display]
-# Can either be None, Nokia_1600, simulation or network
 display_type = Nokia_1600
-max_update_rate = 2
+max_update_rate = .5
 
 [Status Receiver]
-host = localhost
-port = 2081
+host = 127.0.0.1
+port = 2080
 

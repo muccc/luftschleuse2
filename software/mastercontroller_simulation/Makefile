@@ -24,7 +24,7 @@ XDEPS   := $(wildcard ${DEPS})
 
 CFLAGS = -std=gnu99 -O2 -Wall -Werror -ggdb
 LDFLAGS =
-LIBS    = -lcurses
+LIBS    = $(shell pkg-config --libs ncurses)
 
 CFLAGS += -I../mastercontroller -I../common -I.
 CFLAGS += -DNATIVE_TARGET
