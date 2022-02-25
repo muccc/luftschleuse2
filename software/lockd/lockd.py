@@ -66,7 +66,7 @@ class Lockd:
                     self.logger.debug('Adding door "%s"'%door_name)
                     buttons = {1: 'manual_control', 2: 'bell_code'}
                     door = Door(door_name, config, self.serial_interface, self.input_queue, buttons)
-                    door_address = config.get(door_name, 'address')
+                    door_address = bytes(config.get(door_name, 'address'), encoding="ascii")
                     self.doors[door_address] = door
                     self.logic.add_door(door)
                 else:
