@@ -16,12 +16,13 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-from packet import Packet
 #import apptime as time
 import time
 import logging
-from doorlogic import DoorLogic
 import queue
+
+from .packet import Packet
+from .doorlogic import DoorLogic
 
 class MasterController:
     class LedState:

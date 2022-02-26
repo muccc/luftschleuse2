@@ -17,20 +17,21 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import configparser
-import serialinterface
 import sys
-from door import Door
-from mastercontroller import MasterController
-from command import UDPCommand
 import queue
 import logging
 import logging.handlers
 import traceback
-from doorlogic import DoorLogic
-from userinterfacelogic import UserInterfaceLogic
-from announce import Announcer
-from display_controller import DisplayController
-from displaylogic import DisplayLogic
+
+from .serialinterface import SerialInterface
+from .door import Door
+from .mastercontroller import MasterController
+from .command import UDPCommand
+from .doorlogic import DoorLogic
+from .userinterfacelogic import UserInterfaceLogic
+from .announce import Announcer
+from .display_controller import DisplayController
+from .displaylogic import DisplayLogic
 
 class Lockd:
     def __init__(self, config):
@@ -42,7 +43,7 @@ class Lockd:
         serialdevice = config.get('Master Controller', 'serialdevice')
         baudrate = config.get('Master Controller', 'baudrate')
 
-        self.serial_interface = serialinterface.SerialInterface(serialdevice, baudrate, timeout=.1)
+        self.serial_interface = SerialInterface(serialdevice, baudrate, timeout=.1)
 
         self.input_queue = queue.Queue()
 
@@ -94,13 +95,13 @@ class Lockd:
                 display_type = config.get(section, 'display_type') 
                 max_update_rate = float(config.get(section, 'max_update_rate'))
                 if display_type == "Nokia_1600":
-                    from display import Display
+                    from .display import Display
                     display = Display(self.serial_interface)
                 elif display_type == 'simulation':
-                    from display_pygame import Display
+                    from .display_pygame import Display
                     display = Display()
                 elif display_type == 'network':
-                    from display_network import Display
+                    from .display_network import Display
                     display = Display()
                 elif display_type == 'None':
                     display = None
@@ -166,7 +167,7 @@ class Lockd:
             self.display_logic.tick()
             self.display_controller.tick()
 
-if __name__ == '__main__':
+def main():
     config = configparser.RawConfigParser()
     config_file = sys.argv[1]
     config.read(config_file)
@@ -210,4 +211,5 @@ if __name__ == '__main__':
 
     sys.exit(0)
 
-
+if __name__ == '__main__':
+    main()

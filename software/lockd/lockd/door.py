@@ -16,12 +16,13 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-from packet import Packet
 import time
 import logging
-from doorlogic import DoorLogic
 import configparser
 import queue
+
+from .doorlogic import DoorLogic
+from .packet import Packet
 
 class Door:
     DOOR_CLOSED        = (1<<0)

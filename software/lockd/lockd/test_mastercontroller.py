@@ -18,14 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import random
 import unittest
-import mastercontroller
 import queue
 import mock
-import serialinterface
-import packet
-from doorlogic import DoorLogic
 import time
 from mock import patch
+
+from . import mastercontroller
+from . import serialinterface
+from . import packet
+from .doorlogic import DoorLogic
 
 class MasterControllerTest(unittest.TestCase):
     def setUp(self):

@@ -9,9 +9,12 @@ python = "^3.9"
 pycryptodome = "^3.14.1"
 Pillow = "^9.0.1"
 pyserial = "^3.5"
-mock = "^4.0.3"
 
 [tool.poetry.dev-dependencies]
+mock = "^4.0.3"
+
+[tool.poetry.scripts]
+lockd = "lockd.lockd:main"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

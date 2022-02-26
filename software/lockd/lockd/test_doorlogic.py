@@ -19,7 +19,8 @@
 import random
 import unittest
 import mock
-import doorlogic
+
+from . import doorlogic
 
 class MockLogger:
     def __init__(self):

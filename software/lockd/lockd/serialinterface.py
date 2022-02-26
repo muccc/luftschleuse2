@@ -25,8 +25,6 @@ import socket
 import select
 import threading
 import queue
-
-
 from dataclasses import dataclass, field
 
 @dataclass(order=True)

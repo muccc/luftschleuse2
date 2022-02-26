@@ -16,13 +16,16 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-import display
 import logging
 import time
+import os
 
 from PIL import ImageDraw
 from PIL import ImageFont
 
+from . import display
+
+FONT_FILE_PATH = os.path.join(os.path.dirname(__file__), 'assets', 'eigenbau.ttf')
 
 class DisplayController:
     def __init__(self, display, max_update_rate):
@@ -31,8 +34,8 @@ class DisplayController:
         self._draw = ImageDraw.Draw(display)
         self._small_font_size = 8
         self._large_font_size = 16
-        self._small_font = ImageFont.truetype('eigenbau.ttf', self._small_font_size)
-        self._large_font = ImageFont.truetype('eigenbau.ttf', self._large_font_size)
+        self._small_font = ImageFont.truetype(FONT_FILE_PATH, self._small_font_size)
+        self._large_font = ImageFont.truetype(FONT_FILE_PATH, self._large_font_size)
         self.clear()
         self.render_large((10,70/2-16), 'Booting...', 'white');
         self._update()

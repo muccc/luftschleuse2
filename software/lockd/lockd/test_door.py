@@ -18,17 +18,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import random
 import unittest
-import door
 import queue
-import mock
-import serialinterface
-import packet
-from doorlogic import DoorLogic
 import time
+import mock
 from mock import patch
 import tempfile
 import os
 import configparser
+
+from . import serialinterface
+from . import packet
+from . import door
+from .doorlogic import DoorLogic
 
 class MockLogger:
     def __init__(self):

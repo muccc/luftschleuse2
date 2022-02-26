@@ -2,7 +2,7 @@
 name = "mock"
 version = "4.0.3"
 description = "Rolling backport of unittest.mock for all Pythons"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.6"
 
@@ -41,7 +41,7 @@ cp2110 = ["hidapi"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "9bee73fb8f2e25edd6d350533c7a31d765b8d53c8a349772fe73d4dbc46a417c"
+content-hash = "e47c97388935e250bb9d60dfdce9a01a292fcaffc8bcb154f27fde0ce3d56a2d"
 
 [metadata.files]
 mock = [

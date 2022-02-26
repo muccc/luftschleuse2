@@ -21,7 +21,7 @@ import threading
 import select
 import time
 
-from doorlogic import DoorLogic
+from .doorlogic import DoorLogic
 
 class UDPCommand(threading.Thread):
     def __init__(self, host, port, input_queue):
