@@ -40,8 +40,8 @@ cp2110 = ["hidapi"]
 
 [metadata]
 lock-version = "1.1"
-python-versions = "^3.9"
-content-hash = "e47c97388935e250bb9d60dfdce9a01a292fcaffc8bcb154f27fde0ce3d56a2d"
+python-versions = "^3.8"
+content-hash = "6be52b8f6253957b1124b0af15ca76d75d8872b0367688c7242486e162f7a2c6"
 
 [metadata.files]
 mock = [

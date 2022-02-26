@@ -5,7 +5,7 @@ description = ""
 authors = ["Franz Pletz <fpletz@fnordicwalking.de>"]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.8"
 pycryptodome = "^3.14.1"
 Pillow = "^9.0.1"
 pyserial = "^3.5"
