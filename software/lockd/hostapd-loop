@@ -11,8 +11,9 @@ cmp /tmp/system_state /tmp/syste_state_cache
 if [ $? != 0 ]
 then
     echo "new state" `cat /tmp/system_state`
-    sed -i "/^ssid=/c\ssid=luftschleuse-`cat /tmp/system_state`" /var/run/hostapd-phy0.conf
-    killall -SIGHUP hostapd
+    hostapd_cli set ssid "luftschleuse3-`cat /tmp/system_state`"
+    hostapd_cli disable
+    hostapd_cli enable
     cp /tmp/system_state /tmp/syste_state_cache
 fi
 
