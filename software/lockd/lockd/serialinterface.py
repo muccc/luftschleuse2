@@ -66,7 +66,7 @@ class SerialInterface(threading.Thread):
             self.ser.flushInput()
             self.ser.flushOutput()
             if timeout:
-                self.ser.setTimeout(timeout)
+                self.ser.timeout = timeout
             self.portopen = True
             self.last = time.time()
 
