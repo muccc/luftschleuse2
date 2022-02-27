@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import time
 import socket
+import subprocess
 
 class Announcer:
     def __init__(self, host, port):
@@ -37,7 +38,6 @@ class Announcer:
 
     def update_state(self, state):
         self.message = state.get_state_as_string()
-        f = open("/tmp/system_state", "w")
-        f.write(state.get_state_as_string() + "\n")
-        f.close()
-
+        subprocess.run(["hostapd_cli", "set", "ssid", "luftschleuse-" + state.get_state_as_string()])
+        subprocess.run(["hostapd_cli", "disable"])
+        subprocess.run(["hostapd_cli", "enable"])
