@@ -53,7 +53,7 @@ class UDPCommand(threading.Thread):
                      'origin_type': DoorLogic.Origin.NETWORK,
                      'input_name': '',
                      'input_type': DoorLogic.Input.COMMAND,
-                     'input_value': data.strip()})
+                     'input_value': data.decode('utf-8').strip()})
 
             # We do not allow more than two commands per second
             time.sleep(2)
