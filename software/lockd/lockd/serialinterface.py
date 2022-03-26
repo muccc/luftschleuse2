@@ -88,7 +88,7 @@ class SerialInterface(threading.Thread):
             if queue.empty():
                 continue
 
-            msg = queue.get()
+            msg, delay = queue.get()
             #print 'writing %s' % list(msg)
             #self.logger.debug('writing %s' % list(msg))
 
@@ -102,8 +102,8 @@ class SerialInterface(threading.Thread):
             try:
                 self.ser.write(msg)
                 # Hack to avoid collisions, needs to be
-                # convertet to some sort of queue management
-                #time.sleep(.05)
+                # converted to some sort of queue management
+                time.sleep(delay)
             except :
                 pass
                 #self.reinit()
@@ -123,12 +123,12 @@ class SerialInterface(threading.Thread):
             time.sleep(1)
         self.logger.debug("done")
 
-    def writeMessage(self, priority, command, message, queue):
+    def writeMessage(self, priority, command, message, queue, delay=0):
         enc = b"\\" + command + bytes([b if b != b'\\' else b'\\\\' for b in message]) + b"\\9";
-        self.write(priority, enc, queue)
+        self.write(priority, enc, queue, delay)
 
-    def write(self, priority, data, queue):
-        queue.put(data)
+    def write(self, priority, data, queue, delay=0):
+        queue.put((data, delay))
         self.input_queue.put(PrioQueueItem(priority=priority, item=queue))
 
     def readMessage(self):
