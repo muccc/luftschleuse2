@@ -37,7 +37,9 @@ class Announcer:
         self.sock.sendto(bytes(self.message, encoding="ascii"), self.target)
 
     def update_state(self, state):
-        self.message = state.get_state_as_string()
-        subprocess.run(["hostapd_cli", "set", "ssid", "luftschleuse-" + state.get_state_as_string()])
-        subprocess.run(["hostapd_cli", "disable"])
-        subprocess.run(["hostapd_cli", "enable"])
+        msg = state.get_state_as_string()
+        if self.message != msg:
+            self.message = msg
+            subprocess.run(["hostapd_cli", "set", "ssid", "luftschleuse-" + msg])
+            subprocess.run(["hostapd_cli", "disable"])
+            subprocess.run(["hostapd_cli", "enable"])
