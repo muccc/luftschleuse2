@@ -31,6 +31,7 @@ class DisplayLogic():
         self.update_time = 1
         self.blink = False
         self.attention = False
+        self.changed = False
 
     def tick(self):
         if self.tick_timestamp + self.update_time < time.time():
