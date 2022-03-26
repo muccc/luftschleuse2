@@ -154,7 +154,7 @@ class Door:
 
             self.logger.debug('%s: Msg to door: %s' %
                     (self.name, list(p.toMessage())))
-            self.interface.writeMessage(self.priority, bytes(self.address, encoding='ascii'), msg, self.tx_msg_queue)
+            self.interface.writeMessage(self.priority, bytes(self.address, encoding='ascii'), msg, self.tx_msg_queue, 0.02)
             return False
         
         self._set_wrong_rx_seq(False)
@@ -319,6 +319,6 @@ class Door:
         msg = p.toMessage(key = self.key)
 
         self.logger.debug('%s Msg to door: %s'%(self.name, list(p.toMessage())))
-        self.interface.writeMessage(self.priority, bytes(self.address, encoding='ascii'), msg, self.tx_msg_queue)
+        self.interface.writeMessage(self.priority, bytes(self.address, encoding='ascii'), msg, self.tx_msg_queue, 0.02)
         self.tx_seq += 1
 
