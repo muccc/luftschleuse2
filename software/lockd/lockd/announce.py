@@ -40,6 +40,8 @@ class Announcer:
         msg = state.get_state_as_string()
         if self.message != msg:
             self.message = msg
-            subprocess.run(["hostapd_cli", "set", "ssid", "luftschleuse-" + msg])
-            subprocess.run(["hostapd_cli", "disable"])
-            subprocess.run(["hostapd_cli", "enable"])
+
+            # disable hostapd integration for now
+            #subprocess.run(["hostapd_cli", "set", "ssid", "luftschleuse-" + msg])
+            #subprocess.run(["hostapd_cli", "disable"])
+            #subprocess.run(["hostapd_cli", "enable"])
