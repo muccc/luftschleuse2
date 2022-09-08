@@ -60,7 +60,7 @@ class MasterController:
         #self.logger.debug("Decoded message: %s"%str(list(message)))
 
         p = Packet.fromMessage(message)
-        if p.cmd == ord('S'):
+        if p is not None and p.cmd == ord('S'):
             self.supply_voltage = p.data[3]*0.1
 
             pressed_buttons = p.data[0]
