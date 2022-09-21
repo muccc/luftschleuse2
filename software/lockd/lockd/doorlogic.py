@@ -63,11 +63,23 @@ class DoorLogic():
                     # TODO: change this to doors with the
                     # initial unlock property set to 'true'.
                     self.temp_unlock('Back Door')
-                if input_value == 'lock':
+                elif input_value == 'lock':
                     self.lock('all')
                     self.set_state(self.State.DOWN)
-                if input_value == 'unlockfront':
+                elif input_value == 'unlockfront':
                     self.temp_unlock('Front Door')
+                elif input_value == 'down':
+                    self.lock('all')
+                    self.set_state(self.State.DOWN)
+                elif input_value == 'closed':
+                    self.lock('all')
+                    self.set_state(self.State.CLOSED)
+                elif input_value == 'member':
+                    self.lock('all')
+                    self.set_state(self.State.MEMBER)
+                elif input_value == 'public':
+                    self.unlock('Front Door')
+                    self.set_state(self.State.PUBLIC)
 
         if origin_type == self.Origin.DOOR:
             if input_type == self.Input.BUTTON and input_value == True:
