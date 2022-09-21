@@ -80,6 +80,15 @@ class DoorLogic():
                 elif input_value == 'public':
                     self.unlock('Front Door')
                     self.set_state(self.State.PUBLIC)
+                elif input_value == 'bell_code_front':
+                    if (self.state == self.State.MEMBER or self.state == self.State.PUBLIC) and \
+                            self.is_locked('Front Door'):
+                        self.temp_unlock('Front Door')
+                elif input_value == 'bell_code_back':
+                    if (self.state == self.State.MEMBER or self.state == self.State.PUBLIC) and \
+                            self.is_locked('Back Door'):
+                        self.temp_unlock('Back Door')
+
 
         if origin_type == self.Origin.DOOR:
             if input_type == self.Input.BUTTON and input_value == True:
