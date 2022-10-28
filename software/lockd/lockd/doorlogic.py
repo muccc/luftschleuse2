@@ -94,16 +94,12 @@ class DoorLogic():
             if input_type == self.Input.BUTTON and input_value == True:
                 if input_name == 'manual_control':
                     if self.state == self.State.DOWN:
-                        self.lock('all')
                         self.set_state(self.State.CLOSED)
                     elif self.state == self.State.CLOSED:
-                        self.lock('all')
                         self.set_state(self.State.MEMBER)
                     elif self.state == self.State.MEMBER:
-                        self.unlock('Front Door')
                         self.set_state(self.State.PUBLIC)
                     elif self.state == self.State.PUBLIC:
-                        self.lock('all')
                         self.set_state(self.State.DOWN)
                     elif self.is_locked(origin_name):
                         self.unlock(origin_name)
