@@ -27,15 +27,15 @@ class DoorLogic():
         INTERNAL        =   4
     
     class Input:
-        BUTTON          =   1
-        COMMAND         =   2
-        SWITCH          =   3
-        SENSOR          =   4
+        BUTTON           =   1
+        COMMAND          =   2
+        SWITCH           =   3
+        SENSOR           =   4
 
     class State:
         DOWN            =   1
         CLOSED          =   2
-        MEMBER          =   3
+        MEMBER         =   3
         OPEN            =   4
         PUBLIC          =   5
         UNKNOWN         =   6
@@ -93,24 +93,19 @@ class DoorLogic():
         if origin_type == self.Origin.DOOR:
             if input_type == self.Input.BUTTON and input_value == True:
                 if input_name == 'manual_control':
-                    if self.state == self.State.DOWN:
-                        self.set_state(self.State.CLOSED)
-                    elif self.state == self.State.CLOSED:
+                    if self.state == self.State.PUBLIC:
+                        self.lock('all')
                         self.set_state(self.State.MEMBER)
-                    elif self.state == self.State.MEMBER:
-                        self.set_state(self.State.PUBLIC)
-                    elif self.state == self.State.PUBLIC:
-                        self.set_state(self.State.DOWN)
                     elif self.is_locked(origin_name):
                         self.unlock(origin_name)
                     else:
-                        self.lock(origin_name)
+                            self.lock(origin_name)
                 elif input_name == 'bell_code':
                     if (self.state == self.State.MEMBER or self.state == self.State.PUBLIC) and \
                             self.is_locked(origin_name):
                         self.temp_unlock(origin_name)
 
-        if False: # FIXME: pannel b0rk :( origin_type == self.Origin.CONTROL_PANNEL:
+        if origin_type == self.Origin.CONTROL_PANNEL:
             if input_type == self.Input.BUTTON and input_value == True:
                 if input_name == 'down':
                     self.lock('all')
