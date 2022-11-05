@@ -10,7 +10,7 @@
   };
 
   outputs = { self, nixpkgs, flake-utils, poetry2nix, ... }: rec {
-    overlay = final: prev: {
+    overlays.default = final: prev: {
       luftschleuse2-lockd = import ./software/lockd/default.nix { pkgs = final; };
       luftschleuse2-concierge = import ./software/concierge/default.nix { pkgs = final; };
     };
@@ -19,13 +19,12 @@
     let
       pkgs = import nixpkgs {
         inherit system;
-        overlays = [ self.overlay poetry2nix.overlay ];
+        overlays = [ self.overlays.default poetry2nix.overlay ];
       };
     in
     rec {
-      defaultPackage = self.packages.${system}.luftschleuse2-lockd;
-
       packages = {
+        default = pkgs.luftschleuse2-lockd;
         luftschleuse2-lockd = pkgs.luftschleuse2-lockd;
         luftschleuse2-concierge = pkgs.luftschleuse2-concierge;
       };
