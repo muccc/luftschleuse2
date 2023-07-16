@@ -9,25 +9,32 @@
     };
   };
 
-  outputs = { self, nixpkgs, flake-utils, poetry2nix, ... }: rec {
-    overlays.default = final: prev: {
-      luftschleuse2-lockd = import ./software/lockd/default.nix { pkgs = final; };
-      luftschleuse2-concierge = import ./software/concierge/default.nix { pkgs = final; };
-    };
-
-  } // (flake-utils.lib.eachDefaultSystem (system:
-    let
-      pkgs = import nixpkgs {
-        inherit system;
-        overlays = [ self.overlays.default poetry2nix.overlay ];
-      };
-    in
-    rec {
-      packages = {
-        default = pkgs.luftschleuse2-lockd;
-        luftschleuse2-lockd = pkgs.luftschleuse2-lockd;
-        luftschleuse2-concierge = pkgs.luftschleuse2-concierge;
+  outputs = {
+    self,
+    nixpkgs,
+    flake-utils,
+    poetry2nix,
+    ...
+  }:
+    {
+      overlays.default = final: prev: {
+        luftschleuse2-lockd = import ./software/lockd/default.nix {pkgs = final;};
+        luftschleuse2-concierge = import ./software/concierge/default.nix {pkgs = final;};
       };
     }
-  ));
+    // (flake-utils.lib.eachDefaultSystem (
+      system: let
+        pkgs = import nixpkgs {
+          inherit system;
+          overlays = [self.overlays.default poetry2nix.overlay];
+        };
+      in {
+        packages = {
+          default = pkgs.luftschleuse2-lockd;
+          luftschleuse2-lockd = pkgs.luftschleuse2-lockd;
+          luftschleuse2-concierge = pkgs.luftschleuse2-concierge;
+        };
+        formatter = pkgs.alejandra;
+      }
+    ));
 }
