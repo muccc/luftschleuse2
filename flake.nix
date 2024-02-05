@@ -19,7 +19,6 @@
     {
       overlays.default = final: prev: {
         luftschleuse2-lockd = import ./software/lockd/default.nix {pkgs = final;};
-        luftschleuse2-concierge = import ./software/concierge/default.nix {pkgs = final;};
       };
     }
     // (flake-utils.lib.eachDefaultSystem (
@@ -32,7 +31,6 @@
         packages = {
           default = pkgs.luftschleuse2-lockd;
           luftschleuse2-lockd = pkgs.luftschleuse2-lockd;
-          luftschleuse2-concierge = pkgs.luftschleuse2-concierge;
         };
         formatter = pkgs.alejandra;
       }
