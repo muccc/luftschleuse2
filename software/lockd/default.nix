@@ -1,5 +1,7 @@
-{pkgs ? import (builtins.getFlake (toString ../../.)).inputs.nixpkgs {}}:
+{
+  pkgs ? import (builtins.getFlake (toString ../../.)).inputs.nixpkgs { },
+}:
 pkgs.poetry2nix.mkPoetryApplication {
   projectDir = ./.;
-  python = pkgs.python310;
+  python = pkgs.python311;
 }
