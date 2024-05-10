@@ -25,7 +25,7 @@
       system: let
         pkgs = import nixpkgs {
           inherit system;
-          overlays = [self.overlays.default poetry2nix.overlay];
+          overlays = [self.overlays.default poetry2nix.overlays.default];
         };
       in {
         packages = {
