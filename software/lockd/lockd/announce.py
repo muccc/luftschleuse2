@@ -23,8 +23,8 @@ import subprocess
 class Announcer:
     def __init__(self, host, port):
         self.timestamp = time.time()
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.sock.bind(('0.0.0.0', 2080))
+        self.sock = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
+        self.sock.bind(("::", 2080))
         self.target = (host, port)
         self.message = 'unknown'
 
