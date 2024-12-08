@@ -75,4 +75,6 @@ mastercontroller_simulator
 .noseids
 archive
 
+/.direnv
+
 result*

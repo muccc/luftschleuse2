@@ -1,21 +1,22 @@
-[tool.poetry]
+[project]
 name = "lockd"
 version = "0.1.0"
 description = ""
-authors = ["Franz Pletz <fpletz@fnordicwalking.de>"]
+requires-python = ">=3.9"
+dependencies = [
+    "pillow>=11.0.0",
+    "pycryptodome>=3.21.0",
+    "pyserial>=3.5",
+]
 
-[tool.poetry.dependencies]
-python = "^3.8"
-pycryptodome = "^3.14.1"
-Pillow = "^10"
-pyserial = "^3.5"
+[dependency-groups]
+dev = [
+    "mock>=5.1.0",
+]
 
-[tool.poetry.dev-dependencies]
-mock = "^5"
-
-[tool.poetry.scripts]
+[project.scripts]
 lockd = "lockd.lockd:main"
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
