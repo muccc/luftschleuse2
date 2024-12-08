@@ -2,7 +2,7 @@
 #
 #    See https://github.com/muccc/luftschleuse2 for more information.
 #
-#    Copyright (C) 2013 Tobias Schneider <schneider@muc.ccc.de> 
+#    Copyright (C) 2013 Tobias Schneider <schneider@muc.ccc.de>
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -19,9 +19,10 @@
 import logging
 import time
 
-class DisplayLogic():
+
+class DisplayLogic:
     def __init__(self, display_controller):
-        self.logger = logging.getLogger('logger')
+        self.logger = logging.getLogger("logger")
         self._display_controller = display_controller
         self._doors = {}
         self._state = False
@@ -38,20 +39,20 @@ class DisplayLogic():
             self.tick_timestamp = time.time()
             if self.attention or self.changed:
                 self._update_display()
- 
+
         if self.blink_timestamp + self.blink_time < time.time():
             self.blink_timestamp = time.time()
             self.blink = not self.blink
 
     def update_state(self, state):
-        self.logger.debug('DisplayLogic: update_state().')
+        self.logger.debug("DisplayLogic: update_state().")
         self._tainted = state.is_state_tainted()
         self._state = state
         if time.time() - self.tick_timestamp < self.update_time - 0.3:
             self.tick_timestamp = time.time() - (self.update_time - 0.3)
             self.changed = True
-        #self._update_display()
-        
+        # self._update_display()
+
     def _update_display(self):
         if self._state == False:
             return
@@ -63,60 +64,58 @@ class DisplayLogic():
                 pass
             else:
                 pass
-            self._render_state_name('DOWN')
+            self._render_state_name("DOWN")
         if self._state.state == self._state.State.CLOSED:
             pass
-            self._render_state_name('CLOSED')
+            self._render_state_name("CLOSED")
         if self._state.state == self._state.State.MEMBER:
             pass
-            self._render_state_name('MEMBER')
+            self._render_state_name("MEMBER")
         if self._state.state == self._state.State.PUBLIC:
             pass
-            self._render_state_name('PUBLIC')
-
+            self._render_state_name("PUBLIC")
 
         self.attention = False
         i = 20
         for door in self._doors.values():
-            door_state = ('Unknown', 'yellow')
+            door_state = ("Unknown", "yellow")
             # TODO: change colors based on the desired state
             # of the door.
             if not door.is_closed():
-                door_state = ('Open', 'green')
+                door_state = ("Open", "green")
             elif door.is_locked():
-                door_state = ('Locked', 'green')
+                door_state = ("Locked", "green")
             elif not door.is_locked():
-                door_state = ('Unlocked', 'green')
+                door_state = ("Unlocked", "green")
 
             if door.is_timedout():
-                door_state = ('TIMEOUT', 'red')
+                door_state = ("TIMEOUT", "red")
                 self.attention = True
             if door.is_bad_key():
-                door_state = ('BAD KEY', 'red')
+                door_state = ("BAD KEY", "red")
                 self.ttention = True
             if door.is_wrong_rx_seq():
-                door_state = ('BAD RX SEQ', 'red')
+                door_state = ("BAD RX SEQ", "red")
                 self.attention = True
 
-            self._display_controller.render_small((0,i), door.name, 'green')
-            self._display_controller.render_small((50,i), door_state[0], door_state[1])
+            self._display_controller.render_small((0, i), door.name, "green")
+            self._display_controller.render_small((50, i), door_state[0], door_state[1])
             i += 8
-        i += 4 
+        i += 4
         if self.attention and self.blink:
-            self._display_controller.render_large((0,i), 'ATTENTION', 'red')
-            
+            self._display_controller.render_large((0, i), "ATTENTION", "red")
+
         self._display_controller.update()
 
     def _render_state_name(self, state_name):
-        self._display_controller.render_large((0,0), state_name, 'red')
+        self._display_controller.render_large((0, 0), state_name, "red")
 
     def add_door(self, door):
         self._doors[door.name] = door
         door.add_state_listener(self._door_state_update)
- 
+
     def _door_state_update(self, door):
-        self.logger.debug('DisplayLogic: _door_state_update().')
+        self.logger.debug("DisplayLogic: _door_state_update().")
         if time.time() - self.tick_timestamp < self.update_time - 0.3:
             self.tick_timestamp = time.time() - (self.update_time - 0.3)
             self.changed = True
-

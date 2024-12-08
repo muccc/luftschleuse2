@@ -2,7 +2,7 @@
 #
 #    See https://github.com/muccc/luftschleuse2 for more information.
 #
-#    Copyright (C) 2013 Tobias Schneider <schneider@muc.ccc.de> 
+#    Copyright (C) 2013 Tobias Schneider <schneider@muc.ccc.de>
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -20,44 +20,48 @@ from struct import pack, unpack
 import logging
 from Crypto.Cipher import AES
 
+
 class Packet:
-    '''
+    """
     Data: 16 Byte AES block
 
     0   4   SEQ
     4   1   CMD
     5   5   DATA
     10  6   "SESAME"
-    '''
+    """
+
     # The AVR is a little endian device
     msgformat = "<IB5s6s"
-    magic = b'SESAME'
-    sync_magic = b'SYNCME'
+    magic = b"SESAME"
+    sync_magic = b"SYNCME"
 
     def __init__(self, seq, cmd, data, seq_sync):
         self.seq = seq
         self.cmd = cmd
         self.data = data
         self.seq_sync = seq_sync
-    
+
     @classmethod
-    def fromMessage(cls, message, key = None):
+    def fromMessage(cls, message, key=None):
         if key is not None:
             aes = AES.new(bytes(key), AES.MODE_ECB)
             message = aes.decrypt(message)
-            logging.getLogger('logger').debug("Decoded message: %s"%str(list(message)))
-           
+            logging.getLogger("logger").debug(
+                "Decoded message: %s" % str(list(message))
+            )
+
         seq, cmd, data, magic = unpack(cls.msgformat, message[0:16])
         if len(message) > 16:
-            print('Warning: Discarded %d bytes of data' % len(message)-16)
-        if magic == b'SESAME':
+            print("Warning: Discarded %d bytes of data" % len(message) - 16)
+        if magic == b"SESAME":
             return cls(seq, cmd, data, False)
-        if magic == b'SYNCME':
+        if magic == b"SYNCME":
             return cls(seq, cmd, data, True)
         else:
             return None
 
-    def toMessage(self, key = None):
+    def toMessage(self, key=None):
         if self.seq_sync:
             magic = self.sync_magic
         else:
@@ -70,5 +74,4 @@ class Packet:
         return message
 
     def __str__(self):
-        return "Packet: seq=%d, cmd=%c, data=%s"%(self.seq, self.cmd, self.data)
-
+        return "Packet: seq=%d, cmd=%c, data=%s" % (self.seq, self.cmd, self.data)

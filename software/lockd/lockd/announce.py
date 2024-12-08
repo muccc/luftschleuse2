@@ -2,7 +2,7 @@
 #
 #    See https://github.com/muccc/luftschleuse2 for more information.
 #
-#    Copyright (C) 2013 Tobias Schneider <schneider@muc.ccc.de> 
+#    Copyright (C) 2013 Tobias Schneider <schneider@muc.ccc.de>
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -20,13 +20,14 @@ import time
 import socket
 import subprocess
 
+
 class Announcer:
     def __init__(self, host, port):
         self.timestamp = time.time()
         self.sock = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
         self.sock.bind(("::", 2080))
         self.target = (host, port)
-        self.message = 'unknown'
+        self.message = "unknown"
 
     def tick(self):
         if time.time() - self.timestamp > 1:
@@ -42,6 +43,6 @@ class Announcer:
             self.message = msg
 
             # disable hostapd integration for now
-            #subprocess.run(["hostapd_cli", "set", "ssid", "luftschleuse-" + msg])
-            #subprocess.run(["hostapd_cli", "disable"])
-            #subprocess.run(["hostapd_cli", "enable"])
+            # subprocess.run(["hostapd_cli", "set", "ssid", "luftschleuse-" + msg])
+            # subprocess.run(["hostapd_cli", "disable"])
+            # subprocess.run(["hostapd_cli", "enable"])

@@ -2,7 +2,7 @@
 #
 #    See https://github.com/muccc/luftschleuse2 for more information.
 #
-#    Copyright (C) 2013 Tobias Schneider <schneider@muc.ccc.de> 
+#    Copyright (C) 2013 Tobias Schneider <schneider@muc.ccc.de>
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ X = 98
 Y = 70
 F = 1
 
-image = Image.new("RGBA", (X*F,Y*F), (0,0,0))
+image = Image.new("RGBA", (X * F, Y * F), (0, 0, 0))
 draw = ImageDraw.Draw(image)
 
 usr_font = ImageFont.truetype("Arial.ttf", 8)
@@ -32,9 +32,7 @@ usr_font = ImageFont.truetype("Arial.ttf", 8)
 t = time.time()
 
 for i in range(100):
-    image.paste((0,0,0))
-    draw.text((0,0), "Hello World",'white', font=usr_font)
+    image.paste((0, 0, 0))
+    draw.text((0, 0), "Hello World", "white", font=usr_font)
 
-
-print time.time() - t
-
+print(time.time() - t)

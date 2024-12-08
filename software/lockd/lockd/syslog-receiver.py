@@ -3,7 +3,7 @@
 #
 #    See https://github.com/muccc/luftschleuse2 for more information.
 #
-#    Copyright (C) 2013 Tobias Schneider <schneider@muc.ccc.de> 
+#    Copyright (C) 2013 Tobias Schneider <schneider@muc.ccc.de>
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -25,17 +25,17 @@ import time
 host = "localhost"
 port = 23514
 buf = 1024
-addr = (host,port)
+addr = (host, port)
 
 while 1:
     try:
         # Create socket and bind to address
-        UDPSock = socket(AF_INET,SOCK_DGRAM)
+        UDPSock = socket(AF_INET, SOCK_DGRAM)
         UDPSock.bind(addr)
 
         # Receive messages
         while 1:
-            data,addr = UDPSock.recvfrom(buf)
+            data, addr = UDPSock.recvfrom(buf)
             if not data:
                 print("Client has exited!")
                 break

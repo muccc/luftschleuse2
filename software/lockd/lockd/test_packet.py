@@ -2,7 +2,7 @@
 #
 #    See https://github.com/muccc/luftschleuse2 for more information.
 #
-#    Copyright (C) 2013 Tobias Schneider <schneider@muc.ccc.de> 
+#    Copyright (C) 2013 Tobias Schneider <schneider@muc.ccc.de>
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -21,8 +21,8 @@ import unittest
 
 from . import packet
 
-class PacketTest(unittest.TestCase):
 
+class PacketTest(unittest.TestCase):
     def setUp(self):
         pass
 
@@ -34,8 +34,8 @@ class PacketTest(unittest.TestCase):
         self.assertIsInstance(packet.Packet(seq, cmd, data, seq_sync), packet.Packet)
 
     def test_encoding(self):
-        seq = 0xaa55
-        cmd = ord('S')
+        seq = 0xAA55
+        cmd = ord("S")
         data = b"abcde"
         seq_sync = False
         p = packet.Packet(seq, cmd, data, seq_sync)
@@ -47,25 +47,26 @@ class PacketTest(unittest.TestCase):
         message = b"\xaa\x55\x00\x00TabcdeSESAME"
         p = packet.Packet.fromMessage(message)
         self.assertIsInstance(p, packet.Packet)
-        self.assertEqual(p.seq, 0x55aa)
-        self.assertEqual(p.cmd, ord('T'))
-        self.assertEqual(p.data, b'abcde')
+        self.assertEqual(p.seq, 0x55AA)
+        self.assertEqual(p.cmd, ord("T"))
+        self.assertEqual(p.data, b"abcde")
         self.assertEqual(p.seq_sync, False)
 
     def test_decoding_encrypted(self):
         message = bytes.fromhex("01aebf56f797f8fca488a572386a8add")
-        p = packet.Packet.fromMessage(message,
-                key = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
- 
+        p = packet.Packet.fromMessage(
+            message, key=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        )
+
         self.assertIsInstance(p, packet.Packet)
-        self.assertEqual(p.seq, 0x55aa)
-        self.assertEqual(p.cmd, ord('T'))
-        self.assertEqual(p.data, b'abcde')
+        self.assertEqual(p.seq, 0x55AA)
+        self.assertEqual(p.cmd, ord("T"))
+        self.assertEqual(p.data, b"abcde")
         self.assertEqual(p.seq_sync, False)
 
     def test_encoding_sync(self):
-        seq = 0xaa55
-        cmd = ord('S')
+        seq = 0xAA55
+        cmd = ord("S")
         data = b"abcde"
         seq_sync = True
         p = packet.Packet(seq, cmd, data, seq_sync)
@@ -74,30 +75,29 @@ class PacketTest(unittest.TestCase):
         self.assertEqual(message, b"\x55\xaa\x00\x00SabcdeSYNCME")
 
     def test_encoding_sync_encrypted(self):
-        seq = 0xaa55
-        cmd = ord('S')
+        seq = 0xAA55
+        cmd = ord("S")
         data = b"abcde"
         seq_sync = True
         p = packet.Packet(seq, cmd, data, seq_sync)
 
-        message = p.toMessage(key = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])
-        self.assertEqual(message,
-                bytes.fromhex("ec7d816b5c120fb04ce7a4c4f579207d"))
+        message = p.toMessage(key=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+        self.assertEqual(message, bytes.fromhex("ec7d816b5c120fb04ce7a4c4f579207d"))
 
     def test_decoding_sync(self):
         message = b"\xaa\x55\x00\x00TabcdeSYNCME"
         p = packet.Packet.fromMessage(message)
         self.assertIsInstance(p, packet.Packet)
-        self.assertEqual(p.seq, 0x55aa)
-        self.assertEqual(p.cmd, ord('T'))
-        self.assertEqual(p.data, b'abcde')
+        self.assertEqual(p.seq, 0x55AA)
+        self.assertEqual(p.cmd, ord("T"))
+        self.assertEqual(p.data, b"abcde")
         self.assertEqual(p.seq_sync, True)
-    
+
     def test_bad_packet(self):
         message = b"\xaa\x55\x00\x00TabcdeSYNCMe"
         p = packet.Packet.fromMessage(message)
         self.assertIsNone(p)
 
- 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

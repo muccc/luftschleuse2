@@ -2,7 +2,7 @@
 #
 #    See https://github.com/muccc/luftschleuse2 for more information.
 #
-#    Copyright (C) 2013 Tobias Schneider <schneider@muc.ccc.de> 
+#    Copyright (C) 2013 Tobias Schneider <schneider@muc.ccc.de>
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -17,8 +17,8 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import os
+
 key = [ord(x) for x in os.urandom(16)]
 
-print ' '.join([str(x) for x in key])
-print ', '.join([str(x) for x in key])
-
+print(" ".join([str(x) for x in key]))
+print(", ".join([str(x) for x in key]))

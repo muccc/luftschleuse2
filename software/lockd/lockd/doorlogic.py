@@ -2,7 +2,7 @@
 #
 #    See https://github.com/muccc/luftschleuse2 for more information.
 #
-#    Copyright (C) 2013 Tobias Schneider <schneider@muc.ccc.de> 
+#    Copyright (C) 2013 Tobias Schneider <schneider@muc.ccc.de>
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -19,29 +19,30 @@
 import logging
 import time
 
-class DoorLogic():
+
+class DoorLogic:
     class Origin:
-        DOOR            =   1
-        NETWORK         =   2
-        CONTROL_PANNEL  =   3
-        INTERNAL        =   4
-    
+        DOOR = 1
+        NETWORK = 2
+        CONTROL_PANNEL = 3
+        INTERNAL = 4
+
     class Input:
-        BUTTON           =   1
-        COMMAND          =   2
-        SWITCH           =   3
-        SENSOR           =   4
+        BUTTON = 1
+        COMMAND = 2
+        SWITCH = 3
+        SENSOR = 4
 
     class State:
-        DOWN            =   1
-        CLOSED          =   2
-        MEMBER         =   3
-        OPEN            =   4
-        PUBLIC          =   5
-        UNKNOWN         =   6
+        DOWN = 1
+        CLOSED = 2
+        MEMBER = 3
+        OPEN = 4
+        PUBLIC = 5
+        UNKNOWN = 6
 
     def __init__(self):
-        self.logger = logging.getLogger('logger')
+        self.logger = logging.getLogger("logger")
         self.allow_public = True
         self.timers = []
         self.doors = {}
@@ -50,84 +51,93 @@ class DoorLogic():
         self.all_doors_locked = False
         self.all_doors_unlocked = False
 
-    '''
+    """
     Accepts an input from a device. Checks if the action is valid and allowed.
     Returns the command that should be executed by the system
-    '''
+    """
+
     def policy(self, origin_name, origin_type, input_name, input_type, input_value):
-        self.logger.debug('New DoorLogic input: %s, %d, %s, %d, %s'%(origin_name, origin_type, input_name, input_type, input_value))
+        self.logger.debug(
+            "New DoorLogic input: %s, %d, %s, %d, %s"
+            % (origin_name, origin_type, input_name, input_type, input_value)
+        )
 
         if origin_type == self.Origin.NETWORK:
             if input_type == self.Input.COMMAND:
-                if input_value == 'unlock':
+                if input_value == "unlock":
                     # TODO: change this to doors with the
                     # initial unlock property set to 'true'.
-                    self.temp_unlock('Back Door')
-                elif input_value == 'lock':
-                    self.lock('all')
+                    self.temp_unlock("Back Door")
+                elif input_value == "lock":
+                    self.lock("all")
                     self.set_state(self.State.DOWN)
-                elif input_value == 'unlockfront':
-                    self.temp_unlock('Front Door')
-                elif input_value == 'down':
-                    self.lock('all')
+                elif input_value == "unlockfront":
+                    self.temp_unlock("Front Door")
+                elif input_value == "down":
+                    self.lock("all")
                     self.set_state(self.State.DOWN)
-                elif input_value == 'closed':
-                    self.lock('all')
+                elif input_value == "closed":
+                    self.lock("all")
                     self.set_state(self.State.CLOSED)
-                elif input_value == 'member':
-                    self.lock('all')
+                elif input_value == "member":
+                    self.lock("all")
                     self.set_state(self.State.MEMBER)
-                elif input_value == 'public':
-                    self.unlock('Front Door')
+                elif input_value == "public":
+                    self.unlock("Front Door")
                     self.set_state(self.State.PUBLIC)
-                elif input_value == 'bell_code_front':
-                    if (self.state == self.State.MEMBER or self.state == self.State.PUBLIC) and \
-                            self.is_locked('Front Door'):
-                        self.temp_unlock('Front Door')
-                elif input_value == 'bell_code_back':
-                    if (self.state == self.State.MEMBER or self.state == self.State.PUBLIC) and \
-                            self.is_locked('Back Door'):
-                        self.temp_unlock('Back Door')
-
+                elif input_value == "bell_code_front":
+                    if (
+                        self.state == self.State.MEMBER
+                        or self.state == self.State.PUBLIC
+                    ) and self.is_locked("Front Door"):
+                        self.temp_unlock("Front Door")
+                elif input_value == "bell_code_back":
+                    if (
+                        self.state == self.State.MEMBER
+                        or self.state == self.State.PUBLIC
+                    ) and self.is_locked("Back Door"):
+                        self.temp_unlock("Back Door")
 
         if origin_type == self.Origin.DOOR:
             if input_type == self.Input.BUTTON and input_value == True:
-                if input_name == 'manual_control':
+                if input_name == "manual_control":
                     if self.state == self.State.PUBLIC:
-                        self.lock('all')
+                        self.lock("all")
                         self.set_state(self.State.MEMBER)
                     elif self.is_locked(origin_name):
                         self.unlock(origin_name)
                     else:
-                            self.lock(origin_name)
-                elif input_name == 'bell_code':
-                    if (self.state == self.State.MEMBER or self.state == self.State.PUBLIC) and \
-                            self.is_locked(origin_name):
+                        self.lock(origin_name)
+                elif input_name == "bell_code":
+                    if (
+                        self.state == self.State.MEMBER
+                        or self.state == self.State.PUBLIC
+                    ) and self.is_locked(origin_name):
                         self.temp_unlock(origin_name)
 
         if origin_type == self.Origin.CONTROL_PANNEL:
             if input_type == self.Input.BUTTON and input_value == True:
-                if input_name == 'down':
-                    self.lock('all')
+                if input_name == "down":
+                    self.lock("all")
                     self.set_state(self.State.DOWN)
-                elif input_name == 'closed':
-                    self.lock('all')
+                elif input_name == "closed":
+                    self.lock("all")
                     self.set_state(self.State.CLOSED)
-                elif input_name == 'member':
-                    self.lock('all')
+                elif input_name == "member":
+                    self.lock("all")
                     self.set_state(self.State.MEMBER)
-                elif input_name == 'public':
-                    self.unlock('Front Door')
+                elif input_name == "public":
+                    self.unlock("Front Door")
                     self.set_state(self.State.PUBLIC)
             elif input_type == self.Input.BUTTON and input_value == False:
-                if input_name == 'public':
+                if input_name == "public":
                     if self.state == self.State.PUBLIC:
-                        self.lock('all')
+                        self.lock("all")
                         self.set_state(self.State.MEMBER)
         if origin_type == self.Origin.INTERNAL:
             if input_type == self.Input.COMMAND:
-                if input_value == 'down':
-                    self.lock('all')
+                if input_value == "down":
+                    self.lock("all")
                     self.set_state(self.State.DOWN)
 
     def set_state(self, state):
@@ -138,7 +148,7 @@ class DoorLogic():
     def add_state_listener(self, listener):
         if listener not in self.state_listeners:
             self.state_listeners.append(listener)
-    
+
     def notify_state_listeners(self):
         for listener in self.state_listeners:
             listener(self)
@@ -150,8 +160,11 @@ class DoorLogic():
 
         all_doors_locked = all([d.is_locked() for d in self.doors.values()])
         all_doors_unlocked = all([not d.is_locked() for d in self.doors.values()])
-        
-        if self.all_doors_locked != all_doors_locked or self.all_doors_unlocked != all_doors_unlocked:
+
+        if (
+            self.all_doors_locked != all_doors_locked
+            or self.all_doors_unlocked != all_doors_unlocked
+        ):
             state_changed = True
 
         self.all_doors_locked = all_doors_locked
@@ -162,9 +175,9 @@ class DoorLogic():
 
     # Locks one or all doors in the system
     def lock(self, door_name):
-        if door_name == 'all':
+        if door_name == "all":
             for door in self.doors.values():
-                 door.lock()
+                door.lock()
         else:
             self.doors[door_name].lock()
 
@@ -177,64 +190,63 @@ class DoorLogic():
 
     # Unlocks one door without a time limit
     def unlock(self, door_name):
-        if door_name == 'all':
+        if door_name == "all":
             for door in self.doors.values():
-                 door.unlock()
+                door.unlock()
         else:
             self.doors[door_name].unlock()
 
     # returns true if a specific door is manually unlocked
     def is_manual_unlocked(self, door_name):
-        #if door_name in doors:
-        return self.doors[door_name].is_manual_unlocked();
-        #return False
-    
+        # if door_name in doors:
+        return self.doors[door_name].is_manual_unlocked()
+
+    # return False
+
     # returns true if a specific door is locked
     def is_locked(self, door_name):
-        #if door_name in doors:
-        return self.doors[door_name].is_locked();
-        #return False
-   
+        # if door_name in doors:
+        return self.doors[door_name].is_locked()
+
+    # return False
+
     def add_timer(self, timeout, function, arguments):
-        self.logger.debug('timer: new %s %s %s'%(timeout, function, arguments))
-        self.timers.append((time.time()+timeout, function, arguments))
+        self.logger.debug("timer: new %s %s %s" % (timeout, function, arguments))
+        self.timers.append((time.time() + timeout, function, arguments))
 
     def tick(self):
         the_time = time.time()
-        
+
         execution_list = [timer for timer in self.timers if timer[0] <= the_time]
         self.timers = [timer for timer in self.timers if timer[0] > the_time]
 
         for timer in execution_list:
-            self.logger.debug('timer: executing %s %s'%(timer[1], timer[2]))
+            self.logger.debug("timer: executing %s %s" % (timer[1], timer[2]))
             timer[1](*timer[2])
-                
+
     def add_door(self, door):
         self.doors[door.name] = door
         door.add_state_listener(self.door_state_update)
-    
+
     def get_state_as_string(self):
         if self.state == self.State.DOWN:
-            return 'down'
+            return "down"
         elif self.state == self.State.CLOSED:
-            return 'closed'
+            return "closed"
         elif self.state == self.State.MEMBER:
-            return 'member'
+            return "member"
         elif self.state == self.State.PUBLIC:
-            return 'public'
+            return "public"
         elif self.state == self.State.UNKNOWN:
-            return 'unknown'
-    
+            return "unknown"
+
     # Returns true if a door is in a state not in
     # sync with the global system state.
     def is_state_tainted(self):
-        if self.state == self.State.PUBLIC and \
-                not self.all_doors_unlocked:
+        if self.state == self.State.PUBLIC and not self.all_doors_unlocked:
             return True
-        
-        if self.state != self.State.PUBLIC and \
-                not self.all_doors_locked:
+
+        if self.state != self.State.PUBLIC and not self.all_doors_locked:
             return True
 
         return False
-        

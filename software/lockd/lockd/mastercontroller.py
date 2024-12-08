@@ -2,7 +2,7 @@
 #
 #    See https://github.com/muccc/luftschleuse2 for more information.
 #
-#    Copyright (C) 2013 Tobias Schneider <schneider@muc.ccc.de> 
+#    Copyright (C) 2013 Tobias Schneider <schneider@muc.ccc.de>
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -16,13 +16,14 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#import apptime as time
+# import apptime as time
 import time
 import logging
 import queue
 
 from .packet import Packet
 from .doorlogic import DoorLogic
+
 
 class MasterController:
     class LedState:
@@ -33,12 +34,12 @@ class MasterController:
         FLASH = 4
 
     def __init__(self, interface, input_queue, buttons, leds):
-        self.address = b'0'
+        self.address = b"0"
 
         self.interface = interface
 
         self.supply_voltage = 0
-        self.logger = logging.getLogger('logger')
+        self.logger = logging.getLogger("logger")
         self.pressed_buttons = 0
 
         self.buttons = buttons
@@ -57,52 +58,59 @@ class MasterController:
             self.logger.warning("The received message is not 16 bytes long")
             return
 
-        #self.logger.debug("Decoded message: %s"%str(list(message)))
+        # self.logger.debug("Decoded message: %s"%str(list(message)))
 
         p = Packet.fromMessage(message)
-        if p is not None and p.cmd == ord('S'):
-            self.supply_voltage = p.data[3]*0.1
+        if p is not None and p.cmd == ord("S"):
+            self.supply_voltage = p.data[3] * 0.1
 
             pressed_buttons = p.data[0]
-            self.logger.debug('master: pressed_buttons = %d', pressed_buttons)
+            self.logger.debug("master: pressed_buttons = %d", pressed_buttons)
             for pin in self.buttons:
                 if pressed_buttons & pin and not self.pressed_buttons & pin:
                     self.pressed_buttons |= pin
-                    self.input_queue.put({'origin_name': 'master',
-                                          'origin_type': DoorLogic.Origin.CONTROL_PANNEL,
-                                          'input_name': self.buttons[pin],
-                                          'input_type': DoorLogic.Input.BUTTON,
-                                          'input_value': True})
+                    self.input_queue.put(
+                        {
+                            "origin_name": "master",
+                            "origin_type": DoorLogic.Origin.CONTROL_PANNEL,
+                            "input_name": self.buttons[pin],
+                            "input_type": DoorLogic.Input.BUTTON,
+                            "input_value": True,
+                        }
+                    )
                 elif not pressed_buttons & pin and self.pressed_buttons & pin:
-                    self.input_queue.put({'origin_name': 'master',
-                                          'origin_type': DoorLogic.Origin.CONTROL_PANNEL,
-                                          'input_name': self.buttons[pin],
-                                          'input_type': DoorLogic.Input.BUTTON,
-                                          'input_value': False})
+                    self.input_queue.put(
+                        {
+                            "origin_name": "master",
+                            "origin_type": DoorLogic.Origin.CONTROL_PANNEL,
+                            "input_name": self.buttons[pin],
+                            "input_type": DoorLogic.Input.BUTTON,
+                            "input_value": False,
+                        }
+                    )
                     self.pressed_buttons &= ~pin
 
-            self.logger.info('Master state: %s'%self.get_state())
+            self.logger.info("Master state: %s" % self.get_state())
 
     def get_state(self):
-        state = ''
-        state = state + ' Voltage=%.1f V'%self.supply_voltage
+        state = ""
+        state = state + " Voltage=%.1f V" % self.supply_voltage
         state = state.strip()
         return state
 
     def tick(self):
-        #self.logger.debug('master: tick')
-        if time.time() - self.timestamp > .5:
-            self._send_command(ord('S'), b'')
+        # self.logger.debug('master: tick')
+        if time.time() - self.timestamp > 0.5:
+            self._send_command(ord("S"), b"")
             self.timestamp = time.time()
 
     def set_led(self, led_name, state):
         led = self.leds[led_name]
-        self._send_command(ord('L'), b'%c%c'%(led, state))
+        self._send_command(ord("L"), b"%c%c" % (led, state))
 
     def _send_command(self, command, data):
         p = Packet(seq=0, cmd=command, data=data, seq_sync=False)
         msg = p.toMessage()
 
-        self.logger.debug('Msg to mastercontroller: %s'%list(msg))
+        self.logger.debug("Msg to mastercontroller: %s" % list(msg))
         self.interface.writeMessage(self.priority, self.address, msg, self.tx_msg_queue)
-

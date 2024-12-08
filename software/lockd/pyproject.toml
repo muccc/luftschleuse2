@@ -12,6 +12,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "mock>=5.1.0",
+    "ruff>=0.8.2",
 ]
 
 [project.scripts]

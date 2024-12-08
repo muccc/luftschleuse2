@@ -2,7 +2,7 @@
 #
 #    See https://github.com/muccc/luftschleuse2 for more information.
 #
-#    Copyright (C) 2013 Tobias Schneider <schneider@muc.ccc.de> 
+#    Copyright (C) 2013 Tobias Schneider <schneider@muc.ccc.de>
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -31,18 +31,19 @@ from . import packet
 from . import door
 from .doorlogic import DoorLogic
 
+
 class MockLogger:
     def __init__(self):
         pass
 
     def debug(self, message):
-        print("Debug: %s"%message)
+        print("Debug: %s" % message)
 
     def info(self, message):
-        print("Info: %s"%message)
+        print("Info: %s" % message)
 
     def warning(self, message):
-        print("Warning: %s"%message)
+        print("Warning: %s" % message)
 
 
 class DoorTest(unittest.TestCase):
@@ -51,15 +52,17 @@ class DoorTest(unittest.TestCase):
         self.interface.writeMessage = mock.MagicMock()
         self.input_queue = queue.Queue()
         self.t0 = time.time()
-        self.door_name = 'Door1'
+        self.door_name = "Door1"
         self.persisted_min_rx_seq_leap = 2**15
         self.persisted_min_rx_seq = 128
-        self.key = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-        self.address = 'A'
+        self.key = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        self.address = "A"
 
-        (sequence_number_container_file, self.sequence_number_container_file_path) = tempfile.mkstemp()
+        (sequence_number_container_file, self.sequence_number_container_file_path) = (
+            tempfile.mkstemp()
+        )
 
-        with open(self.sequence_number_container_file_path, 'w') as f:
+        with open(self.sequence_number_container_file_path, "w") as f:
             f.write("[Door1]\r\nrx_sequence = %d\r\n" % self.persisted_min_rx_seq)
 
         config = configparser.RawConfigParser()
@@ -67,26 +70,36 @@ class DoorTest(unittest.TestCase):
         config.set("Door1", "rx_sequence_leap", self.persisted_min_rx_seq_leap)
         config.set("Door1", "inital_unlock", True)
         config.set("Door1", "address", self.address)
-        config.set("Door1", "sequence_number_container_file", self.sequence_number_container_file_path)
-        config.set("Door1", "key", ' '.join([str(x) for x in self.key]))
-        config.set("Door1", "timeout", '2')
+        config.set(
+            "Door1",
+            "sequence_number_container_file",
+            self.sequence_number_container_file_path,
+        )
+        config.set("Door1", "key", " ".join([str(x) for x in self.key]))
+        config.set("Door1", "timeout", "2")
 
-        self.buttons = {1: 'Button0', 2: 'Button1'}
+        self.buttons = {1: "Button0", 2: "Button1"}
 
-        self.packet_press   = packet.Packet(0, ord('S'), b'\x01\x00\x00\x00\x00', False)
-        self.packet_release = packet.Packet(0, ord('S'), b'\x00\x00\x00\x00\x00', False)
-        self.packet_unlocking = packet.Packet(0, ord('S'), b'\x00\x10\x00\x00\x00', False)
-        self.packet_manual_unlocked = packet.Packet(0, ord('S'), b'\x00\x40\x00\x00\x00', False)
-        self.packet_locked = packet.Packet(0, ord('S'), b'\x00\x02\x00\x00\x00', False)
-        self.packet_open_unlocked = packet.Packet(0, ord('S'), b'\x00\x00\x00\x00\x00', False)
+        self.packet_press = packet.Packet(0, ord("S"), b"\x01\x00\x00\x00\x00", False)
+        self.packet_release = packet.Packet(0, ord("S"), b"\x00\x00\x00\x00\x00", False)
+        self.packet_unlocking = packet.Packet(
+            0, ord("S"), b"\x00\x10\x00\x00\x00", False
+        )
+        self.packet_manual_unlocked = packet.Packet(
+            0, ord("S"), b"\x00\x40\x00\x00\x00", False
+        )
+        self.packet_locked = packet.Packet(0, ord("S"), b"\x00\x02\x00\x00\x00", False)
+        self.packet_open_unlocked = packet.Packet(
+            0, ord("S"), b"\x00\x00\x00\x00\x00", False
+        )
 
-
-        self.door = door.Door('Door1', config, self.interface, self.input_queue,
-                                self.buttons)
+        self.door = door.Door(
+            "Door1", config, self.interface, self.input_queue, self.buttons
+        )
         self.callback = mock.MagicMock()
         self.door.add_state_listener(self.callback)
 
-        #self.door.logger = MockLogger()
+        # self.door.logger = MockLogger()
 
     def tearDown(self):
         os.remove(self.sequence_number_container_file_path)
@@ -97,23 +110,28 @@ class DoorTest(unittest.TestCase):
     def do_accept(self, packet, seq):
         packet.seq = seq
         self.door.update(packet.toMessage(self.key))
-        return self.input_queue.get(block = False)
+        return self.input_queue.get(block=False)
 
     def do_accept_test(self, packet, seq):
         packet.seq = seq
         self.assertTrue(self.door.update(packet.toMessage(self.key)))
-        self.assertTrue(not self.input_queue.empty(), "Message with seq nr %d was not accepted" % seq)
-        return self.input_queue.get(block = False)
+        self.assertTrue(
+            not self.input_queue.empty(),
+            "Message with seq nr %d was not accepted" % seq,
+        )
+        return self.input_queue.get(block=False)
 
     def do_not_accept(self, packet, seq):
         packet.seq = seq
         self.door.update(packet.toMessage(self.key))
-    
+
     def do_not_accept_test(self, packet, seq):
         packet.seq = seq
         self.assertFalse(self.door.update(packet.toMessage(self.key)))
-        self.assertTrue(self.input_queue.empty(), "Message with seq nr %d was accepted" % seq)
- 
+        self.assertTrue(
+            self.input_queue.empty(), "Message with seq nr %d was accepted" % seq
+        )
+
     def test_rx_sequence_number_normal(self):
         self.do_accept_test(self.packet_press, self.persisted_min_rx_seq)
         self.do_accept_test(self.packet_release, self.persisted_min_rx_seq + 1)
@@ -132,7 +150,7 @@ class DoorTest(unittest.TestCase):
         self.do_accept_test(self.packet_release, self.persisted_min_rx_seq + 128)
         self.do_accept_test(self.packet_press, self.persisted_min_rx_seq + 2**15)
         self.do_accept_test(self.packet_release, self.persisted_min_rx_seq + 2**16)
-        self.do_accept_test(self.packet_press, self.persisted_min_rx_seq + 2**16+23)
+        self.do_accept_test(self.packet_press, self.persisted_min_rx_seq + 2**16 + 23)
 
     def test_same_packet_increases_seq_number(self):
         self.do_accept(self.packet_press, self.persisted_min_rx_seq + 50)
@@ -141,91 +159,117 @@ class DoorTest(unittest.TestCase):
 
     def test_button_press(self):
         input = self.do_accept(self.packet_press, self.persisted_min_rx_seq)
-        self.assertEqual(input, {
-            'origin_name': 'Door1',
-            'origin_type': DoorLogic.Origin.DOOR,
-            'input_name': 'Button0',
-            #'input_name': 'Button0',
-            'input_type': DoorLogic.Input.BUTTON,
-            'input_value': True})
+        self.assertEqual(
+            input,
+            {
+                "origin_name": "Door1",
+                "origin_type": DoorLogic.Origin.DOOR,
+                "input_name": "Button0",
+                #'input_name': 'Button0',
+                "input_type": DoorLogic.Input.BUTTON,
+                "input_value": True,
+            },
+        )
 
     def test_button_release(self):
         self.do_accept(self.packet_press, self.persisted_min_rx_seq)
         input = self.do_accept(self.packet_release, self.persisted_min_rx_seq + 1)
-        self.assertEqual(input, {
-            'origin_name': 'Door1',
-            'origin_type': DoorLogic.Origin.DOOR,
-            'input_name': 'Button0',
-            #'input_name': 'Button0',
-            'input_type': DoorLogic.Input.BUTTON,
-            'input_value': False})
-
+        self.assertEqual(
+            input,
+            {
+                "origin_name": "Door1",
+                "origin_type": DoorLogic.Origin.DOOR,
+                "input_name": "Button0",
+                #'input_name': 'Button0',
+                "input_type": DoorLogic.Input.BUTTON,
+                "input_value": False,
+            },
+        )
 
     def test_seq_sync_message_tx(self):
         self.do_accept(self.packet_press, self.persisted_min_rx_seq + 50)
         self.do_not_accept(self.packet_release, self.persisted_min_rx_seq + 30)
 
-        p = packet.Packet(self.persisted_min_rx_seq + 51, 0, b'\x00\x00\x00\x00\x00', True)
-        self.interface.writeMessage.assert_called_with(self.door.priority, b'A', p.toMessage(self.key), self.door.tx_msg_queue)
- 
-    @patch('time.time')
+        p = packet.Packet(
+            self.persisted_min_rx_seq + 51, 0, b"\x00\x00\x00\x00\x00", True
+        )
+        self.interface.writeMessage.assert_called_with(
+            self.door.priority, b"A", p.toMessage(self.key), self.door.tx_msg_queue
+        )
+
+    @patch("time.time")
     def test_seq_sync_message_rx(self, time_mock):
-        p = packet.Packet(123, 0, b'\x00\x00\x00\x00\x00', True)
+        p = packet.Packet(123, 0, b"\x00\x00\x00\x00\x00", True)
         self.door.update(p.toMessage(self.key))
         time_mock.return_value = self.t0 + 3
         self.door.tick()
-        query = packet.Packet(123, ord('D'), b'\x02\x00\x00\x00\x00', False)
-        self.interface.writeMessage.assert_called_once_with(self.door.priority, b'A', query.toMessage(self.key), self.door.tx_msg_queue)
-    
+        query = packet.Packet(123, ord("D"), b"\x02\x00\x00\x00\x00", False)
+        self.interface.writeMessage.assert_called_once_with(
+            self.door.priority, b"A", query.toMessage(self.key), self.door.tx_msg_queue
+        )
+
     def test_persist_sequence_number_normal(self):
         self.do_accept(self.packet_press, self.persisted_min_rx_seq)
         parser = configparser.RawConfigParser()
         parser.read(self.sequence_number_container_file_path)
-        min_rx_seq = int(parser.get(self.door_name, 'rx_sequence'))
-        self.assertEqual(min_rx_seq, self.persisted_min_rx_seq + self.persisted_min_rx_seq_leap)
+        min_rx_seq = int(parser.get(self.door_name, "rx_sequence"))
+        self.assertEqual(
+            min_rx_seq, self.persisted_min_rx_seq + self.persisted_min_rx_seq_leap
+        )
 
     def test_persist_sequence_number_small_leap(self):
         self.do_accept(self.packet_press, self.persisted_min_rx_seq + 50)
         parser = configparser.RawConfigParser()
         parser.read(self.sequence_number_container_file_path)
-        min_rx_seq = int(parser.get(self.door_name, 'rx_sequence'))
-        self.assertEqual(min_rx_seq, self.persisted_min_rx_seq + 50 + self.persisted_min_rx_seq_leap)
+        min_rx_seq = int(parser.get(self.door_name, "rx_sequence"))
+        self.assertEqual(
+            min_rx_seq, self.persisted_min_rx_seq + 50 + self.persisted_min_rx_seq_leap
+        )
 
     def test_persist_sequence_number_large_leap(self):
         self.do_accept(self.packet_press, self.persisted_min_rx_seq + 2**17)
         parser = configparser.RawConfigParser()
         parser.read(self.sequence_number_container_file_path)
-        min_rx_seq = int(parser.get(self.door_name, 'rx_sequence'))
-        self.assertEqual(min_rx_seq, self.persisted_min_rx_seq + 2**17 + self.persisted_min_rx_seq_leap)
+        min_rx_seq = int(parser.get(self.door_name, "rx_sequence"))
+        self.assertEqual(
+            min_rx_seq,
+            self.persisted_min_rx_seq + 2**17 + self.persisted_min_rx_seq_leap,
+        )
 
     def test_no_persist_sequence_number_normal(self):
         self.do_accept(self.packet_press, self.persisted_min_rx_seq)
         self.do_accept(self.packet_release, self.persisted_min_rx_seq + 1)
         parser = configparser.RawConfigParser()
         parser.read(self.sequence_number_container_file_path)
-        min_rx_seq = int(parser.get(self.door_name, 'rx_sequence'))
-        self.assertEqual(min_rx_seq, self.persisted_min_rx_seq + self.persisted_min_rx_seq_leap)
+        min_rx_seq = int(parser.get(self.door_name, "rx_sequence"))
+        self.assertEqual(
+            min_rx_seq, self.persisted_min_rx_seq + self.persisted_min_rx_seq_leap
+        )
 
     def test_no_persist_sequence_number_small_leap(self):
         self.do_accept(self.packet_press, self.persisted_min_rx_seq + 50)
         self.do_accept(self.packet_release, self.persisted_min_rx_seq + 50 + 1)
         parser = configparser.RawConfigParser()
         parser.read(self.sequence_number_container_file_path)
-        min_rx_seq = int(parser.get(self.door_name, 'rx_sequence'))
-        self.assertEqual(min_rx_seq, self.persisted_min_rx_seq + 50 + self.persisted_min_rx_seq_leap)
+        min_rx_seq = int(parser.get(self.door_name, "rx_sequence"))
+        self.assertEqual(
+            min_rx_seq, self.persisted_min_rx_seq + 50 + self.persisted_min_rx_seq_leap
+        )
 
     def test_no_persist_sequence_number_large_leap(self):
         self.do_accept(self.packet_press, self.persisted_min_rx_seq + 2**17)
         self.do_accept(self.packet_release, self.persisted_min_rx_seq + 2**17 + 1)
         parser = configparser.RawConfigParser()
         parser.read(self.sequence_number_container_file_path)
-        min_rx_seq = int(parser.get(self.door_name, 'rx_sequence'))
-        self.assertEqual(min_rx_seq, self.persisted_min_rx_seq + 2**17 + self.persisted_min_rx_seq_leap)
+        min_rx_seq = int(parser.get(self.door_name, "rx_sequence"))
+        self.assertEqual(
+            min_rx_seq,
+            self.persisted_min_rx_seq + 2**17 + self.persisted_min_rx_seq_leap,
+        )
 
-
-    @patch('time.time')
+    @patch("time.time")
     def test_tick(self, time_mock):
-        query = packet.Packet(0, ord('D'), b'\x02\x00\x00\x00\x00', False)
+        query = packet.Packet(0, ord("D"), b"\x02\x00\x00\x00\x00", False)
         time_mock.return_value = self.t0
         self.door.tick()
         time_mock.return_value = self.t0 + 0.3
@@ -233,25 +277,33 @@ class DoorTest(unittest.TestCase):
         self.interface.writeMessage.assert_not_called()
         time_mock.return_value = self.t0 + 1.6
         self.door.tick()
-        self.interface.writeMessage.assert_called_once_with(self.door.priority, b'A', query.toMessage(self.key), self.door.tx_msg_queue)
+        self.interface.writeMessage.assert_called_once_with(
+            self.door.priority, b"A", query.toMessage(self.key), self.door.tx_msg_queue
+        )
         time_mock.return_value = self.t0 + 1.8
         self.door.tick()
-        self.interface.writeMessage.assert_called_once_with(self.door.priority, b'A', query.toMessage(self.key), self.door.tx_msg_queue)
+        self.interface.writeMessage.assert_called_once_with(
+            self.door.priority, b"A", query.toMessage(self.key), self.door.tx_msg_queue
+        )
         time_mock.return_value = self.t0 + 2
         self.door.tick()
-        query = packet.Packet(1, ord('D'), b'\x02\x00\x00\x00\x00', False)
-        self.interface.writeMessage.assert_called_with(self.door.priority, b'A', query.toMessage(self.key), self.door.tx_msg_queue)
+        query = packet.Packet(1, ord("D"), b"\x02\x00\x00\x00\x00", False)
+        self.interface.writeMessage.assert_called_with(
+            self.door.priority, b"A", query.toMessage(self.key), self.door.tx_msg_queue
+        )
         self.assertEqual(self.interface.writeMessage.call_count, 2)
 
-    @patch('time.time')
+    @patch("time.time")
     def test_initial_door_state(self, time_mock):
         time_mock.return_value = self.t0 + 10
         self.door.tick()
         # 0x02 is LOCKED
-        query = packet.Packet(0, ord('D'), b'\x02\x00\x00\x00\x00', False)
-        self.interface.writeMessage.assert_called_with(self.door.priority, b'A', query.toMessage(self.key), self.door.tx_msg_queue)
+        query = packet.Packet(0, ord("D"), b"\x02\x00\x00\x00\x00", False)
+        self.interface.writeMessage.assert_called_with(
+            self.door.priority, b"A", query.toMessage(self.key), self.door.tx_msg_queue
+        )
 
-    @patch('time.time')
+    @patch("time.time")
     def test_unlock(self, time_mock):
         time_mock.return_value = self.t0
         self.door.unlock()
@@ -259,23 +311,27 @@ class DoorTest(unittest.TestCase):
         time_mock.return_value = self.t0 + 10
         self.door.tick()
         # 0x04 is UNLOCKED
-        query = packet.Packet(0, ord('D'), b'\x04\x00\x00\x00\x00', False)
-        self.interface.writeMessage.assert_called_with(self.door.priority, b'A', query.toMessage(self.key), self.door.tx_msg_queue)
- 
-    @patch('time.time')
+        query = packet.Packet(0, ord("D"), b"\x04\x00\x00\x00\x00", False)
+        self.interface.writeMessage.assert_called_with(
+            self.door.priority, b"A", query.toMessage(self.key), self.door.tx_msg_queue
+        )
+
+    @patch("time.time")
     def test_lock(self, time_mock):
         time_mock.return_value = self.t0
         self.door.unlock()
         time_mock.return_value = self.t0 + 10
         self.door.tick()
-       
+
         self.door.lock()
         time_mock.return_value = self.t0 + 20
         self.door.tick()
         # 0x02 is LOCKED
-        query = packet.Packet(1, ord('D'), b'\x02\x00\x00\x00\x00', False)
-        self.interface.writeMessage.assert_called_with(self.door.priority, b'A', query.toMessage(self.key), self.door.tx_msg_queue)
- 
+        query = packet.Packet(1, ord("D"), b"\x02\x00\x00\x00\x00", False)
+        self.interface.writeMessage.assert_called_with(
+            self.door.priority, b"A", query.toMessage(self.key), self.door.tx_msg_queue
+        )
+
     def test_status_callback(self):
         self.do_not_accept(self.packet_unlocking, self.persisted_min_rx_seq)
         self.callback.assert_called_with(self.door)
@@ -287,27 +343,27 @@ class DoorTest(unittest.TestCase):
     def test_status_update_manual_unlocked(self):
         self.do_not_accept(self.packet_manual_unlocked, self.persisted_min_rx_seq)
         self.assertTrue(self.door.is_manual_unlocked())
- 
+
     def test_status_update_open_unlocked(self):
         self.do_not_accept(self.packet_open_unlocked, self.persisted_min_rx_seq)
         self.assertTrue(not self.door.is_closed())
-  
-    @patch('time.time')
+
+    @patch("time.time")
     def test_no_timeout(self, time_mock):
         time_mock.return_value = self.t0
         self.do_accept(self.packet_press, self.persisted_min_rx_seq)
         self.callback.call_count = 0
         self.door.tick()
         self.callback.assert_called_once_with(self.door)
-        
+
         time_mock.return_value = self.t0 + 0.5
         self.do_accept(self.packet_release, self.persisted_min_rx_seq + 1)
         self.door.tick()
         time_mock.return_value = self.t0 + 1.5
         self.door.tick()
         self.assertFalse(self.door.is_timedout())
-        
-    @patch('time.time')
+
+    @patch("time.time")
     def test_timeout(self, time_mock):
         time_mock.return_value = self.t0
         self.do_accept(self.packet_press, self.persisted_min_rx_seq)
@@ -324,7 +380,7 @@ class DoorTest(unittest.TestCase):
 
         self.callback.assert_called_once_with(self.door)
 
-    @patch('time.time')
+    @patch("time.time")
     def test_badkey(self, time_mock):
         time_mock.return_value = self.t0
         self.packet_press.seq = self.persisted_min_rx_seq
@@ -332,17 +388,17 @@ class DoorTest(unittest.TestCase):
         self.door.tick()
         self.assertFalse(self.door.is_bad_key())
         self.callback.call_count = 0
-        
+
         time_mock.return_value = self.t0 + 0.5
-        self.packet_release.seq = self.persisted_min_rx_seq+1
+        self.packet_release.seq = self.persisted_min_rx_seq + 1
         self.key[0] += 1
-        self.door.update(self.packet_release.toMessage(self.key)) 
+        self.door.update(self.packet_release.toMessage(self.key))
         self.door.tick()
         self.assertTrue(self.door.is_bad_key())
 
         self.callback.assert_called_once_with(self.door)
 
-    @patch('time.time')
+    @patch("time.time")
     def test_wrong_rx_seq(self, time_mock):
         time_mock.return_value = self.t0
         self.packet_press.seq = self.persisted_min_rx_seq
@@ -353,11 +409,12 @@ class DoorTest(unittest.TestCase):
 
         time_mock.return_value = self.t0 + 0.5
         self.packet_release.seq = self.persisted_min_rx_seq
-        self.door.update(self.packet_release.toMessage(self.key)) 
+        self.door.update(self.packet_release.toMessage(self.key))
         self.door.tick()
         self.assertTrue(self.door.is_wrong_rx_seq())
 
         self.callback.assert_called_once_with(self.door)
+
 
 class DoorTestWithoutRXContainer(unittest.TestCase):
     def setUp(self):
@@ -365,56 +422,68 @@ class DoorTestWithoutRXContainer(unittest.TestCase):
         self.interface.writeMessage = mock.MagicMock()
         self.input_queue = queue.Queue()
         self.t0 = time.time()
-        self.door_name = 'Door1'
+        self.door_name = "Door1"
         self.persisted_min_rx_seq_leap = 2**15
         self.persisted_min_rx_seq = 128
-        self.key = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-        self.address = 'A'
+        self.key = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        self.address = "A"
 
-        (sequence_number_container_file, self.sequence_number_container_file_path) = tempfile.mkstemp()
+        (sequence_number_container_file, self.sequence_number_container_file_path) = (
+            tempfile.mkstemp()
+        )
 
         config = configparser.RawConfigParser()
         config.add_section(self.door_name)
         config.set("Door1", "rx_sequence_leap", self.persisted_min_rx_seq_leap)
         config.set("Door1", "inital_unlock", True)
         config.set("Door1", "address", self.address)
-        config.set("Door1", "sequence_number_container_file", self.sequence_number_container_file_path)
-        config.set("Door1", "key", ' '.join([str(x) for x in self.key]))
-        config.set("Door1", "timeout", '2')
+        config.set(
+            "Door1",
+            "sequence_number_container_file",
+            self.sequence_number_container_file_path,
+        )
+        config.set("Door1", "key", " ".join([str(x) for x in self.key]))
+        config.set("Door1", "timeout", "2")
 
-        self.buttons = {1: 'Button0', 2: 'Button1'}
+        self.buttons = {1: "Button0", 2: "Button1"}
 
-        self.packet_press   = packet.Packet(0, ord('S'), b'\x01\x00\x00\x00\x00', False)
-        self.packet_release = packet.Packet(0, ord('S'), b'\x00\x00\x00\x00\x00', False)
-        self.packet_unlocking = packet.Packet(0, ord('S'), b'\x00\x10\x00\x00\x00', False)
-        self.packet_manual_unlocked = packet.Packet(0, ord('S'), b'\x00\x40\x00\x00\x00', False)
-        self.packet_locked = packet.Packet(0, ord('S'), b'\x00\x02\x00\x00\x00', False)
-        self.packet_open_unlocked = packet.Packet(0, ord('S'), b'\x00\x00\x00\x00\x00', False)
+        self.packet_press = packet.Packet(0, ord("S"), b"\x01\x00\x00\x00\x00", False)
+        self.packet_release = packet.Packet(0, ord("S"), b"\x00\x00\x00\x00\x00", False)
+        self.packet_unlocking = packet.Packet(
+            0, ord("S"), b"\x00\x10\x00\x00\x00", False
+        )
+        self.packet_manual_unlocked = packet.Packet(
+            0, ord("S"), b"\x00\x40\x00\x00\x00", False
+        )
+        self.packet_locked = packet.Packet(0, ord("S"), b"\x00\x02\x00\x00\x00", False)
+        self.packet_open_unlocked = packet.Packet(
+            0, ord("S"), b"\x00\x00\x00\x00\x00", False
+        )
 
-
-        self.door = door.Door('Door1', config, self.interface, self.input_queue,
-                                self.buttons)
+        self.door = door.Door(
+            "Door1", config, self.interface, self.input_queue, self.buttons
+        )
         self.callback = mock.MagicMock()
         self.door.add_state_listener(self.callback)
 
-        #self.door.logger = MockLogger()
+        # self.door.logger = MockLogger()
+
     def tearDown(self):
         os.remove(self.sequence_number_container_file_path)
 
     def do_accept(self, packet, seq):
         packet.seq = seq
         self.door.update(packet.toMessage(self.key))
-        return self.input_queue.get(block = False)
-
+        return self.input_queue.get(block=False)
 
     def test_initial_persisted_rx_seq(self):
         self.do_accept(self.packet_press, 0)
 
         parser = configparser.RawConfigParser()
         parser.read(self.sequence_number_container_file_path)
-        min_rx_seq = int(parser.get(self.door_name, 'rx_sequence'))
+        min_rx_seq = int(parser.get(self.door_name, "rx_sequence"))
         self.assertEqual(min_rx_seq, self.persisted_min_rx_seq_leap)
-        
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()
